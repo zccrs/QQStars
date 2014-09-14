@@ -38,12 +38,24 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
         {
             if( document.isObject () ){
                 QJsonObject obj = document.object ();
-                if( obj.value ("retcode").isDouble () ){
-                    int retcode = obj.value ("retcode").toInt ();
+                if( obj["retcode"].isDouble () ){
+                    int retcode = obj["retcode"].toInt ();
                     if( retcode==0 ){
+                        QJsonArray arr = obj["result"].toArray ();
+                        foreach (QJsonValue temp, arr) {
+                            obj = temp.toObject ();
+                            QString poll_type=obj["poll_type"].toString ();
+                            obj = obj["value"].toObject ();
+                            if( poll_type=="message" ){
+                                analysisMessage (obj);
+                            }else if( poll_type=="input_notify" ){
+                                analysisInputNotify (obj);
+                            }else if( poll_type=="buddies_status_change" ){
+                                analysisFriendStatusChanged(obj);
+                            }
+                        }
                         beginPoll2();
                     }else if(retcode==102){
-                        qDebug()<<array;
                         beginPoll2();
                     }
                 }
@@ -91,6 +103,80 @@ void QQCommand::setUserStatus(QQCommand::QQStatus new_status)
         }
         emit userStatusChanged ();
     }
+}
+
+QMap<QString, QString> QQCommand::analysisBasicData(QJsonObject obj)
+{
+    QString from_uin = QString::number ((quint64)obj["from_uin"].toDouble ());
+    QString msg_id = QString::number (obj["msg_id"].toInt ());
+    QString msg_id2 = QString::number (obj["msg_id2"].toInt ());
+    QString msg_type = QString::number (obj["msg_type"].toInt ());
+    QString reply_ip = QString::number ((quint64)obj["reply_ip"].toDouble ());
+    QString to_uin = QString::number ((quint64)obj["to_uin"].toDouble ());
+    Utility *utility = Utility::createUtilityClass ();
+    qDebug()<<"\n消息发送者的uin是："+from_uin;
+    qDebug()<<"消息id1是："+msg_id;
+    qDebug()<<"消息id2是："+msg_id2;
+    qDebug()<<"消息类型是："+msg_type;
+    qDebug()<<"回复的ip地址是："+reply_ip;
+    qDebug()<<"接收方的uin是："+to_uin;
+    qDebug()<<"来自"+utility->getValue (from_uin+"nick", from_uin).toString ()+"的消息";
+    
+    QMap<QString, QString> map;
+    map.insert ("from_uin", from_uin);
+    map.insert ("msg_id", msg_id);
+    map.insert ("msg_id2", msg_id2);
+    map.insert ("msg_type", msg_type);
+    map.insert ("reply_ip", reply_ip);
+    map.insert ("to_uin", to_uin);
+    return map;
+}
+
+void QQCommand::analysisMessage(QJsonObject obj)
+{
+    analysisBasicData (obj);
+    qDebug()<<"是聊天消息";
+    QJsonArray content = obj["content"].toArray ();
+    foreach (QJsonValue temp2, content) {
+        if(temp2.isArray ()){
+            QJsonArray font = temp2.toArray ();
+            foreach (QJsonValue temp3, font) {
+                if(temp3.isObject ()){
+                    obj = temp3.toObject ();
+                    QString size = QString::number (obj["size"].toInt ());
+                    QString color = obj["color"].toString ();
+                    QJsonArray style = obj["style"].toArray ();
+                    bool bold = (bool)style[0].toInt ();//加黑
+                    bool italic = (bool)style[1].toInt ();//斜体
+                    bool underline = (bool)style[2].toInt ();//下划线
+                    
+                    QString name = obj["name"].toString ();
+                    
+                    qDebug()<<"所使用字体是："+name;
+                    qDebug()<<"字体大小是："+size;
+                    qDebug()<<"字体颜色是："+color;
+                    qDebug()<<"黑体："<<bold;
+                    qDebug()<<"斜体："<<italic;
+                    qDebug()<<"下划线："<<underline;
+                }
+            }
+        }else if(temp2.isString ()){
+            qDebug()<<"消息内容是："+temp2.toString ();
+        }
+    }
+}
+
+void QQCommand::analysisInputNotify(QJsonObject obj)
+{
+    QMap<QString, QString> map = analysisBasicData (obj);
+    qDebug()<<"是输入状态的消息";
+    Utility *utility = Utility::createUtilityClass ();
+    qDebug()<<utility->getValue (map["from_uin"]+"nick", map["from_uin"]).toString ()+"正在输入";
+}
+
+void QQCommand::analysisFriendStatusChanged(QJsonObject obj)
+{
+    
 }
 
 void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)

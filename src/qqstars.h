@@ -75,6 +75,10 @@ private:
     
     QString m_userPassword;
 
+    QMap<QString, QString> analysisBasicData( QJsonObject obj );
+    void analysisMessage( QJsonObject obj );
+    void analysisInputNotify( QJsonObject obj );
+    void analysisFriendStatusChanged( QJsonObject obj );
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
