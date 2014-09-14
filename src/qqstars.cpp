@@ -1,4 +1,4 @@
-#include "qq.h"
+#include "qqstars.h"
 #include "utility.h"
 #include <QJsonDocument>
 #include <QSettings>

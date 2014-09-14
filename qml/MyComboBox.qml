@@ -21,8 +21,7 @@ Item{
     
     BorderImage {
         id: background
-        width: parent.width
-        height: mytext.implicitHeight+10
+        anchors.fill: parent
         source: "qrc:/images/background_input.png"
         border.left: 5; border.top: 5
         border.right: 5; border.bottom: 5
@@ -32,6 +31,7 @@ Item{
             anchors.left: parent.left
             anchors.leftMargin: 5
             text: model.get(0).text
+            font.pointSize: root.height-10
         }
         SvgView {
             source: "qrc:/images/inputBox-more.svg"

@@ -82,6 +82,7 @@ MyWindow{
             anchors.topMargin: 5
             width: code_image.width
             height: 20
+            font.pointSize: text_code.font.pointSize
             style: TextFieldStyle {
                     textColor: "black"
                     background: BorderImage {

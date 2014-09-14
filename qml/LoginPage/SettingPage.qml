@@ -47,11 +47,12 @@ BorderImage{
         
         Text {
             id: proxy_location_text
-            text: "代理地址:"
+            text: "地址:"
             anchors.left: parent.left
-            anchors.leftMargin: 20
+            anchors.leftMargin: root.width/2-width-proxy_location_input.width-5
             anchors.top: image_quit_icon.bottom
             anchors.topMargin: 40
+            font.pointSize: root.height/25
         }
         TextField{
             id: proxy_location_input
@@ -59,6 +60,7 @@ BorderImage{
             anchors.verticalCenter: proxy_location_text.verticalCenter
             height: 20
             width:proxy_combo.width
+            font.pointSize:proxy_location_text.font.pointSize
             text: utility.getValue("proxyLocation", "")
             onTextChanged: {
                 utility.setValue("proxyLocation", text)
@@ -80,13 +82,15 @@ BorderImage{
             anchors.verticalCenter: proxy_location_input.verticalCenter
             anchors.left: proxy_location_input.right
             anchors.leftMargin: 10
+            font.pointSize: root.height/25
         }
         TextField{
             id: proxy_port_input
             anchors.verticalCenter: proxy_port_text.verticalCenter
             anchors.left: proxy_port_text.right
             height: 20
-            width: 60
+            width: proxy_combo.width
+            font.pointSize: proxy_port_text.font.pointSize
             text: utility.getValue("proxyPort", "")
             onTextChanged: {
                 utility.setValue("proxyPort", text)
@@ -102,10 +106,11 @@ BorderImage{
         }
         Text {
             id: proxy_username_text
-            text: "用 户 名:"
+            text: "账户:"
             anchors.left: proxy_location_text.left
             anchors.top: proxy_port_input.bottom
             anchors.topMargin: 20
+            font.pointSize: root.height/25
         }
         TextField{
             id: proxy_username_input
@@ -113,6 +118,7 @@ BorderImage{
             anchors.verticalCenter: proxy_username_text.verticalCenter
             height: 20
             width:proxy_combo.width
+            font.pointSize: proxy_username_text.font.pointSize
             text: utility.getValue("proxyUsername", "")
             onTextChanged: {
                 utility.setValue("proxyUsername", text)
@@ -133,13 +139,15 @@ BorderImage{
             anchors.verticalCenter: proxy_username_input.verticalCenter
             anchors.left: proxy_username_input.right
             anchors.leftMargin: 10
+            font.pointSize: root.height/25
         }
         TextField{
             id: proxy_password_input
             anchors.verticalCenter: proxy_password_text.verticalCenter
             anchors.left: proxy_password_text.right
             height: 20
-            width: 60
+            width: proxy_combo.width
+            font.pointSize: proxy_password_text.font.pointSize
             text: utility.getValue("proxyPassword", "")
             onTextChanged: {
                 utility.setValue("proxyPassword", text)
@@ -155,10 +163,11 @@ BorderImage{
         }
         Text {
             id: proxy_type_text
-            text: "类    型:"
+            text: "类型:"
             anchors.left: proxy_location_text.left
             anchors.top: proxy_password_input.bottom
             anchors.topMargin: 20
+            font.pointSize: root.height/25
         }
         
         MyComboBox{

@@ -8,7 +8,7 @@
 #include "utility.h"
 #include "mywindow.h"
 #include "mywebsocket.h"
-#include "qq.h"
+#include "qqstars.h"
 #include "myimage.h"
 #include "threaddownloadimage.h"
 #include "mysvgview.h"

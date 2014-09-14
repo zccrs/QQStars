@@ -11,7 +11,7 @@ SOURCES += main.cpp \
     src/utility.cpp \
     src/mywindow.cpp \
     src/mywebsocket.cpp \
-    src/qq.cpp \
+    src/qqstars.cpp \
     src/systemtrayicon.cpp \
     src/threaddownloadimage.cpp \
     src/mysvgview.cpp \ 
@@ -37,7 +37,7 @@ HEADERS += \
     src/utility.h \
     src/mywindow.h \
     src/mywebsocket.h \
-    src/qq.h \
+    src/qqstars.h \
     src/systemtrayicon.h \
     src/threaddownloadimage.h \
     src/mysvgview.h \ 

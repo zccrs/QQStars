@@ -51,6 +51,7 @@ Window{
                     anchors.leftMargin: 5
                     text: model.text
                     color: mymouse.hovered?"white":"black"
+                    font.pointSize: parent.height-10
                 }
                 MouseArea{
                     id: mymouse
