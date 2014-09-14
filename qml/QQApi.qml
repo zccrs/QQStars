@@ -179,7 +179,7 @@ QQ{
     }
     
     function getAvatarFinished( path, name ){//获得自己头像完成
-        utility.setValue(myqq.userQQ+name, path+name)//保存自己头像的地址
+        utility.setValue(myqq.userQQ+name, path+"/"+name+".png")//保存自己头像的地址
     }
     
     function getFriendInfo( tuin,backFun ) {//获取好友资料

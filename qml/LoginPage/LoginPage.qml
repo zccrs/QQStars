@@ -36,7 +36,7 @@ BorderImage{
             id:avatar_image
             maskSource: "qrc:/images/bit.bmp"
             width: 8/45*main.width
-            source: utility.getValue(myqq.userQQ+"avatar100", "qrc:/images/avatar.png")
+            source: utility.getValue(myqq.userQQ+"avatar-100", "qrc:/images/avatar.png")
             x:-30/77*width
             anchors.verticalCenter: inputarea.verticalCenter
             

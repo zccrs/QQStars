@@ -43,6 +43,7 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                     if( retcode==0 ){
                         beginPoll2();
                     }else if(retcode==102){
+                        qDebug()<<array;
                         beginPoll2();
                     }
                 }

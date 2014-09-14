@@ -4,7 +4,6 @@ import QtQuick.Window 2.0
 Window{
     id: rootwindow
     flags: Qt.SplashScreen
-    visible: true
     color: "transparent"
     property bool isCanClose: false
     property ListModel mymodel
@@ -12,7 +11,7 @@ Window{
     
     onFocusObjectChanged: {
         if( isCanClose ){
-            root.pressed = false
+            root.isComboBoxCloseing=true
             close()
         } else
             isCanClose = true

@@ -112,6 +112,7 @@ void Utility::setApplicationProxy(int type, QString location, QString port, QStr
     proxy.setUser (username);
     proxy.setPassword (password);
     QNetworkProxy::setApplicationProxy(proxy);
+    //qDebug()<<QNetworkProxy::applicationProxy ().type ();
 }
 
 

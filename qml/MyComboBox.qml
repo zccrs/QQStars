@@ -17,7 +17,13 @@ Item{
     property alias currentText: mytext.text
     property bool hovered: false
     property bool pressed: false
-    
+    property bool isComboBoxCloseing: false
+    onIsComboBoxCloseingChanged: {
+        if(isComboBoxCloseing&&!root.hovered){
+            pressed = false
+            isComboBoxCloseing = false
+        }
+    }
     
     BorderImage {
         id: background
@@ -41,17 +47,21 @@ Item{
             anchors.verticalCenter: parent.verticalCenter
         }
         MouseArea{
+            id: mymouse
             anchors.fill: parent
             hoverEnabled: true
             onEntered: root.hovered=true
             onExited: root.hovered=false
+
             onClicked: {
                 root.pressed=!root.pressed
-                if( root.pressed ){
+                if(isComboBoxCloseing){
+                    isComboBoxCloseing = false
+                }else if( root.pressed ){
                     var component = Qt.createComponent("MyComboBoxComponent.qml");
                     if (component.status == Component.Ready){
                         var temp = utility.mouseDesktopPos();
-                        var data = {"root":root, "mymodel":model, "x":temp.x-mouse.x, "y":temp.y+root.height-mouse.y+5, "width": root.width, "height": root.height*model.count}
+                        var data = {"root":root, "mymodel":model, "x":temp.x-mouse.x, "y":temp.y+root.height-mouse.y+5, "width": root.width, "height": root.height*model.count, "visible":true}
                         mycomboboxcomponent = component.createObject(root, data);
                     }
                 }
