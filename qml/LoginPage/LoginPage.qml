@@ -203,7 +203,7 @@ BorderImage{
             anchors.topMargin: root.height/10
             LoginCheckBox{
                 id: checkbox_rememberpassword
-                checked: utility.getValue("rememberpassword", false)=="true"
+                checked: utility.getValue(myqq.userQQ+"rememberpassword", 0)==1
                 anchors.left: inputarea.left
                 anchors.top: inputarea.bottom
                 anchors.topMargin: root.height/12
@@ -218,7 +218,7 @@ BorderImage{
             
             LoginCheckBox{
                 id:checkbox_autologin
-                checked: utility.getValue("autologin", false)=="true"
+                checked: utility.getValue(myqq.userQQ+"autologin", 0)==1
                 anchors.right: inputarea.right
                 anchors.rightMargin: 10
                 anchors.top: inputarea.bottom
@@ -234,8 +234,6 @@ BorderImage{
             target: myqq
             onUserQQChanged:{
                 myqq.userStatus = Number(utility.getValue(myqq.userQQ+"status", QQ.Online))//设置用户的登录状态
-                checkbox_rememberpassword.checked = utility.getValue(myqq.userQQ+"rememberpassword", false) == "true"
-                checkbox_autologin.checked = utility.getValue(myqq.userQQ+"autologin", false) == "true"
             }
         }
         Item{
@@ -294,8 +292,9 @@ BorderImage{
                 if( myqq.loginStatus == QQ.Offline ){
                     if( myqq.userQQ!=""&&myqq.userPassword!="" ){
                         myqq.loginStatus = QQ.Logining
-                        utility.setValue(myqq.userQQ+"autologin", checkbox_autologin.checked)
-                        utility.setValue(myqq.userQQ+"rememberpassword", checkbox_rememberpassword.checked)
+                        utility.setValue(myqq.userQQ+"autologin", Number(checkbox_autologin.checked))
+                        utility.setValue(myqq.userQQ+"rememberpassword", Number(checkbox_rememberpassword.checked))
+                        
                         utility.setValue(myqq.userQQ+"status", myqq.userStatus)//设置下次登录的状态
                         utility.setValue("mainqq", myqq.userQQ)//设置当前活动qq为myqq.userQQ
                     }
@@ -320,7 +319,7 @@ BorderImage{
         }
 
         Component.onCompleted: {
-            if( utility.getValue(myqq.userQQ+"autologin", false)=="true" )//此账号如果设置了自动登录
+            if( utility.getValue(myqq.userQQ+"autologin", 0)==1 )//此账号如果设置了自动登录
                 myqq.loginStatus = QQ.Logining
             forceActiveFocus()
         }

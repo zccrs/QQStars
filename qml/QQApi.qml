@@ -134,7 +134,10 @@ QQ{
         if(allqq.indexOf(myqq.userQQ)<0){
             utility.setValue("qq", allqq+","+myqq.userQQ)
         }
-        if( utility.getValue(myqq.userQQ+"rememberpassword", false)=="true" ){
+        var temp = utility.getValue(myqq.userQQ+"rememberpassword", 0)==1
+        console.log("记住密码："+temp)
+        if( temp ){
+            console.log("密码是："+myqq.userPassword)
             utility.setValue(myqq.userQQ+"password", myqq.userPassword)
         }
         
