@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_extend "http://ns.adobe.com/Extensibility/1.0/">
+	<!ENTITY ns_ai "http://ns.adobe.com/AdobeIllustrator/10.0/">
+	<!ENTITY ns_graphs "http://ns.adobe.com/Graphs/1.0/">
+	<!ENTITY ns_vars "http://ns.adobe.com/Variables/1.0/">
+	<!ENTITY ns_imrep "http://ns.adobe.com/ImageReplacement/1.0/">
+	<!ENTITY ns_sfw "http://ns.adobe.com/SaveForWeb/1.0/">
+	<!ENTITY ns_custom "http://ns.adobe.com/GenericCustomNamespace/1.0/">
+	<!ENTITY ns_adobe_xpath "http://ns.adobe.com/XPath/1.0/">
+]>
+<svg version="1.1" id="图层_1" xmlns:x="&ns_extend;" xmlns:i="&ns_ai;" xmlns:graph="&ns_graphs;"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="220px" height="64px"
+	 viewBox="0 0 220 64" enable-background="new 0 0 220 64" xml:space="preserve">
+<metadata>
+	<sfw  xmlns="&ns_sfw;">
+		<slices></slices>
+		<sliceSourceBounds  width="220" height="64" y="-64" x="0" bottomLeftOrigin="true"></sliceSourceBounds>
+	</sfw>
+</metadata>
+<g>
+	<path opacity="0.01" d="M210,2H10c-4.486,0-8,3.514-8,8v46c0,4.486,3.514,8,8,8h200c4.486,0,8-3.514,8-8V10
+		C218,5.514,214.486,2,210,2z M215,31v2v22c0,2.8-2.2,5-5,5h-58.7H10c-2.8,0-5-2.2-5-5V33v-2V9c0-2.8,2.2-5,5-5h141.3H210
+		c2.8,0,5,2.2,5,5V31z"/>
+	<path opacity="0.03" d="M210,3H10c-3.925,0-7,3.075-7,7v46c0,3.925,3.075,7,7,7h200c3.925,0,7-3.075,7-7V10
+		C217,6.075,213.925,3,210,3z M215,31v2v22c0,2.8-2.2,5-5,5h-58.7H10c-2.8,0-5-2.2-5-5V33v-2V9c0-2.8,2.2-5,5-5h141.3H210
+		c2.8,0,5,2.2,5,5V31z"/>
+	<path opacity="0.05" d="M210,4c2.8,0,5,2.2,5,5v22v2v22c0,2.8-2.2,5-5,5h-58.7H10c-2.8,0-5-2.2-5-5V33v-2V9c0-2.8,2.2-5,5-5
+		c-3.364,0-6,2.636-6,6v46c0,3.364,2.636,6,6,6h200c3.364,0,6-2.636,6-6V10C216,6.636,213.364,4,210,4z"/>
+	<path opacity="0.1" d="M210,60h-58.7H10c-2.8,0-5-2.2-5-5v1c0,2.8,2.2,5,5,5h141.3H210c2.8,0,5-2.2,5-5v-1
+		C215,57.8,212.8,60,210,60z"/>
+</g>
+<path opacity="0.4" fill="#FFFFFF" enable-background="new    " d="M210,6h-58.7H10C8.3,6,7,7.3,7,9v46c0,1.7,1.3,3,3,3h141.3H210
+	c1.7,0,3-1.3,3-3V9C213,7.3,211.7,6,210,6z"/>
+<path fill="#FFFFFF" d="M210,4h-58.7H10C7.2,4,5,6.2,5,9v22v2v22c0,2.8,2.2,5,5,5h141.3H210c2.8,0,5-2.2,5-5V33v-2V9
+	C215,6.2,212.8,4,210,4z M213,55c0,1.7-1.3,3-3,3h-58.7H10c-1.7,0-3-1.3-3-3V33h144.3H213V55z M213,31h-61.7H7V9c0-1.7,1.3-3,3-3
+	h141.3H210c1.7,0,3,1.3,3,3V31z"/>
+<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="110" y1="58" x2="110" y2="33">
+	<stop  offset="0.5" style="stop-color:#000000;stop-opacity:0.1"/>
+	<stop  offset="0.9312" style="stop-color:#000000;stop-opacity:0.3156"/>
+	<stop  offset="1" style="stop-color:#000000;stop-opacity:0.35"/>
+</linearGradient>
+<path opacity="0.08" fill="url(#SVGID_1_)" d="M213,55c0,1.7-1.3,3-3,3h-58.7H10c-1.7,0-3-1.3-3-3V33h144.3H213V55z"/>
+<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="110" y1="31" x2="110" y2="6">
+	<stop  offset="0.5" style="stop-color:#000000;stop-opacity:0.2"/>
+	<stop  offset="0.9312" style="stop-color:#000000;stop-opacity:0.3725"/>
+	<stop  offset="1" style="stop-color:#000000;stop-opacity:0.4"/>
+</linearGradient>
+<path opacity="0.08" fill="url(#SVGID_2_)" d="M213,31h-61.7H7V9c0-1.7,1.3-3,3-3h141.3H210c1.7,0,3,1.3,3,3V31z"/>
+<rect fill="none" width="220" height="64"/>
+</svg>

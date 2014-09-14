@@ -1,0 +1,21 @@
+    QMenu::item:selected {
+         background: #F07000;
+         color:#E6FFFF;
+         height:25px;
+     }
+     QMenu{
+        background-image: url(":/images/menu_background.png");
+     }
+     QMenu::item{
+        padding-left:35px;
+        padding-right:30px;
+        height:22px;
+     }
+     QMenu::icon{
+        padding-left:8px;
+     }
+     QMenu::separator {
+          height: 1px;
+          margin:5px 0px 5px 22px;
+          background: #B2C0CD;
+     }
