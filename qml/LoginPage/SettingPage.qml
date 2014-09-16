@@ -6,6 +6,7 @@ import mywindow 1.0
 import "../"
 
 BorderImage{
+    id: rootwindow
     source: "qrc:/images/login-panel-shadow.png"
     anchors.fill: parent
     border{left: 20;right: 20;top:20;bottom: 20}
@@ -71,7 +72,6 @@ BorderImage{
                         border.right: 5; border.bottom: 5
                     }
                 }
-            Component.onCompleted: proxy_location_input.forceActiveFocus()
         }
         Text{
             id: proxy_port_text

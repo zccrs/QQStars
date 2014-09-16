@@ -68,15 +68,11 @@ MyWindow{
         }
     }
     function openSettingPage() {//进行设置
-        var component = Qt.createComponent("SettingPage.qml");
-        if (component.status == Component.Ready){
-            var sprite = component.createObject(settings_page);
-            login_page.enabled=false
-            flipable.flipped = false
-        }
+        settings_page.enabled = true
+        flipable.flipped = false
     }
     function openLoginPage() {//打开登录面板
-        login_page.reLogin()//重新登录
+        login_page.enabled = true
         flipable.flipped = true
     }
     
@@ -84,12 +80,30 @@ MyWindow{
          id: flipable
          anchors.fill: parent
          property bool flipped: true
-    
+         onFlippedChanged:{
+             timer.start()
+         }
+         Timer{
+             id: timer
+             interval: 200
+             onTriggered: {
+                 if( flipable.flipped ){
+                     settings_page.enabled = false
+                 }else{
+                     login_page.enabled = false
+                 }
+             }
+         }
+
          front: LoginPage{
              id: login_page
              anchors.right: parent.right
          }
-         back: Item{id: settings_page;anchors.fill: parent}
+         back: SettingPage{
+             id: settings_page;
+             enabled: false
+             anchors.right: parent.right
+         }
     
          transform: Rotation {
              id: rotation
@@ -104,9 +118,14 @@ MyWindow{
              PropertyChanges { target: rotation; angle: 180 }
              when: !flipable.flipped
          }
-    
+
          transitions: Transition {
-             NumberAnimation { target: rotation; property: "angle"; duration: 200 ;easing.type: Easing.InQuart}
+             NumberAnimation { 
+                 target: rotation; 
+                 property: "angle"; 
+                 duration: timer.interval ;
+                 easing.type: Easing.InQuart
+             }
          }
     }
 }

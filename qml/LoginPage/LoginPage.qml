@@ -11,7 +11,6 @@ BorderImage{
     border{left: 20;right: 20;top:20;bottom: 20}
     function reLogin(){//重新登录
         avatar_image.x = -30/77*avatar_image.width
-        enabled = true
         myqq.loginStatus = QQ.Offline
     }
     SvgView {
@@ -27,7 +26,7 @@ BorderImage{
         Connections{
             target: myqq
             onLoginStatusChanged:{
-                if( myqq.loginStatus == QQ.Logining && root.enabled)
+                if( myqq.loginStatus == QQ.Logining )
                     animation_avatar.start()
             }
         }
