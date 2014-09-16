@@ -11,7 +11,7 @@ win32{
 }  
 unix{
     QT += x11extras
-	LIBS += -lX11
+    LIBS += -lX11
     SOURCES += $$PWD/qxtglobalshortcut_x11.cpp
 }
 mac{

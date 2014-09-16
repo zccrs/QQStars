@@ -17,7 +17,7 @@ Item{
             mymodel.append({"obj_name": "群", "obj_listData": JSON.stringify(list_info) })
         }
     }
-    function getDiscusListFinished(data) {//获取讨论组列表完
+    function getDiscusListFinished(error, data) {//获取讨论组列表完
         data = JSON.parse(data)
         if(data.retcode ==0 ) {
             var list_info = data.result.dnamelist
@@ -147,7 +147,7 @@ Item{
             }
             property string account: utility.getValue(uin+"account", "")//真实的群号
             
-            function getQQFinished(data){//获取真实群号后调用的函数
+            function getQQFinished(error, data){//获取真实群号后调用的函数
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account

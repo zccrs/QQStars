@@ -16,6 +16,13 @@ SvgView{
     }
 
     signal clicked
+    Rectangle{
+        radius: 10
+        anchors.fill: parent
+        color: "#888"
+        visible: !root.enabled
+    }
+
     Text {
         id: button_text
         anchors.centerIn: parent
@@ -23,6 +30,7 @@ SvgView{
     }
     MouseArea{
         id:mouse
+        enabled: root.enabled
         property bool hover: false
         anchors.fill: parent
         hoverEnabled: true

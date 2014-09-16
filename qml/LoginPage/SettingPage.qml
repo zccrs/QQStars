@@ -16,7 +16,7 @@ BorderImage{
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: main.height/12
-        anchors.rightMargin: main.width/10
+        anchors.rightMargin: main.width/12
         source: "qrc:/images/login-panel.svg"
         
         SvgView{
@@ -62,9 +62,6 @@ BorderImage{
             width:proxy_combo.width
             font.pointSize:proxy_location_text.font.pointSize
             text: utility.getValue("proxyLocation", "")
-            onTextChanged: {
-                utility.setValue("proxyLocation", text)
-            }
 
             style: TextFieldStyle {
                     textColor: "black"
@@ -92,9 +89,7 @@ BorderImage{
             width: proxy_combo.width
             font.pointSize: proxy_port_text.font.pointSize
             text: utility.getValue("proxyPort", "")
-            onTextChanged: {
-                utility.setValue("proxyPort", text)
-            }
+            
             style: TextFieldStyle {
                     textColor: "black"
                     background: BorderImage {
@@ -120,9 +115,6 @@ BorderImage{
             width:proxy_combo.width
             font.pointSize: proxy_username_text.font.pointSize
             text: utility.getValue("proxyUsername", "")
-            onTextChanged: {
-                utility.setValue("proxyUsername", text)
-            }
 
             style: TextFieldStyle {
                     textColor: "black"
@@ -149,9 +141,7 @@ BorderImage{
             width: proxy_combo.width
             font.pointSize: proxy_password_text.font.pointSize
             text: utility.getValue("proxyPassword", "")
-            onTextChanged: {
-                utility.setValue("proxyPassword", text)
-            }
+            
             style: TextFieldStyle {
                     textColor: "black"
                     background: BorderImage {
@@ -177,10 +167,7 @@ BorderImage{
             anchors.left: proxy_type_text.right
             anchors.verticalCenter: proxy_type_text.verticalCenter
             currentIndex: utility.getValue("proxyTypeIndex", 0)
-            onCurrentIndexChanged: {
-                utility.setValue("proxyType", currentValue)
-                utility.setValue("proxyTypeIndex", currentIndex)
-            }
+            
             model: ListModel {
                 ListElement { text: "不使用代理"; value: Utility.NoProxy}
                 ListElement { text: "HTTP代理"; value: Utility.HttpProxy}
@@ -188,6 +175,69 @@ BorderImage{
             }
         }
 
+        Button {
+            anchors.verticalCenter: proxy_combo.verticalCenter
+            anchors.horizontalCenter: proxy_password_input.horizontalCenter
+            text: "测  试"
+            
+            onClicked:{
+                utility.setApplicationProxy(proxy_combo.currentValue, proxy_location_input.text, proxy_port_input.text, proxy_username_input.text, proxy_password_input.text)
+                utility.socketSend(testNetwork, "http://d.web2.qq.com/channel/poll2")
+                button_affirm.enabled = false
+                enabled = false
+            }
+            
+            function testNetwork(error ,data) {
+                var temp1 = utility.getValue("proxyLocation", "")
+                var temp2 = utility.getValue("proxyPort", "")
+                var temp3 = utility.getValue("proxyUsername", "")
+                var temp4 = utility.getValue("proxyPassword", "")
+                var temp5 = utility.getValue("proxyType", Utility.NoProxy)
+                utility.setApplicationProxy(temp5, temp1, temp2, temp3, temp4)//将代理设置复原
+                button_affirm.enabled = true
+                enabled = true
+                if( error )
+                    myqq.showWarningInfo("测试失败")
+                else
+                    myqq.showWarningInfo("测试通过")
+            }
+            style: ButtonStyle {
+                background: Rectangle {
+                    implicitWidth: 80
+                    implicitHeight: 20
+                    radius: 6
+                    gradient: Gradient {
+                        GradientStop { position: 0 ; color: {
+                                if(!control.enabled)
+                                    return "#888"
+                                if( control.pressed )
+                                    return "#ff9000"
+                                if( control.hovered )
+                                    return "#eee"
+                                return "#fff"
+                            }
+                        }
+                        GradientStop { position: 1 ; color: {
+                                if(!control.enabled)
+                                    return "#777"
+                                if( control.pressed )
+                                    return "#f07000"
+                                if( control.hovered )
+                                    return "#ddd"
+                                return "#eee"
+                            }
+                        }
+                    }
+                }
+                label: Text{}
+            }
+            Text{
+                text: parent.text
+                anchors.centerIn: parent
+                color: parent.pressed?"white":"black"
+            }
+        }
+        
         MyButton{
             id: button_affirm
             anchors.bottom: parent.bottom
@@ -198,6 +248,12 @@ BorderImage{
             font.pointSize: width/15
             onClicked: {
                 utility.setApplicationProxy(proxy_combo.currentValue, proxy_location_input.text, proxy_port_input.text, proxy_username_input.text, proxy_password_input.text)
+                utility.setValue("proxyLocation", proxy_location_input.text)
+                utility.setValue("proxyPort", proxy_port_input.text)
+                utility.setValue("proxyUsername", proxy_username_input.text)
+                utility.setValue("proxyPassword", proxy_password_input.text)
+                utility.setValue("proxyType", proxy_combo.currentValue)
+                utility.setValue("proxyTypeIndex", proxy_combo.currentIndex)
                 main.openLoginPage()//返回登录
             }
         }

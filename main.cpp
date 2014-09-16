@@ -28,6 +28,9 @@ int main(int argc, char *argv[])
     //proxy.setPort(8888);
     //QNetworkProxy::setApplicationProxy(proxy);
     
+    QQmlApplicationEngine engine;
+    engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
+    
     qmlRegisterType<MyWindow>("mywindow", 1,0, "MyQuickWindow");
     qmlRegisterType<SystemTrayIcon>("mywindow", 1,0, "MySystemTrayIcon");
     qmlRegisterType<MyMenu>("mywindow", 1,0, "MyMenu");
@@ -37,16 +40,17 @@ int main(int argc, char *argv[])
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
    
-    QQmlApplicationEngine *engine = Utility::createUtilityClass ()->qmlEngine();
-    QQmlComponent component0(engine, "./qml/QQApi.qml");
-    QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
-    engine->rootContext ()->setContextProperty ("myqq", qqapi);
+    Utility::createUtilityClass ()->setQmlEngine (&engine);
     
-    QQmlComponent component(engine, "./qml/SystemTray.qml");
+    QQmlComponent component0(&engine, "./qml/QQApi.qml");
+    QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
+    engine.rootContext ()->setContextProperty ("myqq", qqapi);
+    
+    QQmlComponent component(&engine, "./qml/SystemTray.qml");
     SystemTrayIcon *systemTray = qobject_cast<SystemTrayIcon *>(component.create ());
     systemTray->setParent (Utility::createUtilityClass ());//不设置会导致程序退出后托盘还存在的问题
-    engine->rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
+    engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     
-    engine->load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));
+    engine.load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));
     return app.exec();
 }

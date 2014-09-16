@@ -40,7 +40,7 @@ QQ{
             }
         }
     }
-    function testQQFinished(data) {//服务器返回qq是否需要验证码
+    function testQQFinished(error, data) {//服务器返回qq是否需要验证码
         if( myqq.loginStatus == QQ.Logining ){
             var temp = data.split("'")
             uin = temp[5]
@@ -52,7 +52,7 @@ QQ{
         }
     }
     
-    function login1Finished(data){//登录之后服务器返回的数据
+    function login1Finished(error, data){//登录之后服务器返回的数据
         if( myqq.loginStatus == QQ.Logining ){
             var list = data.split ("'");
             if( list[1]==0 ){
@@ -78,7 +78,7 @@ QQ{
         }
     }
     
-    function login2Finished(data) {//二次登录，这次才是真正的登录
+    function login2Finished(error, data) {//二次登录，这次才是真正的登录
         if( myqq.loginStatus == QQ.Logining ){
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
@@ -98,7 +98,7 @@ QQ{
         utility.socketSend(backFun, url)
     }
     
-    function getDataFinished(data) {//获取用户资料成功后
+    function getDataFinished(error, data) {//获取用户资料成功后
         if( myqq.loginStatus == QQ.Logining ){
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
@@ -196,7 +196,7 @@ QQ{
             utility.socketSend(editUserStatusFinished, url)
         }
     }
-    function editUserStatusFinished(data){
+    function editUserStatusFinished(error, data){
         if( loginStatus == QQ.LoginFinished ) {
             data = JSON.parse(data)
             if( data.retcode==0&&data.result=="ok" ){

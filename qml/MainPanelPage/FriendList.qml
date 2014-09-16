@@ -10,7 +10,7 @@ Item{
         mymodel.append({"obj_groupingName": name, "obj_groupingIndex": index, "obj_friendListData":obj_friendListData})
     }
 
-    function getFriendListFinished(data) {//获取好友列表完成
+    function getFriendListFinished(error, data) {//获取好友列表完成
         data = JSON.parse(data)
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
@@ -141,7 +141,7 @@ Item{
             property var info: obj_info
             property string account: utility.getValue(info.uin+"account", "")//真实qq号
             
-            function getQQFinished(data){//获取好友真实qq后调用的函数
+            function getQQFinished(error, data){//获取好友真实qq后调用的函数
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account
@@ -157,7 +157,7 @@ Item{
                 utility.setValue(info.uin+name, imageName)//保存自己头像的地址
                 avatar.source = imageName
             }
-            function getQQSignatureFinished(data){//获取个性签名完成
+            function getQQSignatureFinished(error, data){//获取个性签名完成
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     text_signature.text = data.result[0].lnick//显示个性签名

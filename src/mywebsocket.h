@@ -11,15 +11,17 @@ class MyWebSocket : public QObject
     Q_OBJECT
     Q_PROPERTY( RequestStatus status READ status WRITE setStatus NOTIFY statusChanged)
     Q_ENUMS(RequestStatus)
+    
 public:
     explicit MyWebSocket(QObject *parent = 0);
-    ~MyWebSocket();
     enum RequestStatus{
         Idle,//初始状态
         Busy//请求中
     };
+    
+    NetworkAccessManager *getNetworkAccessManager();
 private:
-    NetworkAccessManager manager;
+    NetworkAccessManager *manager;
     QNetworkRequest request;
     QNetworkReply *m_reply;
     
@@ -30,7 +32,7 @@ private:
     QQueue<QJSValue> queue_callbackFun;
     QQueue<QUrl> queue_url;
     QQueue<QByteArray> queue_data;
-    
+
 private slots:
     void finished( QNetworkReply *reply );
     void send();

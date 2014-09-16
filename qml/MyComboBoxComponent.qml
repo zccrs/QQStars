@@ -22,7 +22,7 @@ Window{
         color: "white"
         radius: 5
         border.width: 1
-        border.color: "#f07900"
+        border.color: "#f07000"
     }
 
     ListView{

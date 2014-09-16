@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QLabel>
+#include <QThread>
 #include "mynetworkaccessmanagerfactory.h"
 #include "threaddownloadimage.h"
 
@@ -27,14 +28,9 @@ Utility::Utility(QObject *parent) :
     
     setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
     
-    engine = new QQmlApplicationEngine();
-    
     socket = new MyWebSocket(this);
-    download_image = new ThreadDownloadImage(this);
     
-    engine->setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());
-    engine->rootContext ()->setContextProperty ("utility", this);
-    engine->rootContext()->setContextProperty("screen", QApplication::screens ()[0]);
+    download_image = new ThreadDownloadImage(this);
     
     old_pos = QPoint(-1,-1);
 }
@@ -73,6 +69,13 @@ QQmlApplicationEngine *Utility::qmlEngine()
     return engine;
 }
 
+void Utility::setQmlEngine(QQmlApplicationEngine *new_engine)
+{
+    engine = new_engine;
+    engine->rootContext ()->setContextProperty ("utility", this);
+    engine->rootContext()->setContextProperty("screen", QApplication::screens ()[0]);
+}
+
 QPoint Utility::mouseDesktopPos()
 {
     return QCursor::pos ();
@@ -90,7 +93,8 @@ QVariant Utility::getValue(const QString &key, const QVariant &defaultValue) con
 
 void Utility::loadQml(QUrl url)
 {
-    engine->load (url);
+    if(engine)
+        engine->load (url);
 }
 
 void Utility::downloadImage(QJSValue callbackFun, QUrl url, QString savePath, QString saveName)
@@ -112,12 +116,4 @@ void Utility::setApplicationProxy(int type, QString location, QString port, QStr
     proxy.setUser (username);
     proxy.setPassword (password);
     QNetworkProxy::setApplicationProxy(proxy);
-    qDebug()<<QNetworkProxy::applicationProxy ().type ();
-}
-
-
-
-UtilityPrivate::UtilityPrivate(QObject *parent):
-    QObject(parent)
-{
 }

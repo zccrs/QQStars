@@ -21,7 +21,7 @@ BorderImage{
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: main.height/12
-        anchors.rightMargin: main.width/10
+        anchors.rightMargin: main.width/12
         source: "qrc:/images/login-panel.svg"
         
         Connections{
@@ -309,6 +309,7 @@ BorderImage{
             source: "qrc:/images/button-settings.svg"
             anchors.right: parent.right
             anchors.bottom: parent.bottom
+            
             visible: myqq.loginStatus == QQ.Offline
             MouseArea{
                 anchors.fill: parent

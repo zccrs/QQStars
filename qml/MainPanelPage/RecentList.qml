@@ -8,7 +8,7 @@ Item{
     Component.onCompleted: {
         myqq.getRecentList(getRecentListFinished) //获取最近联系人
     }
-    function getRecentListFinished(data){//当获取最近联系人列表完成后
+    function getRecentListFinished(error, data){//当获取最近联系人列表完成后
         data = JSON.parse(data)
         if( data.retcode==0 ) {
             data = data.result
@@ -41,7 +41,7 @@ Item{
                 utility.setValue(info.uin+name, imageName)//保存自己头像的地址
                 avatar.source = imageName
             }
-            function getQQFinished(data){//获取好友真实qq后调用的函数
+            function getQQFinished(error, data){//获取好友真实qq后调用的函数
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account

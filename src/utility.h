@@ -16,7 +16,6 @@ class UtilityPrivate : public QObject
     Q_OBJECT
     Q_ENUMS(ProxyType)
 public:
-    explicit UtilityPrivate(QObject *parent = 0);
     enum ProxyType {
         DefaultProxy,
         Socks5Proxy,
@@ -31,7 +30,7 @@ class Utility : public QObject
 {
     Q_OBJECT
 public:
-    static Utility *createUtilityClass();
+    static Utility *createUtilityClass(  );
     
 private:
     explicit Utility(QObject *parent = 0);
@@ -49,7 +48,7 @@ public:
     Q_INVOKABLE void consoleLog(QString str);//输出调试信息
     Q_INVOKABLE QString getCookie( QString cookieName );
     QQmlApplicationEngine *qmlEngine();
-    
+    void setQmlEngine( QQmlApplicationEngine *new_engine );
 signals:
     void mouseDesktopPosChanged(QPoint pos);
     void imageDownloadFinish(QString uin, QString path);
@@ -60,7 +59,7 @@ public slots:
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="");
-    void setApplicationProxy(int type, QString location, QString port, QString username, QString password );
+    void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
 };
 
 #endif // UTILITY_H
