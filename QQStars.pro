@@ -68,6 +68,7 @@ OTHER_FILES += \
     qml/MyComboBox.qml \
     qml/api.js \
     qml/QQApi.qml \
-    qml/MyComboBoxComponent.qml
+    qml/MyComboBoxComponent.qml \
+    qml/des.js
 
 FORMS +=

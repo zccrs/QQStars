@@ -19,7 +19,7 @@ Utility::Utility(QObject *parent) :
     qDebug()<<"调用了utility的构造函数";
     qmlRegisterType<UtilityPrivate>("utility", 1, 0, "Utility");
     
-    mysettings = new QSettings("settings.ini", QSettings::IniFormat, this);
+    mysettings = new QSettings(".config.ini", QSettings::IniFormat, this);
     int temp1 = mysettings->value ("proxyType", QNetworkProxy::NoProxy).toInt ();
     QString temp2 = mysettings->value ("proxyLocation", "").toString ();
     QString temp3 = mysettings->value ("proxyPort", "").toString ();
@@ -89,6 +89,11 @@ void Utility::setValue(const QString &key, const QVariant &value)
 QVariant Utility::getValue(const QString &key, const QVariant &defaultValue) const
 {
     return mysettings->value (key, defaultValue);
+}
+
+void Utility::removeValue(const QString &key)
+{
+    mysettings->remove (key);
 }
 
 void Utility::loadQml(QUrl url)

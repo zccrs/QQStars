@@ -6,6 +6,7 @@
 QQCommand::QQCommand(QQuickItem *parent) :
     QQuickItem(parent)
 {
+    setUserQQ (Utility::createUtilityClass ()->getValue ("mainqq","").toString ());
     m_loginStatus = Offline;
     m_userStatusToString = "online";
     connect (this, SIGNAL(userStatusChanged()), SIGNAL(userStatusToStringChanged()));
@@ -113,14 +114,14 @@ QMap<QString, QString> QQCommand::analysisBasicData(QJsonObject obj)
     QString msg_type = QString::number (obj["msg_type"].toInt ());
     QString reply_ip = QString::number ((quint64)obj["reply_ip"].toDouble ());
     QString to_uin = QString::number ((quint64)obj["to_uin"].toDouble ());
-    Utility *utility = Utility::createUtilityClass ();
+
     qDebug()<<"\n消息发送者的uin是："+from_uin;
     qDebug()<<"消息id1是："+msg_id;
     qDebug()<<"消息id2是："+msg_id2;
     qDebug()<<"消息类型是："+msg_type;
     qDebug()<<"回复的ip地址是："+reply_ip;
     qDebug()<<"接收方的uin是："+to_uin;
-    qDebug()<<"来自"+utility->getValue (from_uin+"nick", from_uin).toString ()+"的消息";
+    qDebug()<<"来自"+getValue (from_uin+"nick", from_uin).toString ()+"的消息";
     
     QMap<QString, QString> map;
     map.insert ("from_uin", from_uin);
@@ -170,8 +171,7 @@ void QQCommand::analysisInputNotify(QJsonObject obj)
 {
     QMap<QString, QString> map = analysisBasicData (obj);
     qDebug()<<"是输入状态的消息";
-    Utility *utility = Utility::createUtilityClass ();
-    qDebug()<<utility->getValue (map["from_uin"]+"nick", map["from_uin"]).toString ()+"正在输入";
+    qDebug()<<getValue (map["from_uin"]+"nick", map["from_uin"]).toString ()+"正在输入";
 }
 
 void QQCommand::analysisFriendStatusChanged(QJsonObject obj)
@@ -206,4 +206,22 @@ void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue
 {
     QString path = QDir::homePath ()+"/webqq/"+userQQ ()+"/"+uin;
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
+}
+
+void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)
+{
+    QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
+    mysettings.setValue (key, value);
+}
+
+QVariant QQCommand::getValue(const QString &key, const QVariant &defaultValue, const QString & userQQ ) const
+{
+    QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
+    return mysettings.value (key, defaultValue);
+}
+
+void QQCommand::removeValue(const QString &key, const QString & userQQ )
+{
+    QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
+    mysettings.remove (key);
 }

@@ -31,8 +31,6 @@ MyWindow{
             if( message.indexOf("验证码")<0 ){
                 login_page.reLogin()//重新登录
                 myqq.inputCodeClose()//关闭输入验证码
-            }else{
-                myqq.updateCode()//刷新验证码
             }
         }
         onLoginStatusChanged:{
@@ -47,7 +45,6 @@ MyWindow{
         target: systemTray
         onActivated:{
             if( arg == MySystemTrayIcon.Trigger ) {
-                utility.consoleLog("点击了托盘")
                 if(main.visible) {
                     if( main.visibility!= Window.Windowed){
                         main.show()

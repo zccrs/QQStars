@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import utility 1.0
 import "api.js" as Api
+//import "des.js" as Des
 
 QQ{
     id: root
@@ -15,6 +16,8 @@ QQ{
     Component.onCompleted: {
         clientid = Api.getClientid()
     }
+    
+    
     
     onUserStatusChanged: {
         editUserStatus()//改变在线状态
@@ -60,8 +63,6 @@ QQ{
                 var url = list[5]//先get一下返回数据中的url，来获取必要的Cookie
                 utility.socketSend(login2, url)//此地址GET完成后调用二次登录
             }else{
-                utility.consoleLog("登录失败："+list[9])
-                
                 myqq.showWarningInfo("登录失败："+list[9])
             }
         }
@@ -87,7 +88,6 @@ QQ{
                 downloadImage(url, myqq.userQQ, "100", getAvatarFinished)//获取头像
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
             }else{
-                utility.consoleLog("登陆出错，错误代码："+list.retcode)
                 myqq.showWarningInfo("登陆出错，错误代码："+list.retcode)
             }
         }
@@ -105,7 +105,6 @@ QQ{
                 userData = list.result
                 getPanelSize()//获取主面板的大小
             }else{
-                utility.consoleLog("获取用户资料出错，错误代码："+list.retcode)
                 myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)
             }
         }
@@ -117,10 +116,10 @@ QQ{
             //var data = 'r={"appid":50,"itemlist":["width","height","defaultMode"]}&uin='+myqq.userQQ
             //data = encodeURI(data)
             //utility.socketSend(getPanelSizeFinished, url, data)
-            getPanelSizeFinished("")
+            getPanelSizeFinished(false, "")
         }
     }
-    function getPanelSizeFinished (data){
+    function getPanelSizeFinished ( error, data){
         //var list = JSON.parse(data)
         //if( list.retcode==0 ) {
             //panelSize = list.result//保存获取的数据
@@ -134,14 +133,13 @@ QQ{
         if(allqq.indexOf(myqq.userQQ)<0){
             utility.setValue("qq", allqq+","+myqq.userQQ)
         }
-        var temp = utility.getValue(myqq.userQQ+"rememberpassword", 0)==1
-        console.log("记住密码："+temp)
-        if( temp ){
-            console.log("密码是："+myqq.userPassword)
-            utility.setValue(myqq.userQQ+"password", myqq.userPassword)
+        var temp = myqq.getValue("rememberpassword", 0)==1
+        if( temp ){//如果要保存密码
+            var pass = Des.des(myqq.userPassword, "xingchenQQ123")
+            myqq.setValue("password", pass)
         }
         
-        utility.setValue(myqq.userQQ+"nick", userData.nick)//保存昵称
+        myqq.setValue( "nick", userData.nick)//保存昵称
         
         var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
@@ -182,7 +180,7 @@ QQ{
     }
     
     function getAvatarFinished( path, name ){//获得自己头像完成
-        utility.setValue(myqq.userQQ+name, path+"/"+name+".png")//保存自己头像的地址
+        myqq.setValue(name, path+"/"+name+".png")//保存自己头像的地址
     }
     
     function getFriendInfo( tuin,backFun ) {//获取好友资料

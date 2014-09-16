@@ -15,7 +15,7 @@ Item{
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
             for( var i=0; i<marknames.length;++i ) {
-                utility.setValue(marknames[i].uin+"alias", marknames[i].markname)//储存备注信息
+                myqq.setValue(marknames[i].uin+"alias", marknames[i].markname)//储存备注信息
             }
             var categories = data.result.categories//分组信息
             for(i=0; i<categories.length;++i){
@@ -59,7 +59,7 @@ Item{
                 var friends_info = friendListData.info//好友信息
                 for( var i=0; i< friends.length;++i ) {
                     if( friends[i].categories==groupingIndex ){
-                        utility.setValue(friends_info[i].uin+"nick", friends_info[i].nick )//保存昵称
+                        myqq.setValue(friends_info[i].uin+"nick", friends_info[i].nick )//保存昵称
                         mymodel2.append({"obj_friends": friends[i], "obj_info": friends_info[i]})//增加好友 
                     }
                 }
@@ -139,29 +139,29 @@ Item{
             height: avatar.height
             property var friends: obj_friends
             property var info: obj_info
-            property string account: utility.getValue(info.uin+"account", "")//真实qq号
+            property string account: myqq.getValue(info.uin+"account", "")//真实qq号
             
             function getQQFinished(error, data){//获取好友真实qq后调用的函数
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account
-                    utility.setValue(info.uin+"account", account)//保存真实qq
+                    myqq.setValue(info.uin+"account", account)//保存真实qq
                     if( avatar.source=="qrc:/images/avatar.png" ){
                         myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, account, "40", getAvatarFinished)//下载头像
-                        console.log(account+"的头像不存在:"+utility.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png"))
+                        console.log(account+"的头像不存在:"+myqq.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png"))
                     }
                 }
             }
             function getAvatarFinished( path ,name){
                 var imageName = path+"/"+name+".png"
-                utility.setValue(info.uin+name, imageName)//保存自己头像的地址
+                myqq.setValue(info.uin+name, imageName)//保存自己头像的地址
                 avatar.source = imageName
             }
             function getQQSignatureFinished(error, data){//获取个性签名完成
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     text_signature.text = data.result[0].lnick//显示个性签名
-                    utility.setValue(info.uin+"signature", text_signature.text)
+                    myqq.setValue(info.uin+"signature", text_signature.text)
                 }
             }
 
@@ -184,7 +184,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: utility.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myqq.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
                     avatar.source = "qrc:/images/avatar.png"
                 }
@@ -195,14 +195,14 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: utility.getValue(info.uin+"alias", info.nick)
+                text: myqq.getValue(info.uin+"alias", info.nick)
             }
             Text{
                 id:text_signature//个性签名
                 anchors.left: text_nick.left
                 anchors.bottom: avatar.bottom
                 font.pointSize: 8
-                text: utility.getValue(info.uin+"signature", "获取中...")
+                text: myqq.getValue(info.uin+"signature", "获取中...")
             }
         }
     }

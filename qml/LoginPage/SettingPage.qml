@@ -257,9 +257,6 @@ BorderImage{
                 main.openLoginPage()//返回登录
             }
         }
-        Component.onCompleted: {
-            forceActiveFocus()
-        }
         Keys.onEnterPressed: {
             button_affirm.clicked()
         }

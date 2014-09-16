@@ -28,24 +28,24 @@ Item{
             width: parent.width
             height: avatar.height
             property var info: obj_info
-            property var account: utility.getValue(info.uin+"account", "")//真实qq号
+            property var account: myqq.getValue(info.uin+"account", "")//真实qq号
 
             onInfoChanged: {
-                if(utility.getValue(info.uin+"nick", "")==""){
+                if(myqq.getValue(info.uin+"nick", "")==""){
                     myqq.getFriendInfo( info.uin, getFriendInfoFinished )//获取昵称
                     myqq.getFriendQQ( info.uin, getQQFinished )//获取真实qq号
                 }
             }
             function getAvatarFinished( path ,name ){
                 var imageName = path+"/"+name+".png"
-                utility.setValue(info.uin+name, imageName)//保存自己头像的地址
+                myqq.setValue(info.uin+name, imageName)//保存自己头像的地址
                 avatar.source = imageName
             }
             function getQQFinished(error, data){//获取好友真实qq后调用的函数
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account
-                    utility.setValue(info.uin+"account", account)//保存真实qq
+                    myqq.setValue(info.uin+"account", account)//保存真实qq
                     if( avatar.source=="qrc:/images/avatar.png" ){ //如果头像不存在
                         if(info.type==0)
                             myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, account, "40", getAvatarFinished)//下载头像
@@ -54,11 +54,11 @@ Item{
                     }
                 }
             }
-            function getFriendInfoFinished( data ) {
+            function getFriendInfoFinished( error, data ) {
                 data = JSON.parse(data)
                 if(data.retcode==0) {
                     data = data.result
-                    utility.setValue(info.uin+"nick", data.nick)
+                    myqq.setValue(info.uin+"nick", data.nick)
                     text_nick.text = data.nick//显示昵称
                 }
             }
@@ -79,7 +79,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: utility.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myqq.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
                     avatar.source = "qrc:/images/avatar.png"
                 }
@@ -90,7 +90,7 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: utility.getValue(info.uin+"alias", utility.getValue(info.uin+"nick", ""))
+                text: myqq.getValue(info.uin+"alias", myqq.getValue(info.uin+"nick", ""))
             }
         }
     }

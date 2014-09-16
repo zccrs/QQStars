@@ -35,7 +35,7 @@ BorderImage{
             id:avatar_image
             maskSource: "qrc:/images/bit.bmp"
             width: 8/45*main.width
-            source: utility.getValue(myqq.userQQ+"avatar-100", "qrc:/images/avatar.png")
+            source: myqq.getValue("avatar-100", "qrc:/images/avatar.png")
             x:-30/77*width
             anchors.verticalCenter: inputarea.verticalCenter
             
@@ -202,7 +202,7 @@ BorderImage{
             anchors.topMargin: root.height/10
             LoginCheckBox{
                 id: checkbox_rememberpassword
-                checked: utility.getValue(myqq.userQQ+"rememberpassword", 0)==1
+                checked: myqq.getValue("rememberpassword", 0)==1
                 anchors.left: inputarea.left
                 anchors.top: inputarea.bottom
                 anchors.topMargin: root.height/12
@@ -210,14 +210,14 @@ BorderImage{
                 onCheckedChanged: {
                     if( !checked ){
                         checkbox_autologin.checked = false
-                        utility.setValue(myqq.userQQ+"password", "")//将密码置空
+                        myqq.removeValue("password")//将密码置空
                     }
                 }
             }
             
             LoginCheckBox{
                 id:checkbox_autologin
-                checked: utility.getValue(myqq.userQQ+"autologin", 0)==1
+                checked: myqq.getValue("autologin", 0)==1
                 anchors.right: inputarea.right
                 anchors.rightMargin: 10
                 anchors.top: inputarea.bottom
@@ -232,7 +232,10 @@ BorderImage{
         Connections{
             target: myqq
             onUserQQChanged:{
-                myqq.userStatus = Number(utility.getValue(myqq.userQQ+"status", QQ.Online))//设置用户的登录状态
+                avatar_image.source = myqq.getValue("avatar-100", "qrc:/images/avatar.png")
+                checkbox_rememberpassword.checked = myqq.getValue("rememberpassword", 0)==1
+                checkbox_autologin.checked = myqq.getValue("autologin", 0)==1
+                myqq.userStatus = Number(myqq.getValue("status", QQ.Online))//设置用户的登录状态
             }
         }
         Item{
@@ -291,10 +294,10 @@ BorderImage{
                 if( myqq.loginStatus == QQ.Offline ){
                     if( myqq.userQQ!=""&&myqq.userPassword!="" ){
                         myqq.loginStatus = QQ.Logining
-                        utility.setValue(myqq.userQQ+"autologin", Number(checkbox_autologin.checked))
-                        utility.setValue(myqq.userQQ+"rememberpassword", Number(checkbox_rememberpassword.checked))
+                        myqq.setValue("autologin", Number(checkbox_autologin.checked))
+                        myqq.setValue("rememberpassword", Number(checkbox_rememberpassword.checked))
                         
-                        utility.setValue(myqq.userQQ+"status", myqq.userStatus)//设置下次登录的状态
+                        myqq.setValue("status", myqq.userStatus)//设置下次登录的状态
                         utility.setValue("mainqq", myqq.userQQ)//设置当前活动qq为myqq.userQQ
                     }
                 }else if( myqq.loginStatus == QQ.Logining ){
@@ -319,7 +322,7 @@ BorderImage{
         }
 
         Component.onCompleted: {
-            if( utility.getValue(myqq.userQQ+"autologin", 0)==1 )//此账号如果设置了自动登录
+            if( myqq.getValue("autologin", 0)==1 )//此账号如果设置了自动登录
                 myqq.loginStatus = QQ.Logining
             forceActiveFocus()
         }

@@ -24,8 +24,7 @@ MyWindow{
             code_image.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
     }
     function updateCode(){
-        code_image.source = ""
-        code_image.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+utility.userQQ+"&cap_cd="+str
+        code_image.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
         code_input.text = ""
     }
     BorderImage{
@@ -101,12 +100,12 @@ MyWindow{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top :text_code.top
             anchors.topMargin: root_page.height/12
-            source: "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+utility.userQQ+"&cap_cd="+str
+            source: "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
                     parent.source = ""
-                    parent.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+utility.userQQ+"&cap_cd="+str
+                    parent.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
                 }
             }
         }

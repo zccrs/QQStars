@@ -63,8 +63,8 @@ private:
     QQStatus qq_status;
     QQStatus userStatus();
     void setUserStatus( QQStatus new_status );
+
     QString m_userStatusToString;
-    
     LoginStatus m_loginStatus;
 
     QByteArray poll2_data;//post心跳包的数据
@@ -72,7 +72,6 @@ private:
     NetworkAccessManager manager;
     QNetworkRequest request;
     QString m_userQQ;
-    
     QString m_userPassword;
 
     QMap<QString, QString> analysisBasicData( QJsonObject obj );
@@ -97,6 +96,7 @@ public slots:
     {
         if (m_userQQ != arg) {
             m_userQQ = arg;
+            
             emit userQQChanged(arg);
         }
     }
@@ -109,6 +109,10 @@ public slots:
     }
     void showWarningInfo(QString message);
     void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );
+    
+    void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
+    QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
+    void removeValue( const QString & key, const QString & userQQ="" );
 };
 
 #endif // QQCommand_H

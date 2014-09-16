@@ -54,8 +54,10 @@ signals:
     void imageDownloadFinish(QString uin, QString path);
 public slots:
     QPoint mouseDesktopPos();
-    void setValue(const QString & key, const QVariant & value);
+    void setValue( const QString & key, const QVariant & value);
     QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant()) const;
+    void removeValue( const QString & key );
+    
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="");

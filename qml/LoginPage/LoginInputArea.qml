@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import mywindow 1.0
+//import "../des.js" as Des
 
 Item{
     id:root
@@ -15,6 +16,7 @@ Item{
         KeyNavigation.down: input_password
         KeyNavigation.up: input_password
         KeyNavigation.tab: KeyNavigation.down
+        text: utility.getValue("mainqq", "")
         style: TextFieldStyle {
             textColor: "black"
             background: Item{
@@ -42,9 +44,9 @@ Item{
         }
         onTextChanged: {
             myqq.userQQ=text
+            //input_password.text = Des.des(myqq.getValue("password", ""), false)//解密
         }
         Component.onCompleted: {
-            input_qq.text = utility.getValue("mainqq", "")
             input_qq.forceActiveFocus()
         }
     }
@@ -56,6 +58,7 @@ Item{
         KeyNavigation.up: input_qq
         KeyNavigation.down: input_qq
         KeyNavigation.tab: KeyNavigation.down
+        //text: Des.des(myqq.getValue("password", ""), false)//解密
         style: TextFieldStyle {
             textColor: "black"
             background: Item{
@@ -71,10 +74,6 @@ Item{
             }
         }
         onTextChanged: myqq.userPassword=text
-        Component.onCompleted: {
-            var key = utility.getValue("mainqq", "")+"password"
-            input_password.text = utility.getValue(key, "")
-        }
     }
     SvgView {
         id: unfold_icon
@@ -98,7 +97,6 @@ Item{
             target: null
             onClicked:{
                 input_qq.text = qq//填充qq号码
-                input_password.text = utility.getValue(qq+"password", "")//填充密码
             }
             onListClose:{
                 unfold_icon.isCloseing=true

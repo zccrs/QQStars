@@ -93,7 +93,7 @@ Window{
                         var data = utility.getValue("qq", "")
                         data = data.replace(new RegExp(","+parent.qq), "")
                         utility.setValue("qq", data)//将qq号码从里边删除
-                        utility.setValue(parent.qq+"password", "")//将密码置空
+                        myqq.removeValue(parent.qq, "password")//将密码清除
                     }
                 }
             }
@@ -103,7 +103,7 @@ Window{
         var data = utility.getValue("qq", "")
         data = data.split(",")
         for( var i=1;i<data.length;++i ){
-            mymodel.append({"imageSrc": utility.getValue(data[i]+"avatar-100", "qrc:/images/avatar.png"), "nick":utility.getValue(data[i]+"nick",""), "uin": data[i]})
+            mymodel.append({"imageSrc": myqq.getValue("avatar-100", "qrc:/images/avatar.png",data[i]), "nick":myqq.getValue("nick","", data[i]), "uin": data[i]})
         }
     }
 

@@ -33,19 +33,16 @@ MyQuickWindow{
             animation.property = "x"
             animation.to = root.borderLeft-width+1
             animation.start()
-            utility.consoleLog("向左边停靠")
         }else if( root.x==root.borderRight-root.width ){
             root.windowStatus = MyQuickWindow.BerthRight
             animation.property = "x"
             animation.to = root.borderRight-1
             animation.start()
-            utility.consoleLog("向右边停靠")
         }else if( root.y==root.borderTop ){
             root.windowStatus = MyQuickWindow.BerthTop
             animation.property = "y"
             animation.to = root.borderTop-height+1
             animation.start()
-            utility.consoleLog("向上边停靠")
         }
     }
     
