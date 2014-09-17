@@ -43,7 +43,7 @@ Item{
         }
         onTextChanged: {
             myqq.userQQ=text
-            input_password.text = myqq.aesUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
+            input_password.text = utility.stringUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
         }
         Component.onCompleted: {
             input_qq.forceActiveFocus()
@@ -57,7 +57,11 @@ Item{
         KeyNavigation.up: input_qq
         KeyNavigation.down: input_qq
         KeyNavigation.tab: KeyNavigation.down
-        text: myqq.aesUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
+        text: utility.stringUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
+        onTextChanged: {
+            myqq.userPassword=text
+        }
+
         style: TextFieldStyle {
             textColor: "black"
             background: Item{
@@ -72,7 +76,6 @@ Item{
                 }
             }
         }
-        onTextChanged: myqq.userPassword=text
     }
     SvgView {
         id: unfold_icon

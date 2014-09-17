@@ -22,12 +22,6 @@ int main(int argc, char *argv[])
     app.setOrganizationName ("雨后星辰");
     app.setApplicationDisplayName ("星辰QQ");
     
-    //QNetworkProxy proxy;
-    //proxy.setType(QNetworkProxy::HttpProxy);
-    //proxy.setHostName("localhost");
-    //proxy.setPort(8888);
-    //QNetworkProxy::setApplicationProxy(proxy);
-    
     QQmlApplicationEngine engine;
     engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
     
@@ -43,12 +37,6 @@ int main(int argc, char *argv[])
     QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
     utility->initUtility (&mysettings, &engine);
-    int temp1 = mysettings.value ("proxyType", QNetworkProxy::NoProxy).toInt ();
-    QString temp2 = mysettings.value ("proxyLocation", "").toString ();
-    QString temp3 = mysettings.value ("proxyPort", "").toString ();
-    QString temp4 = mysettings.value ("proxyUsername", "").toString ();
-    QString temp5 = mysettings.value ("proxyPassword", "").toString ();
-    utility->setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
     
     QQmlComponent component0(&engine, "./qml/QQApi.qml");
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
@@ -56,7 +44,7 @@ int main(int argc, char *argv[])
     
     QQmlComponent component(&engine, "./qml/SystemTray.qml");
     SystemTrayIcon *systemTray = qobject_cast<SystemTrayIcon *>(component.create ());
-    systemTray->setParent (Utility::createUtilityClass ());//不设置会导致程序退出后托盘还存在的问题
+    systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题
     engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     
     engine.load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));

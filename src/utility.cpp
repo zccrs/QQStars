@@ -34,6 +34,50 @@ Utility::~Utility()
     qDebug()<<"我擦，Utility竟然被销毁了！";
 }
 
+char Utility::numToStr(int num)
+{
+    QByteArray str="QWERTYUIOP[]\\ASDFGHJKL;'ZXCVBNM,./qwertyuiop{}|asdfghjkl:\"zxcvbnm<>?";
+    return str[num%str.size ()];
+}
+
+QByteArray Utility::strZoarium(const QString &str)
+{
+    QByteArray result="";
+    for(int i=0;i<str.size ();++i){
+        QChar ch = str[i];
+        int ch_ascii = (int)ch.toLatin1 ();
+        if(ch.isLetter ()){//如果是字母
+            result.append (numToStr (ch_ascii)).append (QByteArray::number (ch_ascii)).append (numToStr (ch_ascii*2));
+        }else{//如果是数字
+            result.append (ch);
+        }
+    }
+    return result;
+}
+
+QByteArray Utility::unStrZoarium(const QString &str)
+{
+    QByteArray result="";
+    for(int i=0;i<str.size ();){
+        QChar ch = str[i];
+        if(ch.isNumber ()){//如果是数字
+            result.append (ch);
+            i++;
+        }else{//如果是其他
+            QRegExp regexp("[^0-9]");
+            int pos = str.indexOf (regexp, i+1);
+            if(pos!=0){
+                char num = (char)str.mid (i+1, pos-i-1).toInt ();
+                result.append (num);
+                i=pos+1;
+            }else{
+                i++;
+            }
+        }
+    }
+    return result;
+}
+
 void Utility::emitDesktopPosChanged()
 {
     QPoint temp = QCursor::pos ();
@@ -140,4 +184,36 @@ void Utility::setApplicationProxy(int type, QString location, QString port, QStr
     proxy.setUser (username);
     proxy.setPassword (password);
     QNetworkProxy::setApplicationProxy(proxy);
+}
+
+QString Utility::stringEncrypt(const QString &content, const QString &key)
+{
+    if(content==""||key=="")
+        return content;
+    
+    QByteArray data = strZoarium (content.toUtf8 ().toHex ());
+    int data_size = data.size ();
+    QByteArray mykey = strZoarium (key.toUtf8 ().toHex ());
+    int key_size = mykey.size ();
+    QByteArray temp="";
+    for(int i=0;i<data_size;++i){
+        temp.append ((char)(int)data[i]+(int)mykey[i%key_size]);
+    }
+    return temp;
+}
+
+QString Utility::stringUncrypt(const QString &content_hex, const QString &key)
+{
+    if(content_hex==""||key=="")
+        return content_hex;
+    
+    QByteArray data = content_hex.toLatin1 ();
+    int data_size = data.size ();
+    QByteArray mykey = strZoarium (key.toUtf8 ().toHex ());
+    int key_size = mykey.size ();
+    QByteArray str;
+    for(int i=0;i<data_size;++i){
+        str.append ((char)(int)data[i]-(int)mykey[i%key_size]);
+    }
+    return QByteArray::fromHex (unStrZoarium (str));
 }

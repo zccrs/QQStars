@@ -32,7 +32,6 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 include (src/qxtglobalshortcut/qxtglobalshortcut.pri)
 include (qmlapplicationviewer.pri)
-include (src/aes/aes.pri)
 qtcAddDeployment()
 HEADERS += \
     src/mynetworkaccessmanagerfactory.h \

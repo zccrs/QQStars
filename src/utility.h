@@ -42,6 +42,9 @@ private:
     MyWebSocket *socket;
     ThreadDownloadImage *download_image;
 
+    char numToStr(int num);
+    QByteArray strZoarium(const QString &str);
+    QByteArray unStrZoarium(const QString &str);
 private slots:
     void emitDesktopPosChanged();
 public:
@@ -65,6 +68,9 @@ public slots:
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="");
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
+    
+    QString stringEncrypt(const QString &content, const QString &key);
+    QString stringUncrypt(const QString &content_hex, const QString &key);
 };
 
 #endif // UTILITY_H

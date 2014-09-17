@@ -7,7 +7,15 @@
 QQCommand::QQCommand(QQuickItem *parent) :
     QQuickItem(parent)
 {
-    setUserQQ (Utility::createUtilityClass ()->getValue ("mainqq","").toString ());
+    Utility *utility=Utility::createUtilityClass ();
+    int temp1 = utility->getValue ("proxyType", QNetworkProxy::NoProxy).toInt ();
+    QString temp2 = utility->getValue ("proxyLocation", "").toString ();
+    QString temp3 = utility->getValue ("proxyPort", "").toString ();
+    QString temp4 = utility->getValue ("proxyUsername", "").toString ();
+    QString temp5 = utility->getValue ("proxyPassword", "").toString ();
+    utility->setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
+    
+    setUserQQ (utility->getValue ("mainqq","").toString ());
     m_loginStatus = Offline;
     m_userStatusToString = "online";
     connect (this, SIGNAL(userStatusChanged()), SIGNAL(userStatusToStringChanged()));
@@ -21,7 +29,6 @@ QQCommand::QQCommand(QQuickItem *parent) :
     poll2_timer.setInterval (20000);
     connect (&poll2_timer, SIGNAL(timeout()), SLOT(beginPoll2()));
     connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
-
 }
 
 void QQCommand::beginPoll2()
@@ -225,26 +232,4 @@ void QQCommand::removeValue(const QString &key, const QString & userQQ )
 {
     QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
     mysettings.remove (key);
-}
-
-QString QQCommand::aesEncrypt(const QString &content, const QString &key)
-{
-    if(content==""||key=="")
-        return content;
-        
-    AES aes((unsigned char*)key.toLatin1 ().data ());
-    char miwen_hex[1024];
-    aes.Cipher(content.toLatin1 ().data (), miwen_hex);
-    return QString(miwen_hex);
-}
-
-QString QQCommand::aesUncrypt(const QString &content_hex, const QString &key)
-{
-    if(content_hex==""||key=="")
-        return content_hex;
-    
-    AES aes((unsigned char*)key.toLatin1 ().data ());
-    char result[1024];
-    aes.InvCipher(content_hex.toLatin1 ().data (), result);
-    return QString(result);
 }

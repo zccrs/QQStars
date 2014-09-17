@@ -1,8 +1,8 @@
 #include "aes.h"
 
-AES::AES(unsigned char* key)
+AES::AES(char* key)
 {
-  unsigned char sBox[] =
+  char sBox[256] =
   { /*  0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f */
     0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76, /*0*/
     0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0, /*1*/
@@ -21,7 +21,7 @@ AES::AES(unsigned char* key)
     0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf, /*e*/
     0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16  /*f*/
   };
-  unsigned char invsBox[256] =
+  char invsBox[256] =
   { /*  0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f  */
     0x52,0x09,0x6a,0xd5,0x30,0x36,0xa5,0x38,0xbf,0x40,0xa3,0x9e,0x81,0xf3,0xd7,0xfb, /*0*/
     0x7c,0xe3,0x39,0x82,0x9b,0x2f,0xff,0x87,0x34,0x8e,0x43,0x44,0xc4,0xde,0xe9,0xcb, /*1*/
@@ -52,7 +52,7 @@ AES::~AES()
 
 void AES::Cipher(char *input, char *output)
 {
-  unsigned char uch_input[1024];
+  char uch_input[1024];
   strToUChar(input, uch_input);
   Cipher(uch_input);
   ucharToHex(uch_input,output);
@@ -60,15 +60,15 @@ void AES::Cipher(char *input, char *output)
 
 void AES::InvCipher(char *input, char *output)
 {
-  unsigned char uch_input[1024];
+  char uch_input[1024];
   hexToUChar(input, uch_input);
   InvCipher(uch_input);
   ucharToStr(uch_input, output);
 }
 
-unsigned char* AES::Cipher(unsigned char* input)
+char* AES::Cipher(char* input)
 {
-  unsigned char state[4][4];
+  char state[4][4];
   int i,r,c;
 
   for(r=0; r<4; r++)
@@ -100,9 +100,9 @@ unsigned char* AES::Cipher(unsigned char* input)
   return input;
 }
 
-unsigned char* AES::InvCipher(unsigned char* input)
+char* AES::InvCipher(char* input)
 {
-  unsigned char state[4][4];
+  char state[4][4];
   int i,r,c;
 
   for(r=0; r<4; r++)
@@ -138,12 +138,12 @@ unsigned char* AES::InvCipher(unsigned char* input)
 
 void* AES::Cipher(void* input, int length)
 {
-  unsigned char* in = (unsigned char*) input;
+  char* in = (char*) input;
   int i;
   if(!length)
   {
     while(*(in+length++));
-    in = (unsigned char*) input;
+    in = (char*) input;
   }
   for(i=0; i<length; i+=16)
   {
@@ -154,7 +154,7 @@ void* AES::Cipher(void* input, int length)
 
 void* AES::InvCipher(void* input, int length)
 {
-  unsigned char* in = (unsigned char*) input;
+  char* in = (char*) input;
   int i;
   for(i=0; i<length; i+=16)
   {
@@ -163,10 +163,10 @@ void* AES::InvCipher(void* input, int length)
   return input;
 }
 
-void AES::KeyExpansion(unsigned char* key, unsigned char w[][4][4])
+void AES::KeyExpansion(char* key, char w[][4][4])
 {
   int i,j,r,c;
-  unsigned char rc[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+  char rc[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
   for(r=0; r<4; r++)
   {
     for(c=0; c<4; c++)
@@ -178,14 +178,14 @@ void AES::KeyExpansion(unsigned char* key, unsigned char w[][4][4])
   {
     for(j=0; j<4; j++)
     {
-      unsigned char t[4];
+      char t[4];
       for(r=0; r<4; r++)
       {
         t[r] = j ? w[i][r][j-1] : w[i-1][r][3];
       }
       if(j == 0)
       {
-        unsigned char temp = t[0];
+        char temp = t[0];
         for(r=0; r<3; r++)
         {
           t[r] = Sbox[t[(r+1)%4]];
@@ -201,10 +201,10 @@ void AES::KeyExpansion(unsigned char* key, unsigned char w[][4][4])
   }
 }
 
-unsigned char AES::FFmul(unsigned char a, unsigned char b)
+char AES::FFmul(char a, char b)
 {
-  unsigned char bw[4];
-  unsigned char res=0;
+  char bw[4];
+  char res=0;
   int i;
   bw[0] = b;
   for(i=1; i<4; i++)
@@ -225,7 +225,7 @@ unsigned char AES::FFmul(unsigned char a, unsigned char b)
   return res;
 }
 
-void AES::SubBytes(unsigned char state[][4])
+void AES::SubBytes(char state[][4])
 {
   int r,c;
   for(r=0; r<4; r++)
@@ -237,9 +237,9 @@ void AES::SubBytes(unsigned char state[][4])
   }
 }
 
-void AES::ShiftRows(unsigned char state[][4])
+void AES::ShiftRows(char state[][4])
 {
-  unsigned char t[4];
+  char t[4];
   int r,c;
   for(r=1; r<4; r++)
   {
@@ -254,9 +254,9 @@ void AES::ShiftRows(unsigned char state[][4])
   }
 }
 
-void AES::MixColumns(unsigned char state[][4])
+void AES::MixColumns(char state[][4])
 {
-  unsigned char t[4];
+  char t[4];
   int r,c;
   for(c=0; c< 4; c++)
   {
@@ -274,7 +274,7 @@ void AES::MixColumns(unsigned char state[][4])
   }
 }
 
-void AES::AddRoundKey(unsigned char state[][4], unsigned char k[][4])
+void AES::AddRoundKey(char state[][4], char k[][4])
 {
   int r,c;
   for(c=0; c<4; c++)
@@ -286,7 +286,7 @@ void AES::AddRoundKey(unsigned char state[][4], unsigned char k[][4])
   }
 }
 
-void AES::InvSubBytes(unsigned char state[][4])
+void AES::InvSubBytes(char state[][4])
 {
   int r,c;
   for(r=0; r<4; r++)
@@ -298,9 +298,9 @@ void AES::InvSubBytes(unsigned char state[][4])
   }
 }
 
-void AES::InvShiftRows(unsigned char state[][4])
+void AES::InvShiftRows(char state[][4])
 {
-  unsigned char t[4];
+  char t[4];
   int r,c;
   for(r=1; r<4; r++)
   {
@@ -315,9 +315,9 @@ void AES::InvShiftRows(unsigned char state[][4])
   }
 }
 
-void AES::InvMixColumns(unsigned char state[][4])
+void AES::InvMixColumns(char state[][4])
 {
-  unsigned char t[4];
+  char t[4];
   int r,c;
   for(c=0; c< 4; c++)
   {
@@ -335,7 +335,7 @@ void AES::InvMixColumns(unsigned char state[][4])
   }
 }
 
-int AES::getUCharLen(const unsigned char *uch)
+int AES::getUCharLen(const char *uch)
 {
   int len = 0;
   while(*uch++)
@@ -344,7 +344,7 @@ int AES::getUCharLen(const unsigned char *uch)
   return len;
 }
 
-int AES::ucharToHex(const unsigned char *uch, char *hex)
+int AES::ucharToHex(const char *uch, char *hex)
 {
   int high,low;
   int tmp = 0;
@@ -368,7 +368,7 @@ int AES::ucharToHex(const unsigned char *uch, char *hex)
   return 0;
 }
 
-int AES::hexToUChar(const char *hex, unsigned char *uch)
+int AES::hexToUChar(const char *hex, char *uch)
 {
   int high,low;
   int tmp = 0;
@@ -400,7 +400,7 @@ int AES::hexToUChar(const char *hex, unsigned char *uch)
   return 0;
 }
 
-int AES::strToUChar(const char *ch, unsigned char *uch)
+int AES::strToUChar(const char *ch, char *uch)
 {
   int tmp = 0;
   if(ch == NULL || uch == NULL)
@@ -417,7 +417,7 @@ int AES::strToUChar(const char *ch, unsigned char *uch)
   return 0;
 }
 
-int AES::ucharToStr(const unsigned char *uch, char *ch)
+int AES::ucharToStr(const char *uch, char *ch)
 {
   int tmp = 0;
   if(uch == NULL || ch == NULL)

@@ -16,8 +16,6 @@ QQ{
         clientid = Api.getClientid()
     }
     
-    
-    
     onUserStatusChanged: {
         editUserStatus()//改变在线状态
     }
@@ -26,7 +24,7 @@ QQ{
         var component = Qt.createComponent("CodeInput.qml");
         if (component.status == Component.Ready){
             var data = {"str": uin, "backFun":callbackFun};
-            var sprite = component.createObject(null, data);
+            var sprite = component.createObject(root, data);
         }
     }
     
@@ -134,7 +132,7 @@ QQ{
         }
         var temp = myqq.getValue("rememberpassword", 0)==1
         if( temp ){//如果要保存密码
-            var pass = myqq.aesEncrypt(myqq.userPassword, "xingchenQQ")//加密后储存
+            var pass = utility.stringEncrypt(myqq.userPassword, "xingchenQQ")//加密后储存
             myqq.setValue("password", pass)
         }
         
