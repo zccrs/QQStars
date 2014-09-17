@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import utility 1.0
 import "api.js" as Api
-//import "des.js" as Des
 
 QQ{
     id: root
@@ -135,7 +134,7 @@ QQ{
         }
         var temp = myqq.getValue("rememberpassword", 0)==1
         if( temp ){//如果要保存密码
-            var pass = Des.des(myqq.userPassword, "xingchenQQ123")
+            var pass = myqq.aesEncrypt(myqq.userPassword, "xingchenQQ")//加密后储存
             myqq.setValue("password", pass)
         }
         

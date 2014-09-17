@@ -2,6 +2,7 @@
 #include "utility.h"
 #include <QJsonDocument>
 #include <QSettings>
+#include "aes.h"
 
 QQCommand::QQCommand(QQuickItem *parent) :
     QQuickItem(parent)
@@ -224,4 +225,26 @@ void QQCommand::removeValue(const QString &key, const QString & userQQ )
 {
     QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
     mysettings.remove (key);
+}
+
+QString QQCommand::aesEncrypt(const QString &content, const QString &key)
+{
+    if(content==""||key=="")
+        return content;
+        
+    AES aes((unsigned char*)key.toLatin1 ().data ());
+    char miwen_hex[1024];
+    aes.Cipher(content.toLatin1 ().data (), miwen_hex);
+    return QString(miwen_hex);
+}
+
+QString QQCommand::aesUncrypt(const QString &content_hex, const QString &key)
+{
+    if(content_hex==""||key=="")
+        return content_hex;
+    
+    AES aes((unsigned char*)key.toLatin1 ().data ());
+    char result[1024];
+    aes.InvCipher(content_hex.toLatin1 ().data (), result);
+    return QString(result);
 }

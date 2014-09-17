@@ -113,6 +113,9 @@ public slots:
     void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
     QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
     void removeValue( const QString & key, const QString & userQQ="" );
+    
+    QString aesEncrypt(const QString &content, const QString &key);
+    QString aesUncrypt(const QString &content_hex, const QString &key);
 };
 
 #endif // QQCommand_H

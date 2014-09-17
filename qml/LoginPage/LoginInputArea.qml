@@ -2,7 +2,6 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import mywindow 1.0
-//import "../des.js" as Des
 
 Item{
     id:root
@@ -44,7 +43,7 @@ Item{
         }
         onTextChanged: {
             myqq.userQQ=text
-            //input_password.text = Des.des(myqq.getValue("password", ""), false)//解密
+            input_password.text = myqq.aesUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
         }
         Component.onCompleted: {
             input_qq.forceActiveFocus()
@@ -58,7 +57,7 @@ Item{
         KeyNavigation.up: input_qq
         KeyNavigation.down: input_qq
         KeyNavigation.tab: KeyNavigation.down
-        //text: Des.des(myqq.getValue("password", ""), false)//解密
+        text: myqq.aesUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
         style: TextFieldStyle {
             textColor: "black"
             background: Item{

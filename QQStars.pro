@@ -4,7 +4,8 @@ QT += widgets network webkit svg qml quick
 
 INCLUDEPATH += \
     src \
-    src/qxtglobalshortcut
+    src/qxtglobalshortcut \
+    src/aes
 
 SOURCES += main.cpp \
     src/mynetworkaccessmanagerfactory.cpp \
@@ -31,6 +32,7 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 include (src/qxtglobalshortcut/qxtglobalshortcut.pri)
 include (qmlapplicationviewer.pri)
+include (src/aes/aes.pri)
 qtcAddDeployment()
 HEADERS += \
     src/mynetworkaccessmanagerfactory.h \
@@ -69,6 +71,5 @@ OTHER_FILES += \
     qml/api.js \
     qml/QQApi.qml \
     qml/MyComboBoxComponent.qml \
-    qml/des.js
 
 FORMS +=
