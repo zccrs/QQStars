@@ -40,7 +40,15 @@ int main(int argc, char *argv[])
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
    
-    Utility::createUtilityClass ()->setQmlEngine (&engine);
+    QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
+    Utility *utility=Utility::createUtilityClass ();
+    utility->initUtility (&mysettings, &engine);
+    int temp1 = mysettings.value ("proxyType", QNetworkProxy::NoProxy).toInt ();
+    QString temp2 = mysettings.value ("proxyLocation", "").toString ();
+    QString temp3 = mysettings.value ("proxyPort", "").toString ();
+    QString temp4 = mysettings.value ("proxyUsername", "").toString ();
+    QString temp5 = mysettings.value ("proxyPassword", "").toString ();
+    utility->setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
     
     QQmlComponent component0(&engine, "./qml/QQApi.qml");
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());

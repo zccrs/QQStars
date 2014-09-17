@@ -48,12 +48,15 @@ public:
     Q_INVOKABLE void consoleLog(QString str);//输出调试信息
     Q_INVOKABLE QString getCookie( QString cookieName );
     QQmlApplicationEngine *qmlEngine();
-    void setQmlEngine( QQmlApplicationEngine *new_engine );
 signals:
     void mouseDesktopPosChanged(QPoint pos);
     void imageDownloadFinish(QString uin, QString path);
 public slots:
+    void initUtility(QSettings *settings=0, QQmlApplicationEngine *qmlEngine=0);
+    void setQmlEngine( QQmlApplicationEngine *new_engine );
     QPoint mouseDesktopPos();
+    
+    void setQSettings(QSettings *settings);
     void setValue( const QString & key, const QVariant & value);
     QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant()) const;
     void removeValue( const QString & key );

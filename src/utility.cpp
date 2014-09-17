@@ -19,14 +19,8 @@ Utility::Utility(QObject *parent) :
     qDebug()<<"调用了utility的构造函数";
     qmlRegisterType<UtilityPrivate>("utility", 1, 0, "Utility");
     
-    mysettings = new QSettings(".config.ini", QSettings::IniFormat, this);
-    int temp1 = mysettings->value ("proxyType", QNetworkProxy::NoProxy).toInt ();
-    QString temp2 = mysettings->value ("proxyLocation", "").toString ();
-    QString temp3 = mysettings->value ("proxyPort", "").toString ();
-    QString temp4 = mysettings->value ("proxyUsername", "").toString ();
-    QString temp5 = mysettings->value ("proxyPassword", "").toString ();
-    
-    setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
+    mysettings = NULL;
+    engine = NULL;
     
     socket = new MyWebSocket(this);
     
@@ -71,9 +65,17 @@ QQmlApplicationEngine *Utility::qmlEngine()
 
 void Utility::setQmlEngine(QQmlApplicationEngine *new_engine)
 {
-    engine = new_engine;
-    engine->rootContext ()->setContextProperty ("utility", this);
-    engine->rootContext()->setContextProperty("screen", QApplication::screens ()[0]);
+    if(new_engine){
+        engine = new_engine;
+        engine->rootContext ()->setContextProperty ("utility", this);
+        engine->rootContext()->setContextProperty("screen", QApplication::screens ()[0]);
+    }
+}
+
+void Utility::initUtility(QSettings *settings, QQmlApplicationEngine *qmlEngine)
+{
+    setQSettings (settings);
+    setQmlEngine (qmlEngine);
 }
 
 QPoint Utility::mouseDesktopPos()
@@ -81,19 +83,36 @@ QPoint Utility::mouseDesktopPos()
     return QCursor::pos ();
 }
 
+void Utility::setQSettings(QSettings *settings)
+{
+    if(settings)
+        mysettings = settings;
+}
+
 void Utility::setValue(const QString &key, const QVariant &value)
 {
-    mysettings->setValue (key, value);
+    if( mysettings )
+        mysettings->setValue (key, value);
+    else
+        qDebug()<<"mysetting=NULL";
 }
 
 QVariant Utility::getValue(const QString &key, const QVariant &defaultValue) const
 {
-    return mysettings->value (key, defaultValue);
+    if( mysettings )
+        return mysettings->value (key, defaultValue);
+    else{
+        qDebug()<<"mysetting=NULL";
+        return QVariant("");
+    }
 }
 
 void Utility::removeValue(const QString &key)
 {
-    mysettings->remove (key);
+    if( mysettings )
+        mysettings->remove (key);
+    else
+        qDebug()<<"mysetting=NULL";
 }
 
 void Utility::loadQml(QUrl url)
