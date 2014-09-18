@@ -21,6 +21,8 @@ MyWindow{
     
     color: "transparent"
     Component.onCompleted: {
+        var temp = utility.stringEncrypt("fdsafds", "xingchen12345")
+        console.log(temp)
         main.x = screen.size.width/2 - main.width/2//让程序居中显示
         main.y = screen.size.height/2 - main.height/2
     }

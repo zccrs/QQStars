@@ -36,46 +36,66 @@ Utility::~Utility()
 
 char Utility::numToStr(int num)
 {
-    QByteArray str="QWERTYUIOP[]\\ASDFGHJKL;'ZXCVBNM,./qwertyuiop{}|asdfghjkl:\"zxcvbnm<>?";
+    QByteArray str="QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm";
     return str[num%str.size ()];
 }
 
-QByteArray Utility::strZoarium(const QString &str)
+QByteArray Utility::strZoarium(const QByteArray &str)
 {
-    QByteArray result="";
+    QByteArray result;
     for(int i=0;i<str.size ();++i){
-        QChar ch = str[i];
-        int ch_ascii = (int)ch.toLatin1 ();
-        if(ch.isLetter ()){//如果是字母
-            result.append (numToStr (ch_ascii)).append (QByteArray::number (ch_ascii)).append (numToStr (ch_ascii*2));
-        }else{//如果是数字
+        char ch = (char)str[i];
+        int ch_ascii = (int)ch;
+        if(ch<='9'&&ch>='0'){//如果是数字
             result.append (ch);
+        }else{//如果不是数字
+            if(ch_ascii>=0)
+                result.append (numToStr (ch_ascii)).append (QByteArray::number (ch_ascii)).append (numToStr (ch_ascii*2));
         }
     }
     return result;
 }
 
-QByteArray Utility::unStrZoarium(const QString &str)
+QByteArray Utility::unStrZoarium(const QByteArray &str)
 {
     QByteArray result="";
     for(int i=0;i<str.size ();){
-        QChar ch = str[i];
-        if(ch.isNumber ()){//如果是数字
+        char ch = (char)str[i];
+        if(ch<='9'&&ch>='0'){//如果是数字
             result.append (ch);
             i++;
         }else{//如果是其他
             QRegExp regexp("[^0-9]");
-            int pos = str.indexOf (regexp, i+1);
-            if(pos!=0){
-                char num = (char)str.mid (i+1, pos-i-1).toInt ();
-                result.append (num);
+            int pos = QString(str).indexOf (regexp, i+1);
+            if(pos>0){
+                int num = str.mid (i+1, pos-i-1).toInt ();
+                if(num>=0)
+                    result.append ((char)num);
                 i=pos+1;
             }else{
+                //qDebug()<<"数据有错";
                 i++;
             }
         }
     }
     return result;
+}
+
+QByteArray Utility::fillContent(const QByteArray &str, int length)
+{
+    if(length>0){
+        QByteArray fill_size = QByteArray::number (length);
+        if(fill_size.size ()==1)
+            fill_size="00"+fill_size;
+        else if(fill_size.size ()==2)
+            fill_size="0"+fill_size;
+        for(int i=0;i<length;++i){
+            fill_size.append ("0");
+        }
+        return fill_size+str;
+    }else{
+        return str;
+    }
 }
 
 void Utility::emitDesktopPosChanged()
@@ -186,34 +206,56 @@ void Utility::setApplicationProxy(int type, QString location, QString port, QStr
     QNetworkProxy::setApplicationProxy(proxy);
 }
 
-QString Utility::stringEncrypt(const QString &content, const QString &key)
+QString Utility::stringEncrypt(const QByteArray &content, QByteArray key)
 {
     if(content==""||key=="")
         return content;
-    
-    QByteArray data = strZoarium (content.toUtf8 ().toHex ());
+    if(key.size ()>256)
+        key = key.mid (0,256);//密匙最长256位
+    QByteArray data = strZoarium (content.toBase64 ());
     int data_size = data.size ();
-    QByteArray mykey = strZoarium (key.toUtf8 ().toHex ());
+    QByteArray mykey = strZoarium (key.toHex ());
     int key_size = mykey.size ();
+    //qDebug()<<data;
+    data=fillContent (data, 2*key_size-data_size);//填充字符串
+    //qDebug()<<data.size ();
     QByteArray temp="";
-    for(int i=0;i<data_size;++i){
-        temp.append ((char)(int)data[i]+(int)mykey[i%key_size]);
+    for(int i=0;i<data.size ();++i){
+        int ch = (int)data[i]+(int)mykey[i%key_size];
+        //qDebug()<<ch<<(int)mykey[i%key_size]<<(int)data[i];
+        if(ch>=0)
+            temp.append (QString(ch));
     }
-    return temp;
+    //qDebug()<<temp;
+    return temp.toBase64 ();
 }
 
-QString Utility::stringUncrypt(const QString &content_hex, const QString &key)
+QString Utility::stringUncrypt(const QByteArray &content_hex, QByteArray key)
 {
     if(content_hex==""||key=="")
         return content_hex;
-    
-    QByteArray data = content_hex.toLatin1 ();
-    int data_size = data.size ();
-    QByteArray mykey = strZoarium (key.toUtf8 ().toHex ());
+    if(key.size ()>256)
+        key = key.mid (0,256);//密匙最长256位
+    QByteArray data = QString::fromUtf8 (QByteArray::fromBase64 (content_hex)).toLatin1 ();
+    //qDebug()<<data.size ();
+    QByteArray mykey = strZoarium (key.toHex ());
     int key_size = mykey.size ();
-    QByteArray str;
-    for(int i=0;i<data_size;++i){
-        str.append ((char)(int)data[i]-(int)mykey[i%key_size]);
+    QByteArray temp;
+
+    for(int i=0;i<data.size ();++i){
+        int ch = (int)(uchar)data[i]-(int)mykey[i%key_size];
+        if(ch>=0){
+            //qDebug()<<(int)(uchar)data[i]<<(int)mykey[i%key_size]<<ch;
+            temp.append ((char)ch);
+        }
     }
-    return QByteArray::fromHex (unStrZoarium (str));
+    //qDebug()<<temp;
+    temp = unStrZoarium (temp);
+    int fill_size = temp.mid (0, 3).toInt ();
+    //qDebug()<<temp;
+    //qDebug()<<fill_size;
+    temp = temp.mid (fill_size+3, temp.size ()-fill_size-3);//除去填充的字符
+    //qDebug()<<temp;
+    
+    return QByteArray::fromBase64 (temp);
 }

@@ -42,9 +42,10 @@ private:
     MyWebSocket *socket;
     ThreadDownloadImage *download_image;
 
-    char numToStr(int num);
-    QByteArray strZoarium(const QString &str);
-    QByteArray unStrZoarium(const QString &str);
+    char numToStr(int num);//将数字按一定的规律换算成字母
+    QByteArray strZoarium(const QByteArray &str);//按一定的规律加密字符串(只包含数字和字母的字符串)
+    QByteArray unStrZoarium(const QByteArray &str);//按一定的规律解密字符串(只包含数字和字母的字符串)
+    QByteArray fillContent(const QByteArray &str, int length);//将字符串填充到一定的长度
 private slots:
     void emitDesktopPosChanged();
 public:
@@ -69,8 +70,8 @@ public slots:
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="");
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     
-    QString stringEncrypt(const QString &content, const QString &key);
-    QString stringUncrypt(const QString &content_hex, const QString &key);
+    QString stringEncrypt(const QByteArray &content, QByteArray key);//加密任意字符串
+    QString stringUncrypt(const QByteArray &content_hex, QByteArray key);//解密加密后的字符串
 };
 
 #endif // UTILITY_H
