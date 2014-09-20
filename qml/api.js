@@ -223,12 +223,7 @@ function encryptionPassword( password , uin ,code) {
     var g = md5(h + code.toUpperCase());
     return g;
 }
-function random(min,max){
-    return Math.floor(min+Math.random()*(max-min));
-}
-function getClientid() {
-    return String(random(0, 99)) + String((new Date()).getTime() % 1000000)
-}
+
 function getHash(b, j) {//b为自己的uin（qq号），j为ptwebqq,获取地址http://web.qstatic.com/webqqpic/pubapps/0/50/eqq.all.js
     for (var a = j + "password error",
     i = "",

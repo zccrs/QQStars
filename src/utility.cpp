@@ -1,9 +1,7 @@
 #include "utility.h"
 #include <QDebug>
+#include <QtConcurrent>
 #include <QApplication>
-#include <QQmlApplicationEngine>
-#include <QLabel>
-#include <QThread>
 #include "mynetworkaccessmanagerfactory.h"
 #include "threaddownloadimage.h"
 
@@ -22,7 +20,7 @@ Utility::Utility(QObject *parent) :
     mysettings = NULL;
     engine = NULL;
     
-    socket = new MyWebSocket(this);
+    socket = new MySocket(this);
     
     download_image = new ThreadDownloadImage(this);
     
@@ -94,7 +92,7 @@ QByteArray Utility::fillContent(const QByteArray &str, int length)
         }
         return fill_size+str;
     }else{
-        return str;
+        return "000"+str;
     }
 }
 
@@ -218,7 +216,7 @@ QString Utility::stringEncrypt(const QByteArray &content, QByteArray key)
     int key_size = mykey.size ();
     //qDebug()<<data;
     data=fillContent (data, 2*key_size-data_size);//填充字符串
-    //qDebug()<<data.size ();
+    //qDebug()<<data;
     QByteArray temp="";
     for(int i=0;i<data.size ();++i){
         int ch = (int)data[i]+(int)mykey[i%key_size];
@@ -258,4 +256,47 @@ QString Utility::stringUncrypt(const QByteArray &content_hex, QByteArray key)
     //qDebug()<<temp;
     
     return QByteArray::fromBase64 (temp);
+}
+
+bool myRemovePath(QString dirPath, bool deleteHidden, bool deleteSelf)
+{
+    qDebug()<<"removePath的进程"<<QThread::currentThread ();
+    QDir entry (dirPath);
+    if(!entry.exists()||!entry.isReadable())
+        return false;
+    entry.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+    QFileInfoList dirList = entry.entryInfoList();
+    bool bHaveHiddenFile = false;
+
+    if(!dirList.isEmpty()) {
+        for( int i = 0; i < dirList.size() ; ++i) {
+            QFileInfo info = dirList.at(i);
+            if(info.isHidden() && !deleteHidden) {
+                bHaveHiddenFile = true;
+                continue;
+            }
+            QString path = info.absoluteFilePath();
+            if(info.isDir()) {
+                if(!myRemovePath(path, deleteHidden, true))
+                    return false;
+            }else if(info.isFile()) {
+                if(!QFile::remove(path))
+                    return false;
+            }else
+                return false;
+        }
+    }
+
+    if(deleteSelf && !bHaveHiddenFile) {
+        if(!entry.rmdir(dirPath)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Utility::removePath(QString dirPath, bool deleteHidden/*=false*/, bool deleteSelf/*=false*/)
+{
+    qDebug()<<"removePath的调用进程"<<QThread::currentThread ();
+    QtConcurrent::run(myRemovePath, dirPath, deleteHidden, deleteSelf);
 }

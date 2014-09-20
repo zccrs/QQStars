@@ -5,8 +5,6 @@ import mywindow 1.0
 
 Item{
     id:root
-    width: 7/15*main.width
-    height: 28/105*width
     property bool qqlistopen: false
     
     TextField{

@@ -5,20 +5,18 @@ import mywindow 1.0
 
 CheckBox {
     id:root
-    height:2/45*main.width
+    
     style: CheckBoxStyle {
         indicator: Item{
             implicitHeight: image.implicitHeight
             implicitWidth: image.implicitWidth
             SvgView{
-                //sourceSize.width: width
-                width: 2/45*main.width
+                width: root.height
                 source: control.checked?"qrc:/images/checkBox-select.svg":"qrc:/images/checkBox-unselect.svg"
             }
             SvgView{
                 id: image
-                //sourceSize.width: width
-                width: 2/45*main.width
+                width: root.height
                 source: "qrc:/images/checkBox-hover.svg"
                 visible: mouse.hover
             }

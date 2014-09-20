@@ -6,7 +6,7 @@
 #include <QByteArray>
 #include "mynetworkaccessmanagerfactory.h"
 #include "threaddownloadimage.h"
-#include "mywebsocket.h"
+#include "mysocket.h"
 #include <QTimer>
 #include <QPoint>
 #include <QSettings>
@@ -39,7 +39,7 @@ private:
     QPoint old_pos;
     QSettings *mysettings;
     
-    MyWebSocket *socket;
+    MySocket *socket;
     ThreadDownloadImage *download_image;
 
     char numToStr(int num);//将数字按一定的规律换算成字母
@@ -54,7 +54,6 @@ public:
     QQmlApplicationEngine *qmlEngine();
 signals:
     void mouseDesktopPosChanged(QPoint pos);
-    void imageDownloadFinish(QString uin, QString path);
 public slots:
     void initUtility(QSettings *settings=0, QQmlApplicationEngine *qmlEngine=0);
     void setQmlEngine( QQmlApplicationEngine *new_engine );
@@ -72,6 +71,8 @@ public slots:
     
     QString stringEncrypt(const QByteArray &content, QByteArray key);//加密任意字符串
     QString stringUncrypt(const QByteArray &content_hex, QByteArray key);//解密加密后的字符串
+    
+    void removePath(QString dirPath ,bool deleteHidden = true, bool deleteSelf = false );
 };
 
 #endif // UTILITY_H

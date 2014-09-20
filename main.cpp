@@ -7,7 +7,6 @@
 #include "systemtrayicon.h"
 #include "utility.h"
 #include "mywindow.h"
-#include "mywebsocket.h"
 #include "qqstars.h"
 #include "myimage.h"
 #include "threaddownloadimage.h"
@@ -48,5 +47,6 @@ int main(int argc, char *argv[])
     engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     
     engine.load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));
+ 
     return app.exec();
 }

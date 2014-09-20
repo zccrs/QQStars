@@ -29,6 +29,8 @@ QQCommand::QQCommand(QQuickItem *parent) :
     poll2_timer.setInterval (20000);
     connect (&poll2_timer, SIGNAL(timeout()), SLOT(beginPoll2()));
     connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
+    
+    loadApi ();//加载api的js文件
 }
 
 void QQCommand::beginPoll2()
@@ -112,6 +114,17 @@ void QQCommand::setUserStatus(QQCommand::QQStatus new_status)
         }
         emit userStatusChanged ();
     }
+}
+
+void QQCommand::loadApi()
+{
+    QString fileName = "qml/api.js";
+    QFile scriptFile(fileName);
+    if (!scriptFile.open(QIODevice::ReadOnly))
+        qDebug()<<"打开"+fileName+"失败";
+    QString contents = scriptFile.readAll ();
+    scriptFile.close();
+    jsEngine.evaluate(contents, fileName);
 }
 
 QMap<QString, QString> QQCommand::analysisBasicData(QJsonObject obj)
@@ -232,4 +245,23 @@ void QQCommand::removeValue(const QString &key, const QString & userQQ )
 {
     QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
     mysettings.remove (key);
+}
+
+void QQCommand::updataApi(const QString content)
+{
+    qDebug()<<content;
+}
+
+QString QQCommand::getHash()
+{
+    QJSValueList list;
+    list<<QJSValue(userQQ())<<QJSValue(Utility::createUtilityClass ()->getCookie ("ptwebqq"));
+    return jsEngine.globalObject ().property ("getHash").call (list).toString ();
+}
+
+QString QQCommand::encryptionPassword(const QString &uin, const QString &code)
+{
+    QJSValueList list;
+    list<<QJSValue(userPassword())<<QJSValue(uin)<<QJSValue(code);
+    return jsEngine.globalObject ().property ("encryptionPassword").call (list).toString ();
 }

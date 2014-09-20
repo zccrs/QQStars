@@ -74,6 +74,9 @@ private:
     QString m_userQQ;
     QString m_userPassword;
 
+    QJSEngine jsEngine;
+    void loadApi();
+    
     QMap<QString, QString> analysisBasicData( QJsonObject obj );
     void analysisMessage( QJsonObject obj );
     void analysisInputNotify( QJsonObject obj );
@@ -113,6 +116,10 @@ public slots:
     void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
     QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
     void removeValue( const QString & key, const QString & userQQ="" );
+    
+    void updataApi(const QString content);
+    QString getHash();
+    QString encryptionPassword(const QString &uin, const QString &code);
 };
 
 #endif // QQCommand_H

@@ -11,6 +11,11 @@ Item{
     }
 
     function getFriendListFinished(error, data) {//获取好友列表完成
+        if(error){
+            myqq.getFriendList(getFriendListFinished) //获取好友列表
+            return
+        }
+
         data = JSON.parse(data)
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
@@ -142,6 +147,11 @@ Item{
             property string account: myqq.getValue(info.uin+"account", "")//真实qq号
             
             function getQQFinished(error, data){//获取好友真实qq后调用的函数
+                if(error){
+                    myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
+                    return
+                }
+                
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account
@@ -158,6 +168,11 @@ Item{
                 avatar.source = imageName
             }
             function getQQSignatureFinished(error, data){//获取个性签名完成
+                if(error){
+                    myqq.getQQSignature( info.uin, getQQSignatureFinished )//获取个性签名
+                    return
+                }
+                
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     text_signature.text = data.result[0].lnick//显示个性签名

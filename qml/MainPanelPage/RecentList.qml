@@ -9,6 +9,11 @@ Item{
         myqq.getRecentList(getRecentListFinished) //获取最近联系人
     }
     function getRecentListFinished(error, data){//当获取最近联系人列表完成后
+        if(error){
+            myqq.getRecentList(getRecentListFinished) //获取最近联系人
+            return
+        }
+
         data = JSON.parse(data)
         if( data.retcode==0 ) {
             data = data.result
@@ -42,6 +47,11 @@ Item{
                 avatar.source = imageName
             }
             function getQQFinished(error, data){//获取好友真实qq后调用的函数
+                if(error){
+                    myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
+                    return
+                }
+                
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account
@@ -55,6 +65,11 @@ Item{
                 }
             }
             function getFriendInfoFinished( error, data ) {
+                if(error){
+                    myqq.getFriendInfo( info.uin, getFriendInfoFinished )//获取好友资料，从中提取昵称
+                    return
+                }
+                
                 data = JSON.parse(data)
                 if(data.retcode==0) {
                     data = data.result

@@ -1,6 +1,5 @@
 import QtQuick 2.2
 import utility 1.0
-import "api.js" as Api
 
 QQ{
     id: root
@@ -12,12 +11,21 @@ QQ{
     property var friendListData//储存好友列表
     property string list_hash//获取好友列表时需要的hash
     property string ptwebqq//登录后返回的cookie
+    property string mycode//临时保存验证码
+    
     Component.onCompleted: {
-        clientid = Api.getClientid()
+        clientid = getClientid()
     }
     
     onUserStatusChanged: {
         editUserStatus()//改变在线状态
+    }
+    
+    function random(min,max){
+        return Math.floor(min+Math.random()*(max-min));
+    }
+    function getClientid() {
+        return String(random(0, 99)) + String((new Date()).getTime() % 1000000)
     }
     
     function showInputCodePage(callbackFun, uin) {
@@ -31,16 +39,22 @@ QQ{
     function login(code) {
         if( myqq.loginStatus == QQ.Logining ){
             if( code ) {//开始第一次登陆GET
-                var p = Api.encryptionPassword(myqq.userPassword, uin, code)
+                var p = encryptionPassword(uin, code)
                 var url1 = "https://ssl.ptlogin2.qq.com/login?u="+myqq.userQQ+"&p="+p+"&verifycode="+code+"&webqq_type=10&remember_uin=1&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=5-42-29419&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10087&login_sig=0RH3iE1ODTjmJJtKJ5MtDyoG*Q*pwgh2ABgmvw0E0zjdJpjPBbS*H9aZ4WRwLSFk&pt_uistyle=5"
                 utility.socketSend(login1Finished, url1)
             }else{//先检测qq号是否需要输入验证码
+                mycode = code
                 var url2 = "https://ssl.ptlogin2.qq.com/check?uin="+myqq.userQQ+"&appid=1003903&r=0.08757076971232891"
                 utility.socketSend(testQQFinished, url2)
             }
         }
     }
     function testQQFinished(error, data) {//服务器返回qq是否需要验证码
+        if(error){//如果出错了
+            login()
+            return
+        }
+
         if( myqq.loginStatus == QQ.Logining ){
             var temp = data.split("'")
             uin = temp[5]
@@ -53,6 +67,10 @@ QQ{
     }
     
     function login1Finished(error, data){//登录之后服务器返回的数据
+        if(error){//如果出错了
+            login(mycode)//再次请求
+            return
+        }
         if( myqq.loginStatus == QQ.Logining ){
             var list = data.split ("'");
             if( list[1]==0 ){
@@ -69,7 +87,7 @@ QQ{
         if( myqq.loginStatus == QQ.Logining ){
             var url = "http://d.web2.qq.com/channel/login2"
             ptwebqq = utility.getCookie("ptwebqq")//储存cookie
-            list_hash = Api.getHash(myqq.userQQ, ptwebqq)//储存hash
+            list_hash = getHash()//储存hash
             var r = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
             r = encodeURI(r)
             utility.socketSend(login2Finished, url, r)
@@ -77,6 +95,10 @@ QQ{
     }
     
     function login2Finished(error, data) {//二次登录，这次才是真正的登录
+        if(error){//如果出错了
+            login2(null)
+            return
+        }
         if( myqq.loginStatus == QQ.Logining ){
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
@@ -96,6 +118,10 @@ QQ{
     }
     
     function getDataFinished(error, data) {//获取用户资料成功后
+        if(error){//如果出错了
+            getUserData(myqq.userQQ, getDataFinished)//再次获取自己的资料
+            return
+        }
         if( myqq.loginStatus == QQ.Logining ){
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
@@ -147,14 +173,14 @@ QQ{
     }
     function getFriendList(backFun) {//获取好友列表
         var url = "http://s.web2.qq.com/api/get_user_friends2"
-        var data = 'r={"h":"hello","hash":"'+Api.getHash(myqq.userQQ, ptwebqq)+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
+        var data = 'r={"h":"hello","hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
         data = encodeURI(data)
         utility.socketSend(backFun, url, data)
     }
     
     function getGroupList(backFun) {//获取群列表
         var url = "http://s.web2.qq.com/api/get_group_name_list_mask2"
-        var data = 'r={"hash":"'+Api.getHash(myqq.userQQ, ptwebqq)+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
+        var data = 'r={"hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
         data = encodeURI(data)
         utility.socketSend(backFun, url, data)
     }
@@ -192,6 +218,11 @@ QQ{
         }
     }
     function editUserStatusFinished(error, data){
+        if(error){
+            editUserStatus()//再次请求
+            return
+        }
+
         if( loginStatus == QQ.LoginFinished ) {
             data = JSON.parse(data)
             if( data.retcode==0&&data.result=="ok" ){

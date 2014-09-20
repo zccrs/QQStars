@@ -3,24 +3,37 @@ import utility 1.0
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import mywindow 1.0
+import QtGraphicalEffects 1.0
 import "../"
 
-BorderImage{
-    source: "qrc:/images/login-panel-shadow.png"
-    anchors.fill: parent
-    border{left: 20;right: 20;top:20;bottom: 20}
-    function reLogin(){//重新登录
-        avatar_image.x = -30/77*avatar_image.width
-        myqq.loginStatus = QQ.Offline
+Item{
+    width: effect.width+2*effect.glowRadius+30
+    height: effect.height+2*effect.glowRadius+30
+    RectangularGlow {
+        id: effect
+        width: root.implicitWidth
+        height: root.implicitHeight-glowRadius+10
+        anchors.right: parent.right
+        anchors.rightMargin: glowRadius+15
+        y:glowRadius+15
+        glowRadius: 50
+        spread: 0.1
+        color: "black"
+        opacity: 0.75
+        Component.onCompleted: {
+            console.log(effect.children[1].x)
+            //effect.children[1].x+=10
+        }
     }
     SvgView {
         id: root
-        //sourceSize.width: width
-        width: 4/5*parent.width
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.topMargin: main.height/12
-        anchors.rightMargin: main.width/12
+        //width: parent.width-60
+        x:effect.x
+        y:effect.y-effect.glowRadius+10
+        //anchors.right: parent.right
+        //anchors.top: parent.top
+        //anchors.topMargin: effect.glowRadius/2
+        //anchors.rightMargin: effect.glowRadius/2-10
         source: "qrc:/images/login-panel.svg"
         
         Connections{
@@ -33,16 +46,18 @@ BorderImage{
         
         MyImage{
             id:avatar_image
+            
             maskSource: "qrc:/images/bit.bmp"
-            width: 8/45*main.width
+            width: 8/35*root.width
             source: myqq.getValue("avatar-100", "qrc:/images/avatar.png")
             x:-30/77*width
             anchors.verticalCenter: inputarea.verticalCenter
             
             onLoadError:{
+                console.log("头像加载出错")
                 source = "qrc:/images/avatar.png"
             }
-
+    
             SvgView{
                 id: rect_border
                 //sourceSize.width: width
@@ -172,17 +187,7 @@ BorderImage{
                 onClicked: Qt.quit()
             }
         }
-        /*SvgView{
-            anchors.left: image_quit_icon.right
-            anchors.top: image_quit_icon.top
-            width: image_quit_icon.width
-            source: "qrc:/images/button-minimize.svg"
-            MouseArea{
-                anchors.fill: parent
-                onClicked: main.showMinimized()
-            }
-        }*/
-
+    
         SvgView {
             id: image_qq_for_ubuntu
             width: 1/3*main.width
@@ -195,6 +200,8 @@ BorderImage{
         
         LoginInputArea{
             id: inputarea
+            width: 7/12*root.width
+            height: 28/105*width
             visible: myqq.loginStatus == QQ.Offline
             anchors.left: avatar_image.right
             anchors.leftMargin: 30
@@ -202,6 +209,7 @@ BorderImage{
             anchors.topMargin: root.height/10
             LoginCheckBox{
                 id: checkbox_rememberpassword
+                height:2/40*root.width
                 checked: myqq.getValue("rememberpassword", 0)==1
                 anchors.left: inputarea.left
                 anchors.top: inputarea.bottom
@@ -217,6 +225,7 @@ BorderImage{
             
             LoginCheckBox{
                 id:checkbox_autologin
+                height:2/40*root.width
                 checked: myqq.getValue("autologin", 0)==1
                 anchors.right: inputarea.right
                 anchors.rightMargin: 10
@@ -251,7 +260,7 @@ BorderImage{
                     progress_animation1.stop()
                 }
             }
-
+    
             width: root.width
             height: image_progress1.height
             Image{
@@ -285,7 +294,7 @@ BorderImage{
             id:button_login
             anchors.bottom: parent.bottom
             anchors.bottomMargin: root.height/20
-            width: 19/45*main.width
+            width: 19/40*root.width
             anchors.horizontalCenter: parent.horizontalCenter
             text: myqq.loginStatus != QQ.Offline?"取    消":"登    录"
             font.pointSize: width/15
@@ -320,7 +329,7 @@ BorderImage{
                 }
             }
         }
-
+    
         Component.onCompleted: {
             if( myqq.getValue("autologin", 0)==1 )//此账号如果设置了自动登录
                 myqq.loginStatus = QQ.Logining
@@ -332,5 +341,5 @@ BorderImage{
         Keys.onReturnPressed: {
             button_login.clicked()
         }
-    }    
+    }
 }

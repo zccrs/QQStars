@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = QQStars
-QT += widgets network webkit svg qml quick
+QT += widgets network webkit svg qml quick concurrent
 
 INCLUDEPATH += \
     src \
@@ -11,12 +11,12 @@ SOURCES += main.cpp \
     src/mynetworkaccessmanagerfactory.cpp \
     src/utility.cpp \
     src/mywindow.cpp \
-    src/mywebsocket.cpp \
     src/qqstars.cpp \
     src/systemtrayicon.cpp \
     src/threaddownloadimage.cpp \
     src/mysvgview.cpp \ 
-    src/myimage.cpp
+    src/myimage.cpp \
+    src/mysocket.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc
@@ -37,12 +37,12 @@ HEADERS += \
     src/mynetworkaccessmanagerfactory.h \
     src/utility.h \
     src/mywindow.h \
-    src/mywebsocket.h \
     src/qqstars.h \
     src/systemtrayicon.h \
     src/threaddownloadimage.h \
     src/mysvgview.h \ 
-    src/myimage.h
+    src/myimage.h \
+    src/mysocket.h
 
 OTHER_FILES += \
             qml/LoginPage/LoginCheckBox.qml \
@@ -70,5 +70,6 @@ OTHER_FILES += \
     qml/api.js \
     qml/QQApi.qml \
     qml/MyComboBoxComponent.qml \
+    qml/MyRectangularGlow.qml
 
 FORMS +=

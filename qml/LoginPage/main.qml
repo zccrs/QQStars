@@ -2,15 +2,19 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Window 2.1
+import QtWinExtras 1.0
 import mywindow 1.0
 import utility 1.0
+import Qt.labs.settings 1.0
 import "../"
 
 MyWindow{
     id:main
     windowIcon: "qrc:/images/avatar.png"
-    width: 450/1366*screen.size.width
-    height: 3/4*width
+    //width: 410/1366*screen.size.width
+    //height: 31/41*width
+    width: login_page.width
+    height: login_page.height
     visible: true//可视的
     noBorder: true//无边框的
     removable: true//可移动的
@@ -21,8 +25,8 @@ MyWindow{
     
     color: "transparent"
     Component.onCompleted: {
-        var temp = utility.stringEncrypt("fdsafds", "xingchen12345")
-        console.log(temp)
+        //var temp = utility.stringEncrypt("cccccccccccc", "xingchenQQ")
+        //console.log(utility.stringUncrypt(temp, "xingchenQQ"))
         main.x = screen.size.width/2 - main.width/2//让程序居中显示
         main.y = screen.size.height/2 - main.height/2
     }
@@ -73,6 +77,12 @@ MyWindow{
     function openLoginPage() {//打开登录面板
         login_page.enabled = true
         flipable.flipped = true
+    }
+    
+    ThumbnailToolBar {
+        ThumbnailToolButton { iconSource: "qrc:/images/avatar.png"; tooltip: "登录"; }
+        ThumbnailToolButton { interactive: false; flat: true }
+        ThumbnailToolButton { iconSource: "qrc:/images/avatar.png"; tooltip: "退出";  }
     }
     
     Flipable {
