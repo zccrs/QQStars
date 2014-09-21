@@ -46,10 +46,6 @@ Item{
     function actualHeight(){
         return glowTopHeight()+glow.height+glowBottomHeight()
     }
-    Component.onCompleted: {
-        console.log(glowRightWidth())
-        console.log(glowBottomHeight())
-    }
 
     RectangularGlow {
         id: glow
