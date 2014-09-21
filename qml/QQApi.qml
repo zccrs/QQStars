@@ -41,16 +41,11 @@ QQ{
     function login(code) {
         if( myqq.loginStatus == QQ.Logining ){
             if( code ) {//开始第一次登陆GET
-<<<<<<< .mine
                 mycode = code
                 var p = encryptionPassword(uin, code)
-=======
-                var p = encryptionPassword(uin, code)
->>>>>>> .r19
                 var url1 = "https://ssl.ptlogin2.qq.com/login?u="+myqq.userQQ+"&p="+p+"&verifycode="+code+"&webqq_type=10&remember_uin=1&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=5-42-29419&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10087&login_sig=0RH3iE1ODTjmJJtKJ5MtDyoG*Q*pwgh2ABgmvw0E0zjdJpjPBbS*H9aZ4WRwLSFk&pt_uistyle=5"
                 utility.socketSend(login1Finished, url1)
             }else{//先检测qq号是否需要输入验证码
-                mycode = code
                 var url2 = "https://ssl.ptlogin2.qq.com/check?uin="+myqq.userQQ+"&appid=1003903&r=0.08757076971232891"
                 utility.socketSend(testQQFinished, url2)
             }

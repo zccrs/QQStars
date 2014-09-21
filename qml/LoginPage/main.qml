@@ -25,11 +25,6 @@ MyWindow{
     
     color: "transparent"
     Component.onCompleted: {
-<<<<<<< .mine
-=======
-        //var temp = utility.stringEncrypt("cccccccccccc", "xingchenQQ")
-        //console.log(utility.stringUncrypt(temp, "xingchenQQ"))
->>>>>>> .r19
         main.x = screen.size.width/2 - main.width/2//让程序居中显示
         main.y = screen.size.height/2 - main.height/2
     }
