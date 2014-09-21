@@ -78,7 +78,7 @@ Item{
     SvgView {
         id: unfold_icon
 
-        width: 1/25*main.width
+        width: 1/3*root.height
         source: "qrc:/images/inputBox-more.svg"
         anchors.left: input_qq.right 
         anchors.leftMargin: -5
@@ -132,7 +132,7 @@ Item{
     SvgView {
         id: soft_keyboard_icon
         //sourceSize.width: width
-        width: 1/25*main.width
+        width: 1/3*root.height
         source: "qrc:/images/soft-keyboard.svg"
         anchors.left: input_password.right
         anchors.leftMargin: -5

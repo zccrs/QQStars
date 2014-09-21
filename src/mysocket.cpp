@@ -1,6 +1,6 @@
-#include "mywebsocket.h"
+#include "mysocket.h"
 
-MyWebSocket::MyWebSocket(QObject *parent) :
+MySocket::MySocket(QObject *parent) :
     QObject(parent)
 {
     m_status = Idle;
@@ -10,12 +10,12 @@ MyWebSocket::MyWebSocket(QObject *parent) :
     connect (manager, SIGNAL(finished(QNetworkReply*)), SLOT(finished(QNetworkReply*)));
 }
 
-MyWebSocket::RequestStatus MyWebSocket::status()
+MySocket::RequestStatus MySocket::status()
 {
     return m_status;
 }
 
-void MyWebSocket::setStatus(MyWebSocket::RequestStatus new_status)
+void MySocket::setStatus(MySocket::RequestStatus new_status)
 {
     if( new_status!=m_status ) {
         m_status = new_status;
@@ -23,12 +23,12 @@ void MyWebSocket::setStatus(MyWebSocket::RequestStatus new_status)
     }
 }
 
-NetworkAccessManager *MyWebSocket::getNetworkAccessManager()
+NetworkAccessManager *MySocket::getNetworkAccessManager()
 {
     return manager;
 }
 
-void MyWebSocket::finished(QNetworkReply *reply)
+void MySocket::finished(QNetworkReply *reply)
 {
     if( reply->error () == QNetworkReply::NoError) {
         QJSValueList list;
@@ -44,7 +44,7 @@ void MyWebSocket::finished(QNetworkReply *reply)
     send();//继续请求
 }
 
-void MyWebSocket::send(QJSValue callbackFun, QUrl url, QByteArray data)
+void MySocket::send(QJSValue callbackFun, QUrl url, QByteArray data)
 {
     queue_callbackFun<<callbackFun;
     queue_url<<url;
@@ -54,7 +54,7 @@ void MyWebSocket::send(QJSValue callbackFun, QUrl url, QByteArray data)
     }
 }
 
-void MyWebSocket::send()
+void MySocket::send()
 {
     if( queue_url.count ()>0){
         setStatus (Busy);
@@ -68,12 +68,12 @@ void MyWebSocket::send()
         setStatus (Idle);//设置状态为空闲
 }
 
-QString MyWebSocket::errorString()
+QString MySocket::errorString()
 {
     return m_reply->errorString ();
 }
 
-void MyWebSocket::setRawHeader(const QByteArray &headerName, const QByteArray &value)
+void MySocket::setRawHeader(const QByteArray &headerName, const QByteArray &value)
 {
     request.setRawHeader (headerName, value);
 }

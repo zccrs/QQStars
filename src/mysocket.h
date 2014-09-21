@@ -1,19 +1,19 @@
-#ifndef MYWEBSOCKET_H
-#define MYWEBSOCKET_H
+#ifndef MYSOCKET_H
+#define MYSOCKET_H
 
 #include <QObject>
 #include <QtNetwork>
 #include <QQueue>
 #include "mynetworkaccessmanagerfactory.h"
 
-class MyWebSocket : public QObject
+class MySocket : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( RequestStatus status READ status WRITE setStatus NOTIFY statusChanged)
     Q_ENUMS(RequestStatus)
     
 public:
-    explicit MyWebSocket(QObject *parent = 0);
+    explicit MySocket(QObject *parent = 0);
     enum RequestStatus{
         Idle,//初始状态
         Busy//请求中
@@ -44,4 +44,4 @@ public slots:
     void setRawHeader(const QByteArray &headerName, const QByteArray &value);
 };
 
-#endif // MYWEBSOCKET_H
+#endif // MYSOCKET_H

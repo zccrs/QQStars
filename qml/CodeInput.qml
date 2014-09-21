@@ -15,8 +15,8 @@ MyWindow{
     topHint: false//窗口保持在最前端
     noNotifyIcon: false//隐藏任务栏图标
     modality : Qt.ApplicationModal
-    width: 400
-    height: 7/9*width
+    width: glow.actualWidth()
+    height: glow.actualHeight()
     property string str: ""
     property var backFun//验证码获取成功后调用此函数
     onStrChanged: {
@@ -27,11 +27,7 @@ MyWindow{
         code_image.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
         code_input.text = ""
     }
-    BorderImage{
-        source: "qrc:/images/login-panel-shadow.png"
-        anchors.fill: parent
-        border{left: 20;right: 20;top:20;bottom: 20}
-    }
+    
     Connections{
         target: myqq
         onUpdateCode:{
@@ -42,95 +38,97 @@ MyWindow{
         }
     }
 
-    SvgView {
-        id:root_page
-        width: 4/5*parent.width
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.topMargin: parent.height/12
-        anchors.rightMargin: parent.width/10
-        source: "qrc:/images/login-panel.svg"
-        
-        SvgView{
-            id:image_quit_icon
-            //sourceSize.width: width
-            width: 2/35*parent.width
-            source: "qrc:/images/button-quit.svg"
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.margins: 10
-            MouseArea{
-                anchors.fill: parent
-                onClicked: root_window.close()
+    MyRectangularGlow{
+        id: glow
+        glowRadius: 10
+        color: "black"
+
+        item:SvgView {
+            id:root_page
+            width: 300
+            
+            source: "qrc:/images/login-panel.svg"
+            SvgView{
+                id:image_quit_icon
+                width: 2/35*parent.width
+                source: "qrc:/images/button-quit.svg"
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.margins: 10
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: root_window.close()
+                }
             }
-        }
-        Text{
-            id: text_code
-            text: "请输入验证码"
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.leftMargin: root_page.width/15
-            anchors.topMargin: root_page.height/8
-            color: "#f47421"
-            font.pointSize: root_page.height/25
-        }
-        TextField{
-            id: code_input
-            anchors.left: code_image.left
-            anchors.top: code_image.bottom
-            anchors.topMargin: 5
-            width: code_image.width
-            height: 20
-            font.pointSize: text_code.font.pointSize
-            style: TextFieldStyle {
-                    textColor: "black"
-                    background: BorderImage {
-                        source: "qrc:/images/background_input.png"
-                        border.left: 5; border.top: 5
-                        border.right: 5; border.bottom: 5
+            Text{
+                id: text_code
+                text: "请输入验证码"
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.leftMargin: root_page.width/15
+                anchors.topMargin: root_page.height/8
+                color: "#f47421"
+                font.pointSize: root_page.height/25
+            }
+            TextField{
+                id: code_input
+                anchors.left: code_image.left
+                anchors.top: code_image.bottom
+                anchors.topMargin: 5
+                width: code_image.width
+                height: 20
+                font.pointSize: text_code.font.pointSize
+                style: TextFieldStyle {
+                        textColor: "black"
+                        background: BorderImage {
+                            source: "qrc:/images/background_input.png"
+                            border.left: 5; border.top: 5
+                            border.right: 5; border.bottom: 5
+                        }
+                    }
+                Component.onCompleted: code_input.forceActiveFocus()
+            }
+            Image{
+                id: code_image
+                width: 130
+                height: 53
+                cache: false
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top :text_code.top
+                anchors.topMargin: root_page.height/12
+                source: "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        parent.source = ""
+                        parent.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
                     }
                 }
-            Component.onCompleted: code_input.forceActiveFocus()
-        }
-        Image{
-            id: code_image
-            width: 130
-            height: 53
-            cache: false
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top :text_code.top
-            anchors.topMargin: root_page.height/12
-            source: "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
-            MouseArea{
-                anchors.fill: parent
+            }
+            MyButton{
+                id: button_affirm
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: root_page.height/20
+                width: 19/42*parent.width
+                anchors.horizontalCenter: parent.horizontalCenter
+                text:"确    认"
+                font.pointSize: width/15
                 onClicked: {
-                    parent.source = ""
-                    parent.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
+                    if( myqq.loginStatus == QQ.Logining&&code_input.text!="" ) {
+                        backFun(code_input.text)
+                    }
                 }
             }
-        }
-        MyButton{
-            id: button_affirm
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: root_page.height/20
-            width: 19/42*parent.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            text:"确    认"
-            font.pointSize: width/15
-            onClicked: {
-                if( myqq.loginStatus == QQ.Logining&&code_input.text!="" ) {
-                    backFun(code_input.text)
-                }
+            Component.onCompleted: {
+                console.log(width+","+height)
+                forceActiveFocus()
             }
-        }
-        Component.onCompleted: {
-            forceActiveFocus()
-        }
-        Keys.onEnterPressed: {
-            button_affirm.clicked()
-        }
-        Keys.onReturnPressed: {
-            button_affirm.clicked()
+            Keys.onEnterPressed: {
+                button_affirm.clicked()
+            }
+            Keys.onReturnPressed: {
+                button_affirm.clicked()
+            }
         }
     }
 }
