@@ -287,7 +287,7 @@ Item{
             MyButton{
                 id:button_login
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: root.height/20
+                anchors.bottomMargin: 30/250*root.height-height/2-1*height/defaultSize.height
                 width: defaultSize.width*myqq.windowScale
 
                 anchors.horizontalCenter: parent.horizontalCenter
