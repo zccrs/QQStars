@@ -13,7 +13,21 @@ QQ{
     property string ptwebqq//登录后返回的cookie
     property string mycode//临时保存验证码
     
-    windowScale: 1
+    windowScale: {
+        var dosktopWidth = screen.size.width
+        if(dosktopWidth<=1366)
+            return 1
+        else if(dosktopWidth>1366&&dosktopWidth<=1600)
+            return 1.2
+        else if(dosktopWidth>1600&&dosktopWidth<=1920)
+            return 1.4
+        else if(dosktopWidth>1920&&dosktopWidth<=2300)
+            return 1.6
+        else if(dosktopWidth>2300&&dosktopWidth<=2600)
+            return 1.8
+        else if(dosktopWidth>2600)
+            return 2
+    }
     
     Component.onCompleted: {
         clientid = getClientid()
