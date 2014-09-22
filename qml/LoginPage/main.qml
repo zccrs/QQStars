@@ -11,8 +11,6 @@ import "../"
 MyWindow{
     id:main
     windowIcon: "qrc:/images/avatar.png"
-    //width: 410/1366*screen.size.width
-    //height: 31/41*width
     width: login_page.width
     height: login_page.height
     visible: true//可视的

@@ -22,15 +22,12 @@ Item{
         glowOpacity: 0.75
         width: root.width
         height: root.height
-        biasX: 10
+        biasY: 10
    
-        Component.onCompleted: {
-            effect.biasY = glowTopHeight()
-        }
-
         item:SvgView {
             id: root
             source: "qrc:/images/login-panel.svg"
+            width: defaultSize.width*myqq.windowScale
             Connections{
                 target: myqq
                 onLoginStatusChanged:{
@@ -41,13 +38,12 @@ Item{
             
             MyImage{
                 id:avatar_image
-                
                 maskSource: "qrc:/images/bit.bmp"
-                width: 8/35*root.width
+                width: 80*myqq.windowScale
                 source: myqq.getValue("avatar-100", "qrc:/images/avatar.png")
-                x:-30/77*width
+                x:-30/80*width
                 anchors.verticalCenter: inputarea.verticalCenter
-                
+
                 onLoadError:{
                     console.log("头像加载出错")
                     source = "qrc:/images/avatar.png"
@@ -55,7 +51,6 @@ Item{
         
                 SvgView{
                     id: rect_border
-                    //sourceSize.width: width
                     source: "qrc:/images/avatar-border.svg"
                     anchors.centerIn: parent
                     width: avatar_image.width*1.23
@@ -79,10 +74,11 @@ Item{
         
                SvgView{
                     id: user_status_icon
+                    width: defaultSize.width*myqq.windowScale
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     //sourceSize.width: width
-                    width: 5/16*avatar_image.width
+                    //width: 5/16*avatar_image.width
                     visible: myqq.loginStatus == QQ.Offline
                     source: "qrc:/images/status-"+myqq.userStatusToString+"-1.svg"
                     MyMenu{
@@ -171,8 +167,7 @@ Item{
         
             SvgView{
                 id:image_quit_icon
-                //sourceSize.width: width
-                width: 2/35*root.width
+                width: defaultSize.width*myqq.windowScale
                 source: "qrc:/images/button-quit.svg"
                 anchors.left: parent.left
                 anchors.top: parent.top
@@ -185,7 +180,7 @@ Item{
         
             SvgView {
                 id: image_qq_for_ubuntu
-                width: 1/2*root.width
+                width: defaultSize.width*myqq.windowScale
                 //sourceSize.width: width
                 source: "qrc:/images/QQ-for-ubuntu.svg"
                 anchors.top: parent.top
@@ -195,16 +190,21 @@ Item{
             
             LoginInputArea{
                 id: inputarea
-                width: 7/12*root.width
-                height: 28/105*width
+                width: 220*myqq.windowScale
+                height: 64*myqq.windowScale
                 visible: myqq.loginStatus == QQ.Offline
                 anchors.left: avatar_image.right
                 anchors.leftMargin: 30
                 anchors.top: image_qq_for_ubuntu.bottom
                 anchors.topMargin: root.height/10
+                Component.onCompleted: {
+                    //console.log(width)
+                    //console.log(height)
+                }
+
                 LoginCheckBox{
                     id: checkbox_rememberpassword
-                    height:2/40*root.width
+                    //height:2/40*root.width
                     checked: myqq.getValue("rememberpassword", 0)==1
                     anchors.left: inputarea.left
                     anchors.top: inputarea.bottom
@@ -220,7 +220,7 @@ Item{
                 
                 LoginCheckBox{
                     id:checkbox_autologin
-                    height:2/40*root.width
+                    //height:2/40*root.width
                     checked: myqq.getValue("autologin", 0)==1
                     anchors.right: inputarea.right
                     anchors.rightMargin: 10
@@ -289,7 +289,8 @@ Item{
                 id:button_login
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: root.height/20
-                width: 19/40*root.width
+                width: defaultSize.width*myqq.windowScale
+
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: myqq.loginStatus != QQ.Offline?"取    消":"登    录"
                 font.pointSize: width/15
@@ -312,6 +313,7 @@ Item{
             }
             SvgView{
                 id: button_setting
+                width: defaultSize.width*myqq.windowScale
                 source: "qrc:/images/button-settings.svg"
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom

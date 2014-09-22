@@ -18,6 +18,7 @@ QQCommand::QQCommand(QQuickItem *parent) :
     setUserQQ (utility->getValue ("mainqq","").toString ());
     m_loginStatus = Offline;
     m_userStatusToString = "online";
+    m_windowScale = 1;
     connect (this, SIGNAL(userStatusChanged()), SIGNAL(userStatusToStringChanged()));
     
     request.setUrl (QUrl("http://d.web2.qq.com/channel/poll2"));

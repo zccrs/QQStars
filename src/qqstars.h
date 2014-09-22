@@ -15,6 +15,7 @@ class QQCommand : public QQuickItem
     Q_PROPERTY(QQStatus userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
     Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged)
     Q_PROPERTY(LoginStatus loginStatus READ loginStatus WRITE setLoginStatus NOTIFY loginStatusChanged)
+    Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
     Q_ENUMS(QQStatus)
     Q_ENUMS(LoginStatus)
     Q_ENUMS(ProxyType)
@@ -56,6 +57,11 @@ public:
         return m_userPassword;
     }
     
+    double windowScale() const
+    {
+        return m_windowScale;
+    }
+    
 private slots:
     void beginPoll2();
     void poll2Finished(QNetworkReply *replys);
@@ -81,6 +87,8 @@ private:
     void analysisMessage( QJsonObject obj );
     void analysisInputNotify( QJsonObject obj );
     void analysisFriendStatusChanged( QJsonObject obj );
+    double m_windowScale;
+    
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
@@ -91,7 +99,9 @@ signals:
     void updateCode();//刷新验证码
     void inputCodeClose();//关闭验证码输入
     void userPasswordChanged(QString arg);
-
+    
+    void windowScaleChanged(double arg);
+    
 public slots:
     void setLoginStatus(LoginStatus arg);
     void startPoll2( QByteArray data );
@@ -120,6 +130,13 @@ public slots:
     void updataApi(const QString content);
     QString getHash();
     QString encryptionPassword(const QString &uin, const QString &code);
+    void setWindowScale(double arg)
+    {
+        if (m_windowScale != arg) {
+            m_windowScale = arg;
+            emit windowScaleChanged(arg);
+        }
+    }
 };
 
 #endif // QQCommand_H

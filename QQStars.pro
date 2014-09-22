@@ -70,6 +70,7 @@ OTHER_FILES += \
     qml/api.js \
     qml/QQApi.qml \
     qml/MyComboBoxComponent.qml \
-    qml/MyRectangularGlow.qml
+    qml/MyRectangularGlow.qml \
+    qml/MyTextField.qml
 
 FORMS +=

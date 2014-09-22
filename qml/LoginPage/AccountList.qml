@@ -81,8 +81,7 @@ Window{
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
                 anchors.rightMargin: 20
-                width: 1/3*parent.height
-                //sourceSize.width: width
+                width: defaultSize.width*myqq.windowScale
                 visible: root.highlightIndex == index
                 source: "qrc:/images/button-quit.svg"
                 property string qq: uin

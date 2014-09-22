@@ -6,9 +6,18 @@
 MySvgView::MySvgView(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
+    m_defaultSize = QSize(0,0);
     svg = new QSvgRenderer(this);
     connect (this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
     connect (this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
+}
+
+void MySvgView::setDefaultSize(QSize arg)
+{
+    if(arg!=m_defaultSize){
+        m_defaultSize = arg;
+        emit defaultSizeChanged (arg);
+    }
 }
 
 void MySvgView::onWidthChanged()
@@ -34,6 +43,7 @@ void MySvgView::setSource(QUrl arg)
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
         svg->load (str);
+        setDefaultSize (svg->defaultSize ());
         int temp1 = svg->defaultSize ().width ();
         int temp2 = svg->defaultSize ().height ();
         if(width ()==0&&height ()==0)

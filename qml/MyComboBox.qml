@@ -37,7 +37,7 @@ Item{
             anchors.left: parent.left
             anchors.leftMargin: 5
             text: model.get(0).text
-            font.pointSize: root.height-10
+            font.pointSize: root.height/2
         }
         SvgView {
             source: "qrc:/images/inputBox-more.svg"

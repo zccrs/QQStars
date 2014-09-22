@@ -11,14 +11,15 @@ CheckBox {
             implicitHeight: image.implicitHeight
             implicitWidth: image.implicitWidth
             SvgView{
-                width: root.height
+                width: defaultSize.width*myqq.windowScale
                 source: control.checked?"qrc:/images/checkBox-select.svg":"qrc:/images/checkBox-unselect.svg"
             }
             SvgView{
                 id: image
-                width: root.height
+                width: defaultSize.width*myqq.windowScale
                 source: "qrc:/images/checkBox-hover.svg"
                 visible: mouse.hover
+                Component.onCompleted: root.height = width
             }
         }
         label: Text{

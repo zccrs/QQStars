@@ -54,5 +54,7 @@
         <file>images/TempSession_press.png</file>
         <file>images/menu_background.png</file>
         <file>images/button-settings.svg</file>
+        <file>images/inputBox1.svg</file>
+        <file>images/inputBox2.svg</file>
     </qresource>
 </RCC>

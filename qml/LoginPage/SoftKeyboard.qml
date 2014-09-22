@@ -8,8 +8,9 @@ Window{
     property bool is: false
     x: utility.mouseDesktopPos().x - 200
     y: utility.mouseDesktopPos().y + 13
-    width: 420/1366*screen.size.width
+    width: 450*myqq.windowScale
     height: 2/7*width
+    
     flags: Qt.SplashScreen
     signal input(var arg)
     signal backspace(var arg)
@@ -25,8 +26,7 @@ Window{
                     }
     }
     SvgView{
-        //sourceSize.width: width
-        width: root.width/25
+        width: defaultSize.width*myqq.windowScale
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: 2

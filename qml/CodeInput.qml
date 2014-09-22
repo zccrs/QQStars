@@ -45,12 +45,11 @@ MyWindow{
 
         item:SvgView {
             id:root_page
-            width: 300
-            
+            width: 300*myqq.windowScale
             source: "qrc:/images/login-panel.svg"
             SvgView{
                 id:image_quit_icon
-                width: 2/35*parent.width
+                width: defaultSize.width*myqq.windowScale
                 source: "qrc:/images/button-quit.svg"
                 anchors.left: parent.left
                 anchors.top: parent.top
