@@ -71,7 +71,6 @@ OTHER_FILES += \
     qml/QQApi.qml \
     qml/MyComboBoxComponent.qml \
     qml/MyRectangularGlow.qml \
-    qml/MyTextField.qml \
-    qml/RectangularGlow.qml
+    qml/MyTextField.qml
 
 FORMS +=
