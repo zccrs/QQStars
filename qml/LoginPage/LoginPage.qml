@@ -3,7 +3,6 @@ import utility 1.0
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import mywindow 1.0
-import QtGraphicalEffects 1.0
 import "../"
 
 Item{

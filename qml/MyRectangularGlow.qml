@@ -1,5 +1,4 @@
 import QtQuick 2.2
-import QtGraphicalEffects 1.0
 
 Item{
     id: root
@@ -15,12 +14,12 @@ Item{
     property int biasX: 0
     property int biasY: 0
     
-    property alias glowRadius: glow.glowRadius
-    property alias spread: glow.spread
-    property alias color: glow.color
-    property alias cornerRadius: glow.cornerRadius
-    property alias cached: glow.cached
-    property alias glowOpacity: glow.opacity
+    property alias glowRadius: rootItem.glowRadius
+    property alias spread: rootItem.spread
+    property alias color: rootItem.color
+    property alias cornerRadius: rootItem.cornerRadius
+    property alias cached: rootItem.cached
+    property alias glowOpacity: rootItem.opacity
     property int actualX: 0
     property int actualY: 0
 
@@ -29,7 +28,7 @@ Item{
     }
 
     function glowBottomHeight() {
-        return glow.y+glow.height+2*glowRadius+cornerRadius-glowTopHeight()-root.height
+        return rootItem.y+rootItem.height+2*glowRadius+cornerRadius-glowTopHeight()-root.height
     }
 
     function glowLeftWidth() {
@@ -37,18 +36,18 @@ Item{
     }
 
     function glowRightWidth() {
-        return glow.x+glow.width+2*glowRadius+cornerRadius-glowLeftWidth()-root.width
+        return rootItem.x+rootItem.width+2*glowRadius+cornerRadius-glowLeftWidth()-root.width
     }
     
     function actualWidth(){
-        return glowLeftWidth()+glow.width+glowRightWidth()
+        return glowLeftWidth()+rootItem.width+glowRightWidth()
     }
     function actualHeight(){
-        return glowTopHeight()+glow.height+glowBottomHeight()
+        return glowTopHeight()+rootItem.height+glowBottomHeight()
     }
 
     RectangularGlow {
-        id: glow
+        id: rootItem
         x: (biasX>0?biasX:0)
         y: (biasY>0?biasY:0)
         width: root.width-biasX

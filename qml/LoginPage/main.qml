@@ -2,10 +2,10 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Window 2.1
-import QtWinExtras 1.0
+//import QtWinExtras 1.0
 import mywindow 1.0
 import utility 1.0
-import Qt.labs.settings 1.0
+//import Qt.labs.settings 1.0
 import "../"
 
 MyWindow{
@@ -75,11 +75,11 @@ MyWindow{
         flipable.flipped = true
     }
     
-    ThumbnailToolBar {
+    /*ThumbnailToolBar {
         ThumbnailToolButton { iconSource: "qrc:/images/avatar.png"; tooltip: "登录"; }
         ThumbnailToolButton { interactive: false; flat: true }
         ThumbnailToolButton { iconSource: "qrc:/images/avatar.png"; tooltip: "退出";  }
-    }
+    }*/
     
     Flipable {
          id: flipable
