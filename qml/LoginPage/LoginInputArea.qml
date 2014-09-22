@@ -9,7 +9,7 @@ Item{
     
     TextField{
         id: input_qq
-        font.pointSize: implicitHeight/4
+        font.pointSize: root.height/6
         KeyNavigation.down: input_password
         KeyNavigation.up: input_password
         KeyNavigation.tab: KeyNavigation.down
@@ -19,12 +19,13 @@ Item{
             textColor: "black"
             background: Item{
                 implicitWidth: border_qq.width-unfold_icon.width
-                implicitHeight: border_qq.height/2
-                
+                implicitHeight: 25/64*border_qq.height
+                //color: "black"
                 SvgView {
                     id: border_qq
                     width: defaultSize.width*myqq.windowScale
-                    x: -1/44*width
+                    x: -6/220*width
+                    y: -6/64*height
                     source: "qrc:/images/inputBox1.svg"
                 }
                 /*Rectangle{
@@ -50,8 +51,9 @@ Item{
     TextField{
         id: input_password
         anchors.top: input_qq.bottom
+        anchors.topMargin: 4/128*root.height
         echoMode: TextInput.Password
-        font.pointSize: implicitHeight/4
+        font.pointSize: root.height/8
         KeyNavigation.up: input_qq
         KeyNavigation.down: input_qq
         KeyNavigation.tab: KeyNavigation.down
@@ -64,12 +66,14 @@ Item{
             textColor: "black"
             background: Item{
                 implicitWidth: border_password.width-soft_keyboard_icon.width
-                implicitHeight: border_password.height/2
+                implicitHeight: 23/64*border_password.height
+                //color: "blue"
                 SvgView {
                     id: border_password
-                    x: -1/44*width
+                    x: -6/220*width
                     width: defaultSize.width*myqq.windowScale
                     anchors.bottom: parent.bottom
+                    anchors.bottomMargin: -6/64*height
                     source: "qrc:/images/inputBox2.svg"
                 }
             }
@@ -80,7 +84,7 @@ Item{
         width: defaultSize.width*myqq.windowScale
         source: "qrc:/images/inputBox-more.svg"
         anchors.left: input_qq.right 
-        anchors.leftMargin: -3/44*root.width
+        anchors.leftMargin: -1/9*root.width
         anchors.verticalCenter: input_qq.verticalCenter
         property bool isCloseing: false
         onIsCloseingChanged: {
@@ -133,7 +137,7 @@ Item{
         width: defaultSize.width*myqq.windowScale
         source: "qrc:/images/soft-keyboard.svg"
         anchors.left: input_password.right
-        anchors.leftMargin: -3/44*root.width
+        anchors.leftMargin: -1/9*root.width
         anchors.verticalCenter: input_password.verticalCenter
         property bool keyboardClose: true
         property bool isCloseing: false

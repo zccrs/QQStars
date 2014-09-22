@@ -21,7 +21,7 @@ Item{
         glowOpacity: 0.75
         width: root.width
         height: root.height
-        biasY: 10
+        biasY: 20
    
         item:SvgView {
             id: root
