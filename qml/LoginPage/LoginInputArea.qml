@@ -84,7 +84,7 @@ Item{
         width: defaultSize.width*myqq.windowScale
         source: "qrc:/images/inputBox-more.svg"
         anchors.left: input_qq.right 
-        anchors.leftMargin: -1/9*root.width
+        anchors.leftMargin: -1/14*root.width
         anchors.verticalCenter: input_qq.verticalCenter
         property bool isCloseing: false
         onIsCloseingChanged: {
@@ -124,7 +124,7 @@ Item{
                     qqlistopen = true
                     var component = Qt.createComponent("AccountList.qml");
                     if (component.status == Component.Ready){
-                        var data={"width":root.width-10,"x": utility.mouseDesktopPos().x-mouse.x-unfold_icon.x,"y": utility.mouseDesktopPos().y-mouse.y-unfold_icon.y+input_qq.height}
+                        var data={"width":root.width-10,"x": utility.mouseDesktopPos().x-mouse.x-unfold_icon.x-1/220*root.width,"y": utility.mouseDesktopPos().y-mouse.y-unfold_icon.y+input_qq.height}
                         connection.target = component.createObject(input_qq, data);
                     }
                 }
@@ -137,7 +137,7 @@ Item{
         width: defaultSize.width*myqq.windowScale
         source: "qrc:/images/soft-keyboard.svg"
         anchors.left: input_password.right
-        anchors.leftMargin: -1/9*root.width
+        anchors.leftMargin: -1/14*root.width
         anchors.verticalCenter: input_password.verticalCenter
         property bool keyboardClose: true
         property bool isCloseing: false
