@@ -246,7 +246,7 @@ Item{
                 id: progress_item
                 clip: true
                 anchors.bottom: button_login.top
-                anchors.bottomMargin: root.height/18-height
+                anchors.bottomMargin: root.height/24-height
                 visible: myqq.loginStatus == QQ.Logining
                 onVisibleChanged: {
                     if(visible)

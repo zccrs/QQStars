@@ -65,7 +65,7 @@ MyWindow{
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.leftMargin: root_page.width/15
-                anchors.topMargin: root_page.height/8
+                anchors.topMargin: root_page.height/6
                 color: "#f47421"
                 font.pointSize: root_page.height/25
             }
@@ -73,9 +73,9 @@ MyWindow{
                 id: code_input
                 anchors.left: code_image.left
                 anchors.top: code_image.bottom
-                anchors.topMargin: 5
+                anchors.topMargin: 10
                 width: code_image.width
-                height: 20
+                height: root_page.height/12
                 font.pointSize: text_code.font.pointSize
                 style: TextFieldStyle {
                         textColor: "black"
