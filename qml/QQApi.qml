@@ -13,7 +13,7 @@ QQ{
     property string ptwebqq//登录后返回的cookie
     property string mycode//临时保存验证码
     
-    windowScale: 1.6
+    windowScale: 1
     
     Component.onCompleted: {
         clientid = getClientid()

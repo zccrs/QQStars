@@ -47,8 +47,8 @@ Item{
             }
             Grid{
                 anchors.centerIn: parent
-                width: 2*parent.width/3
-                height: parent.height/2
+                //width: 2*parent.width/3
+                //height: parent.height/2
                 
                 columns: 2
                 rowSpacing: root.width/20
@@ -59,7 +59,7 @@ Item{
                 MyTextField{
                     id: proxy_location_input
                     enabled: proxy_combo.currentIndex != 0
-                    width: root.width/3
+                    width: root.width/2.5
                     height: width/8
                     title: "地址:"
                     text: utility.getValue("proxyLocation", "")
@@ -67,7 +67,7 @@ Item{
                 MyTextField{
                     id: proxy_port_input
                     enabled: proxy_combo.currentIndex != 0
-                    width: root.width/3
+                    width: root.width/2.5
                     height: width/8
                     title: "端口:"
                     text: utility.getValue("proxyPort", "")
@@ -75,7 +75,7 @@ Item{
                 MyTextField{
                     id: proxy_username_input
                     enabled: proxy_combo.currentIndex != 0
-                    width: root.width/3
+                    width: root.width/2.5
                     height: width/8
                     title: "账户:"
                     text: utility.getValue("proxyUsername", "")
@@ -83,13 +83,13 @@ Item{
                 MyTextField{
                     id: proxy_password_input
                     enabled: proxy_combo.currentIndex != 0
-                    width: root.width/3
+                    width: root.width/2.5
                     height: width/8
                     title: "密码:"
                     text: utility.getValue("proxyPassword", "")
                 }
                 Item{
-                    width: root.width/3
+                    width: root.width/2.5
                     height: width/8
                     
                     Text {
