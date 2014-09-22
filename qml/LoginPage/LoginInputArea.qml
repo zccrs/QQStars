@@ -6,7 +6,7 @@ import mywindow 1.0
 Item{
     id:root
     property bool qqlistopen: false
-    
+    //color: "red"
     TextField{
         id: input_qq
         font.pointSize: root.height/6
@@ -24,9 +24,13 @@ Item{
                 SvgView {
                     id: border_qq
                     width: defaultSize.width*myqq.windowScale
-                    x: -6/220*width
+                    x: -5/220*width
                     y: -6/64*height
                     source: "qrc:/images/inputBox1.svg"
+                    /*Rectangle{
+                        anchors.fill: parent
+                        color: "blue"
+                    }*/
                 }
                 /*Rectangle{
                     visible: qqlistopen
@@ -70,7 +74,7 @@ Item{
                 //color: "blue"
                 SvgView {
                     id: border_password
-                    x: -6/220*width
+                    x: -5/220*width
                     width: defaultSize.width*myqq.windowScale
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: -6/64*height
@@ -84,7 +88,7 @@ Item{
         width: defaultSize.width*myqq.windowScale
         source: "qrc:/images/inputBox-more.svg"
         anchors.left: input_qq.right 
-        anchors.leftMargin: -1/14*root.width
+        anchors.leftMargin: -1/16*root.width
         anchors.verticalCenter: input_qq.verticalCenter
         property bool isCloseing: false
         onIsCloseingChanged: {
@@ -124,7 +128,7 @@ Item{
                     qqlistopen = true
                     var component = Qt.createComponent("AccountList.qml");
                     if (component.status == Component.Ready){
-                        var data={"width":root.width-10,"x": utility.mouseDesktopPos().x-mouse.x-unfold_icon.x-1/220*root.width,"y": utility.mouseDesktopPos().y-mouse.y-unfold_icon.y+input_qq.height}
+                        var data={"width":21/22*root.width,"x": utility.mouseDesktopPos().x-mouse.x-unfold_icon.x,"y": utility.mouseDesktopPos().y-mouse.y-unfold_icon.y+input_qq.height}
                         connection.target = component.createObject(input_qq, data);
                     }
                 }
@@ -137,7 +141,7 @@ Item{
         width: defaultSize.width*myqq.windowScale
         source: "qrc:/images/soft-keyboard.svg"
         anchors.left: input_password.right
-        anchors.leftMargin: -1/14*root.width
+        anchors.leftMargin: -1/16*root.width
         anchors.verticalCenter: input_password.verticalCenter
         property bool keyboardClose: true
         property bool isCloseing: false
