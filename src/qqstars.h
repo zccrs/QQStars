@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QTimer>
+#include "mymessagebox.h"
 #include "mynetworkaccessmanagerfactory.h"
 
 class QQCommand : public QQuickItem

@@ -32,6 +32,9 @@ QQCommand::QQCommand(QQuickItem *parent) :
     connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
     
     loadApi ();//加载api的js文件
+    
+    //MyMessageBox *box = new MyMessageBox();
+    //box->show ();
 }
 
 void QQCommand::beginPoll2()

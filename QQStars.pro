@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     src/threaddownloadimage.cpp \
     src/mysvgview.cpp \ 
     src/myimage.cpp \
-    src/mysocket.cpp
+    src/mysocket.cpp \
+    src/mymessagebox.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc
@@ -42,7 +43,8 @@ HEADERS += \
     src/threaddownloadimage.h \
     src/mysvgview.h \ 
     src/myimage.h \
-    src/mysocket.h
+    src/mysocket.h \
+    src/mymessagebox.h
 
 OTHER_FILES += \
             qml/LoginPage/LoginCheckBox.qml \

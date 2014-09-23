@@ -46,9 +46,9 @@ Item{
                 anchors.margins: 20
             }
             Grid{
-                anchors.centerIn: parent
-                //width: 2*parent.width/3
-                //height: parent.height/2
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: image_qq_for_ubuntu.bottom
+                anchors.topMargin: root.height/10
                 
                 columns: 2
                 rowSpacing: root.width/20
@@ -91,7 +91,6 @@ Item{
                 Item{
                     width: root.width/2.5
                     height: width/8
-                    
                     Text {
                         id: proxy_type_text
                         text: "类型:"
@@ -114,7 +113,7 @@ Item{
                 }
                 Button {
                     text: "测  试"
-                    width: root.width/5
+                    width: root.width/4
                     height: width/4
                     visible: proxy_combo.currentIndex != 0
                     onClicked:{
@@ -174,6 +173,7 @@ Item{
                         text: parent.text
                         anchors.centerIn: parent
                         color: parent.pressed?"white":"black"
+                        font.pointSize: proxy_type_text.font.pointSize
                     }
                 }
             }
