@@ -20,7 +20,8 @@ SOURCES += main.cpp \
     src/mymessagebox.cpp
 
 RESOURCES += \ # qml.qrc
-    images.qrc
+    images.qrc \
+    other.qrc
 
 qml_data.source = qml
 qml_data.target = ./

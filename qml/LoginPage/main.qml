@@ -25,6 +25,12 @@ MyWindow{
     Component.onCompleted: {
         main.x = screen.size.width/2 - main.width/2//让程序居中显示
         main.y = screen.size.height/2 - main.height/2
+        var data= {
+            "icon": MessageBox.Warning,
+            "text": "你好啊啊啊啊",
+            "standardButtons": MessageBox.Save
+        }
+        //console.log(myqq.openMessageBox(data))
     }
 
     Connections{

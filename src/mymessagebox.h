@@ -6,7 +6,6 @@
 class MyMessageBox : public QMessageBox
 {
     Q_OBJECT
-    
     QPoint press_point;
     bool allow_move;
     

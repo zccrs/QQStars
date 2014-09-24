@@ -315,8 +315,9 @@ Item{
                 width: defaultSize.width*myqq.windowScale
                 source: "qrc:/images/button-settings.svg"
                 anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                
+                //anchors.bottom: parent.bottom
+                //anchors.bottomMargin: defaultSize.height/250*root.height-height/2
+                anchors.verticalCenter: button_login.verticalCenter
                 visible: myqq.loginStatus == QQ.Offline
                 MouseArea{
                     anchors.fill: parent

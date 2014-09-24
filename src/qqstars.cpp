@@ -32,9 +32,6 @@ QQCommand::QQCommand(QQuickItem *parent) :
     connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
     
     loadApi ();//加载api的js文件
-    
-    //MyMessageBox *box = new MyMessageBox();
-    //box->show ();
 }
 
 void QQCommand::beginPoll2()
@@ -268,4 +265,42 @@ QString QQCommand::encryptionPassword(const QString &uin, const QString &code)
     QJSValueList list;
     list<<QJSValue(userPassword())<<QJSValue(uin)<<QJSValue(code);
     return jsEngine.globalObject ().property ("encryptionPassword").call (list).toString ();
+}
+
+int QQCommand::openMessageBox(QJSValue value)
+{
+    MyMessageBox message;
+    QJSValue temp = value.property ("icon");
+    if( !temp.isUndefined () ){
+        message.setIcon ((MyMessageBox::Icon)temp.toInt ());
+    }
+    temp = value.property ("detailedText");
+    if( !temp.isUndefined () ) {
+        message.setDetailedText (temp.toString ());
+    }
+    temp = value.property ("standardButtons");
+    if( !temp.isUndefined () ) {
+        message.setStandardButtons ((MyMessageBox::StandardButtons)temp.toInt ());
+    }
+    temp = value.property ("text");
+    if( !temp.isUndefined () ) {
+        message.setText (temp.toString ());
+    }
+    temp = value.property ("iconPixmap");
+    if( !temp.isUndefined () ) {
+        message.setIconPixmap (QPixmap(temp.toString ()));
+    }
+    temp = value.property ("textFormat");
+    if( !temp.isUndefined () ) {
+        message.setTextFormat ((Qt::TextFormat)temp.toInt ());
+    }
+    temp = value.property ("informativeText");
+    if( !temp.isUndefined () ) {
+        message.setInformativeText (temp.toString ());
+    }
+    temp = value.property ("textInteractionFlags");
+    if( !temp.isUndefined () ) {
+        message.setTextInteractionFlags ((Qt::TextInteractionFlags)temp.toInt ());
+    }
+    return message.exec ();
 }

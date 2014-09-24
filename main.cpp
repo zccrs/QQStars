@@ -21,6 +21,10 @@ int main(int argc, char *argv[])
     app.setOrganizationName ("雨后星辰");
     app.setApplicationDisplayName ("星辰QQ");
     
+    QTranslator translator;
+    translator.load (":/qt_zh_CN");
+    QApplication::installTranslator (&translator);
+    
     QQmlApplicationEngine engine;
     engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
     
@@ -32,6 +36,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
+    qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
    
     QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();

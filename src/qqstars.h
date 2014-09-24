@@ -138,6 +138,8 @@ public slots:
             emit windowScaleChanged(arg);
         }
     }
+    
+    int openMessageBox( QJSValue value );
 };
 
 #endif // QQCommand_H

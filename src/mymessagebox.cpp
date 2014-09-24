@@ -7,6 +7,8 @@ MyMessageBox::MyMessageBox(QWidget *parent) :
 {
     setFixedSize (300, 200);
     setWindowFlags (windowFlags ()|Qt::FramelessWindowHint);
+    setAttribute ( Qt::WA_NoSystemBackground );
+    update ();
 }
 
 void MyMessageBox::mousePressEvent(QMouseEvent *event)
