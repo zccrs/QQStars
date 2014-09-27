@@ -244,8 +244,8 @@ Item{
             Item{
                 id: progress_item
                 clip: true
-                anchors.bottom: button_login.top
-                anchors.bottomMargin: root.height/24-height
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: root.height/4.2-height
                 visible: myqq.loginStatus == QQ.Logining
                 onVisibleChanged: {
                     if(visible)
@@ -255,12 +255,12 @@ Item{
                     }
                 }
         
-                width: root.width
-                height: image_progress1.height
+                width: root.implicitWidth
+                height: image_progress1.implicitHeight
                 Image{
                     id: image_progress1
                     source: "qrc:/images/progress-bar.png"
-                    width: parent.width
+                    width: root.width
                     
                     NumberAnimation{
                         id:progress_animation1
@@ -279,7 +279,7 @@ Item{
                 Image{
                     id: image_progress2
                     source: "qrc:/images/progress-bar.png"
-                    width: parent.width
+                    width: root.width
                     anchors.right: image_progress1.left
                 }
             }

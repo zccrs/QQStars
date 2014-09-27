@@ -84,10 +84,14 @@ private:
     QJSEngine jsEngine;
     void loadApi();
     
-    QMap<QString, QString> analysisBasicData( QJsonObject obj );
-    void analysisMessage( QJsonObject obj );
-    void analysisInputNotify( QJsonObject obj );
-    void analysisFriendStatusChanged( QJsonObject obj );
+    void analysisMessage( QJsonObject &obj );//解析基本消息
+    void disposeInputNotify( QJsonObject &obj );//处理好友正在输入消息
+    void disposeFriendStatusChanged( QJsonObject &obj );
+    void disposeFriendMessage( QJsonObject &obj );
+    void disposeGroupMessage( QJsonObject &obj );
+    void disposeDiscuMessage( QJsonObject &obj );
+    QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
+    
     double m_windowScale;
     
 signals:

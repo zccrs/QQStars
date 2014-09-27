@@ -23,7 +23,7 @@ MyWindow{
     width: Math.max(myqq.panelSize.width, minWidth)
     height: Math.max(myqq.panelSize.height, minHeight)
     
-    x:screen.size.width - width - 20
+    x: Screen.desktopAvailableWidth - width - 20
 
     Component.onCompleted: {
         y = 20

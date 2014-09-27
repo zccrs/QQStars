@@ -59,11 +59,25 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                             QString poll_type=obj["poll_type"].toString ();
                             obj = obj["value"].toObject ();
                             if( poll_type=="message" ){
-                                analysisMessage (obj);
+                                disposeFriendMessage (obj);
                             }else if( poll_type=="input_notify" ){
-                                analysisInputNotify (obj);
+                                disposeInputNotify (obj);
                             }else if( poll_type=="buddies_status_change" ){
-                                analysisFriendStatusChanged(obj);
+                                disposeFriendStatusChanged(obj);
+                            }else if( poll_type=="group_message" ){
+                                disposeGroupMessage (obj);//解析群消息
+                            }else if( poll_type=="discu_message" ){
+                                disposeDiscuMessage (obj);//解析讨论组消息
+                            }else if( poll_type=="file_message" ){
+                                qDebug()<<"发送文件消息";
+                            }else if( poll_type=="av_request" ){
+                                qDebug()<<"视频聊天消息";
+                            }else if( poll_type=="av_refuse" ){
+                                qDebug()<<"取消开视频";
+                            }else if( poll_type=="shake_message" ){
+                                qDebug()<<"窗口抖动消息";
+                            }else{
+                                qDebug()<<"其他消息"<<poll_type;
                             }
                         }
                         beginPoll2();
@@ -128,78 +142,163 @@ void QQCommand::loadApi()
     jsEngine.evaluate(contents, fileName);
 }
 
-QMap<QString, QString> QQCommand::analysisBasicData(QJsonObject obj)
+void QQCommand::analysisMessage(QJsonObject &obj)
 {
-    QString from_uin = QString::number ((quint64)obj["from_uin"].toDouble ());
-    QString msg_id = QString::number (obj["msg_id"].toInt ());
-    QString msg_id2 = QString::number (obj["msg_id2"].toInt ());
-    QString msg_type = QString::number (obj["msg_type"].toInt ());
-    QString reply_ip = QString::number ((quint64)obj["reply_ip"].toDouble ());
-    QString to_uin = QString::number ((quint64)obj["to_uin"].toDouble ());
+    QJsonArray content = obj["content"].toArray ();
+    QJsonValue temp2 = content[0];
+    if(temp2.isArray ()){
+        QJsonArray font = temp2.toArray ();
+        foreach (QJsonValue temp3, font) {
+            if(temp3.isObject ()){
+                obj = temp3.toObject ();
+                QString size = doubleToString (obj, "size");
+                QString color = obj["color"].toString ();
+                QJsonArray style = obj["style"].toArray ();
+                bool bold = (bool)style[0].toInt ();//加黑
+                bool italic = (bool)style[1].toInt ();//斜体
+                bool underline = (bool)style[2].toInt ();//下划线
+                
+                QString name = obj["name"].toString ();
+                
+                /*qDebug()<<"所使用字体是："+name;
+                qDebug()<<"字体大小是："+size;
+                qDebug()<<"字体颜色是："+color;
+                qDebug()<<"黑体："<<bold;
+                qDebug()<<"斜体："<<italic;
+                qDebug()<<"下划线："<<underline;*/
+            }
+        }
+    }
+    temp2 = content[1];
+    if(temp2.isArray ()){
+        QJsonArray array = temp2.toArray ();
+        QString array_name = array[0].toString ();
+        if(array_name=="cface"){
+            foreach (QJsonValue temp3, array) {
+                if(temp3.isObject ()){
+                    obj = temp3.toObject ();
+                    QString file_id = doubleToString (obj, "file_id");
+                    QString key = obj["key"].toString ();
+                    QString name = obj["name"].toString ();
+                    QString server = obj["server"].toString ();
+                    qDebug()<<"收到了文件"<<"file_id:"+file_id<<"key:"+key<<"name:"+name<<"server:"+server;
+                }
+            }
+        }else if(array_name=="offpic"){
+            foreach (QJsonValue temp3, array) {
+                if(temp3.isObject ()){
+                    obj = temp3.toObject ();
+                    QString file_path = obj["file_path"].toString ();
+                    qDebug()<<"收到了文件"<<"file_path:"+file_path;
+                }
+            }
+        }else if(array_name=="face"){
+            qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
+        }else{
+            qDebug()<<"其他类型的数据："<<array_name;
+        }
+    }else if(temp2.isString ()){
+        qDebug()<<"消息内容是："+temp2.toString ();
+    }
+}
 
-    qDebug()<<"\n消息发送者的uin是："+from_uin;
+void QQCommand::disposeInputNotify(QJsonObject &obj)
+{
+    QString from_uin = doubleToString (obj, "from_uin");
+
+    qDebug()<<"是输入状态的消息";
+    qDebug()<<getValue (from_uin+"nick", from_uin).toString ()+"正在输入";
+}
+
+void QQCommand::disposeFriendStatusChanged(QJsonObject &obj)
+{
+    QString uin = doubleToString (obj, "uin");
+    QString status = obj["status"].toString ();
+    int client_type = obj["client_type"].toInt ();
+    
+    qDebug()<<"是好友状态改变的信息"<<getValue (uin+"nick", uin).toString ()<<"状态改变为"<<status<<"客户端类型:"<<client_type;
+}
+
+void QQCommand::disposeFriendMessage(QJsonObject &obj)
+{
+    qDebug()<<"是聊天消息";
+    
+    QString from_uin = doubleToString (obj, "from_uin");
+    QString msg_id = doubleToString (obj, "msg_id");
+    QString msg_id2 = doubleToString (obj, "msg_id2");
+    QString msg_type = doubleToString (obj, "msg_type");
+    QString reply_ip = doubleToString (obj, "reply_ip");
+    QString to_uin = doubleToString (obj, "to_uin");
+
+    /*qDebug()<<"\n消息发送者的uin是："+from_uin;
     qDebug()<<"消息id1是："+msg_id;
     qDebug()<<"消息id2是："+msg_id2;
     qDebug()<<"消息类型是："+msg_type;
     qDebug()<<"回复的ip地址是："+reply_ip;
-    qDebug()<<"接收方的uin是："+to_uin;
+    qDebug()<<"接收方的uin是："+to_uin;*/
     qDebug()<<"来自"+getValue (from_uin+"nick", from_uin).toString ()+"的消息";
     
-    QMap<QString, QString> map;
-    map.insert ("from_uin", from_uin);
-    map.insert ("msg_id", msg_id);
-    map.insert ("msg_id2", msg_id2);
-    map.insert ("msg_type", msg_type);
-    map.insert ("reply_ip", reply_ip);
-    map.insert ("to_uin", to_uin);
-    return map;
+    analysisMessage (obj);
 }
 
-void QQCommand::analysisMessage(QJsonObject obj)
+void QQCommand::disposeGroupMessage(QJsonObject &obj)
 {
-    analysisBasicData (obj);
-    qDebug()<<"是聊天消息";
-    QJsonArray content = obj["content"].toArray ();
-    foreach (QJsonValue temp2, content) {
-        if(temp2.isArray ()){
-            QJsonArray font = temp2.toArray ();
-            foreach (QJsonValue temp3, font) {
-                if(temp3.isObject ()){
-                    obj = temp3.toObject ();
-                    QString size = QString::number (obj["size"].toInt ());
-                    QString color = obj["color"].toString ();
-                    QJsonArray style = obj["style"].toArray ();
-                    bool bold = (bool)style[0].toInt ();//加黑
-                    bool italic = (bool)style[1].toInt ();//斜体
-                    bool underline = (bool)style[2].toInt ();//下划线
-                    
-                    QString name = obj["name"].toString ();
-                    
-                    qDebug()<<"所使用字体是："+name;
-                    qDebug()<<"字体大小是："+size;
-                    qDebug()<<"字体颜色是："+color;
-                    qDebug()<<"黑体："<<bold;
-                    qDebug()<<"斜体："<<italic;
-                    qDebug()<<"下划线："<<underline;
-                }
-            }
-        }else if(temp2.isString ()){
-            qDebug()<<"消息内容是："+temp2.toString ();
-        }
+    qDebug()<<"是群消息";
+    
+    QString from_uin = doubleToString (obj, "from_uin");;
+    QString group_code = doubleToString (obj, "group_code");
+    QString msg_id = doubleToString (obj, "msg_id");
+    QString msg_id2 = doubleToString (obj, "msg_id2");
+    QString msg_type = doubleToString (obj, "msg_type");
+    QString reply_ip = doubleToString (obj, "reply_ip");
+    QString to_uin = doubleToString (obj, "to_uin");
+    QString send_uin = doubleToString (obj, "send_uin");
+
+    /*qDebug()<<"\n群的uin是："+from_uin;
+    qDebug()<<"群code是: "+group_code;
+    qDebug()<<"消息id1是："+msg_id;
+    qDebug()<<"消息id2是："+msg_id2;
+    qDebug()<<"消息类型是："+msg_type;
+    qDebug()<<"回复的ip地址是："+reply_ip;
+    qDebug()<<"接收方的uin是："+to_uin;*/
+    qDebug()<<"来自"+getValue (from_uin+"nick", from_uin).toString ()+"中"+getValue (send_uin+"nick", send_uin).toString ()+"的消息";
+    
+    analysisMessage (obj);
+}
+
+void QQCommand::disposeDiscuMessage(QJsonObject &obj)
+{
+    qDebug()<<"是讨论组消息";
+    
+    QString from_uin = doubleToString (obj, "from_uin");;
+    QString did = doubleToString (obj, "did");
+    QString msg_id = doubleToString (obj, "msg_id");
+    QString msg_id2 = doubleToString (obj, "msg_id2");
+    QString msg_type = doubleToString (obj, "msg_type");
+    QString reply_ip = doubleToString (obj, "reply_ip");
+    QString to_uin = doubleToString (obj, "to_uin");
+    QString send_uin = doubleToString (obj, "send_uin");
+
+    /*qDebug()<<"\n群的uin是："+from_uin;
+    qDebug()<<"讨论组did是: "+did;
+    qDebug()<<"消息id1是："+msg_id;
+    qDebug()<<"消息id2是："+msg_id2;
+    qDebug()<<"消息类型是："+msg_type;
+    qDebug()<<"回复的ip地址是："+reply_ip;
+    qDebug()<<"接收方的uin是："+to_uin;*/
+    qDebug()<<"来自"+getValue (did+"nick", did).toString ()+"中"+getValue (send_uin+"nick", send_uin).toString ()+"的消息";
+    
+    analysisMessage (obj);
+}
+
+QString QQCommand::doubleToString(QJsonObject &obj, QString name)
+{
+    if(!obj.isEmpty ()){
+        QJsonValue temp = obj[name];
+        if(temp.isDouble ())
+            return QString::number ((quint64)obj[name].toDouble ());
     }
-}
-
-void QQCommand::analysisInputNotify(QJsonObject obj)
-{
-    QMap<QString, QString> map = analysisBasicData (obj);
-    qDebug()<<"是输入状态的消息";
-    qDebug()<<getValue (map["from_uin"]+"nick", map["from_uin"]).toString ()+"正在输入";
-}
-
-void QQCommand::analysisFriendStatusChanged(QJsonObject obj)
-{
-    QMap<QString, QString> map = analysisBasicData (obj);
-    qDebug()<<"是好友状态改变的信息"<<map;
+    return name;
 }
 
 void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)

@@ -119,7 +119,6 @@ MyWindow{
                 }
             }
             Component.onCompleted: {
-                console.log(width+","+height)
                 forceActiveFocus()
             }
             Keys.onEnterPressed: {
