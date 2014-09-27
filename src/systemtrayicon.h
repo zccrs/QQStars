@@ -162,10 +162,10 @@ signals:
     void menuChanged(MyMenu* arg);
     void activated(ActivationReason arg);
     void toolTipChanged(QString arg);
-    
+    void messageClicked();
 public slots:
     void setWindowIcon(QUrl icon);
-    
+    void showMessage(const QString & title, const QString & message, QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information, int millisecondsTimeoutHint = 10000);
 void setMenu(MyMenu* arg)
 {
     if (m_menu != arg) {

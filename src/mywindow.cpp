@@ -17,34 +17,7 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     m_topHint = false;
     old_topHint=false;
     m_noNotifyIcon = false;
-    
-    pixmap.load (":/image/login-panel-shadow.png");
-    backingStore = new QBackingStore(this);
 }
-
-/*bool MyWindow::event(QEvent *ev)
-{
-    if(ev->type () == QEvent::UpdateRequest){
-        //paint();
-        //return true;
-    }
-    return QQuickWindow::event (ev);
-}
-
-void MyWindow::resizeEvent(QResizeEvent *event)
-{
-    //QQuickWindow::resizeEvent (event);
-    //backingStore->resize(event->size());
-    //paint();
-    QQuickWindow::resizeEvent (event);
-}
-
-void MyWindow::exposeEvent(QExposeEvent *event)
-{
-    //QQuickWindow::exposeEvent (event);
-    //paint();
-    QQuickWindow::exposeEvent (event);
-}*/
 
 bool MyWindow::topHint() const
 {
@@ -66,33 +39,6 @@ void MyWindow::setWindowIcon(QUrl icon)
         m_windowIcon = icon;
         emit windowIconChanged ();
     }
-}
-
-void MyWindow::paint()
-{
-    if (!isExposed())
-        return;
-    backingStore->beginPaint (QRegion(0,0,width(),height (),QRegion::Ellipse));
-    QPainterPath path;
-    path.setFillRule(Qt::WindingFill);
-    path.addRect(10, 10, this->width()-20, this->height()-20);
-
-    QPainter painter(backingStore->paintDevice ());
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    //painter.fillPath(path, QBrush(Qt::red));
-
-    QColor color(0, 0, 0, 50);
-    for(int i=0; i<10; i++)
-    {
-        QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
-        path.addRect(10-i, 10-i, this->width()-(10-i)*2, this->height()-(10-i)*2);
-        color.setAlpha(150 - qSqrt(i)*50);
-        painter.setPen(color);
-        painter.drawPath(path);
-    }
-    backingStore->endPaint ();
-    backingStore->flush (QRegion(0,0,width(),height (),QRegion::Ellipse));
 }
 
 bool MyWindow::noBorder()

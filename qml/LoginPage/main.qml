@@ -2,7 +2,8 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Window 2.1
-//import QtWinExtras 1.0
+import QtQuick.Dialogs 1.2
+import QtWinExtras 1.0
 import mywindow 1.0
 import utility 1.0
 //import Qt.labs.settings 1.0
@@ -19,18 +20,12 @@ MyWindow{
     fixedSize: true//固定大小的
     dockableWindow: false//可停靠的
     topHint: false//窗口保持在最前端
-    noNotifyIcon: false//隐藏任务栏图标
+    noNotifyIcon: true//隐藏任务栏图标
     
     color: "transparent"
     Component.onCompleted: {
-        main.x = screen.size.width/2 - main.width/2//让程序居中显示
-        main.y = screen.size.height/2 - main.height/2
-        var data= {
-            "icon": MessageBox.Warning,
-            "text": "你好啊啊啊啊",
-            "standardButtons": MessageBox.Save
-        }
-        //console.log(myqq.openMessageBox(data))
+        main.x = Screen.desktopAvailableWidth/2 - main.width/2//让程序居中显示
+        main.y = Screen.desktopAvailableHeight/2 - main.height/2
     }
 
     Connections{
@@ -80,12 +75,6 @@ MyWindow{
         login_page.enabled = true
         flipable.flipped = true
     }
-    
-    /*ThumbnailToolBar {
-        ThumbnailToolButton { iconSource: "qrc:/images/avatar.png"; tooltip: "登录"; }
-        ThumbnailToolButton { interactive: false; flat: true }
-        ThumbnailToolButton { iconSource: "qrc:/images/avatar.png"; tooltip: "退出";  }
-    }*/
     
     Flipable {
          id: flipable

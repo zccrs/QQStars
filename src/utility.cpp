@@ -127,10 +127,9 @@ QQmlApplicationEngine *Utility::qmlEngine()
 
 void Utility::setQmlEngine(QQmlApplicationEngine *new_engine)
 {
-    if(new_engine){
-        engine = new_engine;
+    engine = new_engine;
+    if(engine){
         engine->rootContext ()->setContextProperty ("utility", this);
-        engine->rootContext()->setContextProperty("screen", QApplication::screens ()[0]);
     }
 }
 

@@ -49,7 +49,7 @@ private:
     bool m_noNotifyIcon;
     QPixmap pixmap;
 private slots:
-    void paint();
+
 signals:
     void windowIconChanged();
     void noBorderIconChanged();

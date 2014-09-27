@@ -2,6 +2,8 @@ TEMPLATE = app
 TARGET = QQStars
 QT += widgets network webkit svg qml quick concurrent
 
+#TRANSLATIONS += other/MyMessage.ts
+
 INCLUDEPATH += \
     src \
     src/qxtglobalshortcut \
@@ -25,7 +27,11 @@ RESOURCES += \ # qml.qrc
 
 qml_data.source = qml
 qml_data.target = ./
-DEPLOYMENTFOLDERS += qml_data
+
+style_data.source = style
+style_data.target = ./
+
+DEPLOYMENTFOLDERS += qml_data style_data
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -54,8 +60,9 @@ OTHER_FILES += \
     qml/LoginPage/LoginInputArea.qml \
     qml/MyWindow.qml \
     qml/SystemTray.qml \
-    qml/WarningWindow.qml \
-    qml/menuStyle.css \
+    qml/MyMessageBox.qml \
+    style/menuStyle.css \
+    style/messageBoxStyle.css \
     qml/LoginPage/SoftKeyboard.qml \
     qml/LoginPage/SoftKeyboardButton.qml \
     qml/LoginPage/AccountList.qml \
@@ -75,5 +82,4 @@ OTHER_FILES += \
     qml/MyComboBoxComponent.qml \
     qml/MyRectangularGlow.qml \
     qml/MyTextField.qml
-
 FORMS +=

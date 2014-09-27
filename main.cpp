@@ -22,8 +22,9 @@ int main(int argc, char *argv[])
     app.setApplicationDisplayName ("星辰QQ");
     
     QTranslator translator;
-    translator.load (":/qt_zh_CN");
-    QApplication::installTranslator (&translator);
+    qDebug()<<translator.load (":/qt_zh_CN.qm");
+    qDebug()<<QApplication::installTranslator (&translator);
+    qDebug()<<app.translate ("QMessageBox", "Help");
     
     QQmlApplicationEngine engine;
     engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类

@@ -10,6 +10,7 @@ SystemTrayIcon::SystemTrayIcon(QQuickItem *parent) :
 {
     setVisible (false);
     connect (&systempTray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
+    connect (&systempTray, SIGNAL(messageClicked()), this, SIGNAL(messageClicked()));
     connect (this, SIGNAL(visibleChanged()), SLOT(onVisibleChanged()));
 }
 
@@ -37,6 +38,11 @@ void SystemTrayIcon::setWindowIcon(QUrl icon)
         m_windowIcon = icon;
         emit windowIconChanged ();
     }
+}
+
+void SystemTrayIcon::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int millisecondsTimeoutHint)
+{
+    systempTray.showMessage (title, message, icon, millisecondsTimeoutHint);
 }
 
 MyMenuItem::MyMenuItem(QObject *parent) : 
@@ -101,11 +107,6 @@ MyMenu::MyMenu(QQuickItem *parent) :
 {
     setObjectName ("MyMenu");
     menu = new MenuPrivate();
-    //QGraphicsDropShadowEffect *shadow_effect = new QGraphicsDropShadowEffect(this);
-    //shadow_effect->setOffset(0, 0);
-    //shadow_effect->setColor(Qt::black);
-    //shadow_effect->setBlurRadius(15);
-    //menu->setGraphicsEffect (shadow_effect);
     setVisible (false);
 }
 

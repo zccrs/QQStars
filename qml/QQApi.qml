@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import utility 1.0
+import QtQuick.Window 2.0
 
 QQ{
     id: root
@@ -14,7 +15,7 @@ QQ{
     property string mycode//临时保存验证码
     
     windowScale: {
-        var dosktopWidth = screen.size.width
+        var dosktopWidth = Screen.desktopAvailableWidth
         if(dosktopWidth<=1366)
             return 1
         else if(dosktopWidth>1366&&dosktopWidth<=1600)

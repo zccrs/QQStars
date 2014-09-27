@@ -198,7 +198,8 @@ void QQCommand::analysisInputNotify(QJsonObject obj)
 
 void QQCommand::analysisFriendStatusChanged(QJsonObject obj)
 {
-    
+    QMap<QString, QString> map = analysisBasicData (obj);
+    qDebug()<<"是好友状态改变的信息"<<map;
 }
 
 void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)
@@ -219,7 +220,7 @@ void QQCommand::startPoll2(QByteArray data)
 void QQCommand::showWarningInfo(QString message)
 {
     emit error (message);
-    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/WarningWindow.qml");
+    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/MyMessageBox.qml");
     QObject *obj = component.create ();
     obj->setProperty ("text", QVariant(message));
 }
@@ -270,6 +271,7 @@ QString QQCommand::encryptionPassword(const QString &uin, const QString &code)
 int QQCommand::openMessageBox(QJSValue value)
 {
     MyMessageBox message;
+    message.setStyleSource (QUrl::fromLocalFile ("style/messageBoxStyle.css"));
     QJSValue temp = value.property ("icon");
     if( !temp.isUndefined () ){
         message.setIcon ((MyMessageBox::Icon)temp.toInt ());

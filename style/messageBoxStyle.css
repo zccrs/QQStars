@@ -1,0 +1,15 @@
+QMessageBox{
+    background-image: url(":/images/menu_background.png");
+}
+QPushButton {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ddd,stop: 1 #ccc);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 5em;
+}
+QPushButton::hover{
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ccc,stop: 1 #eee);
+}
+QPushButton::pressed{
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #ccc,stop: 1 #bbb);
+}

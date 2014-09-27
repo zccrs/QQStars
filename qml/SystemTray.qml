@@ -6,6 +6,10 @@ MySystemTrayIcon{
     id: root
     visible: true
     windowIcon: "qrc:/images/avatar.png"
+    onMessageClicked:{
+        console.log("点击了托盘提示信息窗口")
+    }
+
     toolTip: {
         if( myqq.userData ){
             return "QQ:"+myqq.userData.nick+"("+myqq.userData.uin+")"
@@ -31,7 +35,7 @@ MySystemTrayIcon{
     
     MyMenu{
         id: menu2
-        styleSource: "menuStyle.css"
+        styleSource: "../style/menuStyle.css"
         MyMenuItem{
             text: "我在线上"
             icon: "qrc:/images/imonline.png"
