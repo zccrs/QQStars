@@ -53,6 +53,13 @@ MyWindow{
         }
     }
     
+    Connections{
+        target: myqq
+        onMessageArrive:{
+            console.log(data)
+        }
+    }
+    
     Text{
         anchors.centerIn: parent
         text: "已离线"

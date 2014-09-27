@@ -19,6 +19,8 @@ class QQCommand : public QQuickItem
     Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
     Q_ENUMS(QQStatus)
     Q_ENUMS(LoginStatus)
+    Q_ENUMS(SenderType)
+    Q_ENUMS(MessageType)
     Q_ENUMS(ProxyType)
    
 public:
@@ -38,7 +40,26 @@ public:
         Silent,//请勿打扰
         Hidden//隐身
     };
-   
+    enum SenderType{
+        Friend,//好友
+        Group,//群
+        Discu,//讨论组
+        Stranger//陌生人
+    };
+    
+    enum MessageType{
+        InputNotify,//正在输入
+        Text,//文本
+        Image,//图片
+        Face,//表情
+        SendFile,//发送文件
+        CancleSendFile,//取消发送文件
+        AvRequest,//请求开视频
+        AvRefuse,//取消开视频
+        ShakeWindow,//窗口抖动
+        FriendStatusChanged//好友状态改变
+    };
+    
     QString userStatusToString() const
     {
         return m_userStatusToString;
@@ -75,7 +96,7 @@ private:
     LoginStatus m_loginStatus;
 
     QByteArray poll2_data;//post心跳包的数据
-    QTimer poll2_timer;
+    
     NetworkAccessManager manager;
     QNetworkRequest request;
     QString m_userQQ;
@@ -84,7 +105,16 @@ private:
     QJSEngine jsEngine;
     void loadApi();
     
-    void analysisMessage( QJsonObject &obj );//解析基本消息
+    struct messageData{
+        int fontSize;//字体大小
+        QColor fontColor;//字体颜色
+        bool fontBold;//加黑
+        bool fontItalic;//斜体
+        bool fontUnderline;//下划线
+        QString fontName;//字体名字
+        QString data;
+    };
+    QQCommand::messageData analysisMessage( QJsonObject &obj );//解析基本消息
     void disposeInputNotify( QJsonObject &obj );//处理好友正在输入消息
     void disposeFriendStatusChanged( QJsonObject &obj );
     void disposeFriendMessage( QJsonObject &obj );
@@ -93,7 +123,7 @@ private:
     QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
     
     double m_windowScale;
-    
+
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
@@ -106,7 +136,7 @@ signals:
     void userPasswordChanged(QString arg);
     
     void windowScaleChanged(double arg);
-    
+    void messageArrive(SenderType senderType, QString uin, QString data);
 public slots:
     void setLoginStatus(LoginStatus arg);
     void startPoll2( QByteArray data );

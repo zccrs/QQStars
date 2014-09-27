@@ -27,8 +27,7 @@ QQCommand::QQCommand(QQuickItem *parent) :
     request.setRawHeader ("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");
     request.setRawHeader ("Content-Type", "application/x-www-form-urlencoded");
     request.setRawHeader ("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER");
-    poll2_timer.setInterval (20000);
-    connect (&poll2_timer, SIGNAL(timeout()), SLOT(beginPoll2()));
+    
     connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
     
     loadApi ();//加载api的js文件
@@ -70,12 +69,16 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                                 disposeDiscuMessage (obj);//解析讨论组消息
                             }else if( poll_type=="file_message" ){
                                 qDebug()<<"发送文件消息";
+                                emit messageArrive (Friend, "853715872", "{\"content\":[{\"type\":"+QString::number (SendFile)+"}]}");
                             }else if( poll_type=="av_request" ){
                                 qDebug()<<"视频聊天消息";
+                                emit messageArrive (Friend, "853715872", "{\"content\":[{\"type\":"+QString::number (AvRequest)+"}]}");
                             }else if( poll_type=="av_refuse" ){
                                 qDebug()<<"取消开视频";
+                                emit messageArrive (Friend, "853715872", "{\"content\":[{\"type\":"+QString::number (AvRefuse)+"}]}");
                             }else if( poll_type=="shake_message" ){
                                 qDebug()<<"窗口抖动消息";
+                                emit messageArrive (Friend, "853715872", "{\"content\":[{\"type\":"+QString::number (ShakeWindow)+"}]}");
                             }else{
                                 qDebug()<<"其他消息"<<poll_type;
                             }
@@ -90,6 +93,8 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                 qDebug()<<arr.count ();
             }
         }
+    }else{
+        beginPoll2();//重新post
     }
 }
 
@@ -142,8 +147,11 @@ void QQCommand::loadApi()
     jsEngine.evaluate(contents, fileName);
 }
 
-void QQCommand::analysisMessage(QJsonObject &obj)
+QQCommand::messageData QQCommand::analysisMessage(QJsonObject &obj)
 {
+    messageData result;
+    QString data="{\"content\":[";
+    
     QJsonArray content = obj["content"].toArray ();
     QJsonValue temp2 = content[0];
     if(temp2.isArray ()){
@@ -151,15 +159,20 @@ void QQCommand::analysisMessage(QJsonObject &obj)
         foreach (QJsonValue temp3, font) {
             if(temp3.isObject ()){
                 obj = temp3.toObject ();
-                QString size = doubleToString (obj, "size");
+                int size = obj["size"].toInt ();
                 QString color = obj["color"].toString ();
                 QJsonArray style = obj["style"].toArray ();
                 bool bold = (bool)style[0].toInt ();//加黑
                 bool italic = (bool)style[1].toInt ();//斜体
                 bool underline = (bool)style[2].toInt ();//下划线
-                
                 QString name = obj["name"].toString ();
                 
+                result.fontSize = size;
+                result.fontBold = bold;
+                result.fontItalic = italic;
+                result.fontUnderline = underline;
+                result.fontName = name;
+                result.fontColor = QColor("#"+color);
                 /*qDebug()<<"所使用字体是："+name;
                 qDebug()<<"字体大小是："+size;
                 qDebug()<<"字体颜色是："+color;
@@ -169,45 +182,61 @@ void QQCommand::analysisMessage(QJsonObject &obj)
             }
         }
     }
-    temp2 = content[1];
-    if(temp2.isArray ()){
-        QJsonArray array = temp2.toArray ();
-        QString array_name = array[0].toString ();
-        if(array_name=="cface"){
-            foreach (QJsonValue temp3, array) {
-                if(temp3.isObject ()){
-                    obj = temp3.toObject ();
-                    QString file_id = doubleToString (obj, "file_id");
-                    QString key = obj["key"].toString ();
-                    QString name = obj["name"].toString ();
-                    QString server = obj["server"].toString ();
-                    qDebug()<<"收到了文件"<<"file_id:"+file_id<<"key:"+key<<"name:"+name<<"server:"+server;
+    for( int i=1;i<content.size ();++i ){
+        temp2 = content[i];
+        if(temp2.isArray ()){
+            QJsonArray array = temp2.toArray ();
+            QString array_name = array[0].toString ();
+            if(array_name=="cface"){
+                foreach (QJsonValue temp3, array) {
+                    if(temp3.isObject ()){
+                        obj = temp3.toObject ();
+                        QString file_id = doubleToString (obj, "file_id");
+                        QString key = obj["key"].toString ();
+                        QString name = obj["name"].toString ();
+                        QString server = obj["server"].toString ();
+                        qDebug()<<"收到了文件"<<"file_id:"+file_id<<"key:"+key<<"name:"+name<<"server:"+server;
+                        if(data!="{\"content\":[")
+                            data+=",";
+                        data.append (QString("{")+"\"type:\":"+QString::number (Image)+",\"file_id\":"+file_id+",\"name\":"+name+",\"key\":"+key+",\"server\":"+server+"}");
+                    }
                 }
-            }
-        }else if(array_name=="offpic"){
-            foreach (QJsonValue temp3, array) {
-                if(temp3.isObject ()){
-                    obj = temp3.toObject ();
-                    QString file_path = obj["file_path"].toString ();
-                    qDebug()<<"收到了文件"<<"file_path:"+file_path;
+            }else if(array_name=="offpic"){
+                foreach (QJsonValue temp3, array) {
+                    if(temp3.isObject ()){
+                        obj = temp3.toObject ();
+                        QString file_path = obj["file_path"].toString ();
+                        qDebug()<<"收到了文件"<<"file_path:"+file_path;
+                        if(data!="{\"content\":[")
+                            data+=",";
+                        data.append (QString("{")+"\"type:\":"+QString::number (Image)+",\"file_path\":"+file_path+"}");
+                    }
                 }
+            }else if(array_name=="face"){
+                qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
+                if(data!="{\"content\":[")
+                    data+=",";
+                data.append (QString("{")+"\"type:\":"+QString::number (Face)+",\"face_code\":"+QString::number (array[1].toInt ())+"}");
+            }else{
+                qDebug()<<"其他类型的数据："<<array_name;
             }
-        }else if(array_name=="face"){
-            qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
-        }else{
-            qDebug()<<"其他类型的数据："<<array_name;
+        }else if(temp2.isString ()){
+            qDebug()<<"消息内容是："+temp2.toString ();
+            if(data!="{\"content\":[")
+                data+=",";
+            data.append (QString("{")+"\"type:\":"+QString::number (Text)+",\"text\":"+temp2.toString ()+"}");
         }
-    }else if(temp2.isString ()){
-        qDebug()<<"消息内容是："+temp2.toString ();
     }
+    result.data = data+"]}";
+    return result;
 }
 
 void QQCommand::disposeInputNotify(QJsonObject &obj)
 {
     QString from_uin = doubleToString (obj, "from_uin");
-
     qDebug()<<"是输入状态的消息";
     qDebug()<<getValue (from_uin+"nick", from_uin).toString ()+"正在输入";
+    emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (InputNotify)+"}]}");
 }
 
 void QQCommand::disposeFriendStatusChanged(QJsonObject &obj)
@@ -215,8 +244,9 @@ void QQCommand::disposeFriendStatusChanged(QJsonObject &obj)
     QString uin = doubleToString (obj, "uin");
     QString status = obj["status"].toString ();
     int client_type = obj["client_type"].toInt ();
-    
     qDebug()<<"是好友状态改变的信息"<<getValue (uin+"nick", uin).toString ()<<"状态改变为"<<status<<"客户端类型:"<<client_type;
+    
+    emit messageArrive (Friend, uin, "{\"content\":[{\"type\":"+QString::number (FriendStatusChanged)+",\"status\":"+status+"}]}");
 }
 
 void QQCommand::disposeFriendMessage(QJsonObject &obj)
@@ -238,7 +268,8 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj)
     qDebug()<<"接收方的uin是："+to_uin;*/
     qDebug()<<"来自"+getValue (from_uin+"nick", from_uin).toString ()+"的消息";
     
-    analysisMessage (obj);
+    messageData data = analysisMessage (obj);
+    emit messageArrive (Friend, from_uin, data.data);
 }
 
 void QQCommand::disposeGroupMessage(QJsonObject &obj)
@@ -263,7 +294,11 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj)
     qDebug()<<"接收方的uin是："+to_uin;*/
     qDebug()<<"来自"+getValue (from_uin+"nick", from_uin).toString ()+"中"+getValue (send_uin+"nick", send_uin).toString ()+"的消息";
     
-    analysisMessage (obj);
+    messageData data = analysisMessage (obj);
+    QString temp = data.data;
+    temp.insert (1, "\"send_uin\":"+send_uin+",");
+    
+    emit messageArrive (Group, from_uin, temp);
 }
 
 void QQCommand::disposeDiscuMessage(QJsonObject &obj)
@@ -287,8 +322,11 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj)
     qDebug()<<"回复的ip地址是："+reply_ip;
     qDebug()<<"接收方的uin是："+to_uin;*/
     qDebug()<<"来自"+getValue (did+"nick", did).toString ()+"中"+getValue (send_uin+"nick", send_uin).toString ()+"的消息";
+    messageData data = analysisMessage (obj);
     
-    analysisMessage (obj);
+    QString temp = data.data;
+    temp.insert (1, "\"send_uin\":"+send_uin+",");
+    emit messageArrive (Discu, did, temp);
 }
 
 QString QQCommand::doubleToString(QJsonObject &obj, QString name)
