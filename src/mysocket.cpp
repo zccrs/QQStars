@@ -54,6 +54,13 @@ void MySocket::send(QJSValue callbackFun, QUrl url, QByteArray data)
     }
 }
 
+void MySocket::abort()
+{
+    if(m_reply){
+        m_reply->abort ();
+    }
+}
+
 void MySocket::send()
 {
     if( queue_url.count ()>0){

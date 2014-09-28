@@ -40,6 +40,7 @@ signals:
     void statusChanged();
 public slots:
     void send( QJSValue callbackFun, QUrl url, QByteArray data="" );
+    void abort();//取消当前网络请求
     QString errorString();
     void setRawHeader(const QByteArray &headerName, const QByteArray &value);
 };

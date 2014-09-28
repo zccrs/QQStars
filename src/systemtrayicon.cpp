@@ -105,6 +105,7 @@ void MyMenu::componentComplete()
 MyMenu::MyMenu(QQuickItem *parent) : 
     QQuickItem(parent)
 {
+    m_styleSource = QUrl("");
     setObjectName ("MyMenu");
     menu = new MenuPrivate();
     setVisible (false);
@@ -135,6 +136,7 @@ void MyMenu::setStyleSource(QUrl arg)
     if (m_styleSource != arg) {
         m_styleSource = arg;
         QFile file(arg.toLocalFile ());
+        
         if(file.open (QIODevice::ReadOnly)){
             menu->setStyleSheet (file.readAll ());
         }else{

@@ -22,9 +22,8 @@ int main(int argc, char *argv[])
     app.setApplicationDisplayName ("星辰QQ");
     
     QTranslator translator;
-    qDebug()<<translator.load (":/qt_zh_CN.qm");
-    qDebug()<<QApplication::installTranslator (&translator);
-    qDebug()<<app.translate ("QMessageBox", "Help");
+    translator.load (":/qt_zh_CN.qm");
+    QApplication::installTranslator (&translator);
     
     QQmlApplicationEngine engine;
     engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
@@ -39,7 +38,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
    
-    QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
+    QDir dir;
+    qDebug()<<dir.mkpath (dir.homePath ()+"/webqq");
+    QSettings mysettings(dir.homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
     utility->initUtility (&mysettings, &engine);
     

@@ -20,7 +20,7 @@ MySystemTrayIcon{
     menu: myqq.loginStatus == QQ.LoginFinished?menu2:menu1
     MyMenu{
         id:menu1
-        styleSource: "menuStyle.css"
+        styleSource: "../style/menuStyle.css"
         MyMenuItem{
             text: "打开主面板"
             onTriggered: {

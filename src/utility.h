@@ -67,6 +67,7 @@ public slots:
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="");
+    void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     
     QString stringEncrypt(const QByteArray &content, QByteArray key);//加密任意字符串

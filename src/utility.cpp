@@ -192,6 +192,11 @@ void Utility::socketSend(QJSValue callbackFun, QUrl url, QByteArray data)
     socket->send (callbackFun, url, data);
 }
 
+void Utility::socketAbort()
+{
+    socket->abort ();
+}
+
 void Utility::setApplicationProxy(int type, QString location, QString port, QString username, QString password)
 {
     QNetworkProxy proxy;

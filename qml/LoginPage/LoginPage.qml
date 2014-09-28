@@ -58,7 +58,7 @@ Item{
                 Timer{
                     id: timer_login
                     interval: 10
-                    onTriggered: myqq.login()
+                    onTriggered: myqq.login()//开始登录
                 }
         
                 NumberAnimation{

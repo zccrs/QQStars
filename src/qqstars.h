@@ -44,7 +44,8 @@ public:
         Friend,//好友
         Group,//群
         Discu,//讨论组
-        Stranger//陌生人
+        Stranger,//陌生人
+        SystemMessage//系统消息，包含群管理员的更改，成员的更改，还有好友验证消息
     };
     
     enum MessageType{
@@ -52,12 +53,17 @@ public:
         Text,//文本
         Image,//图片
         Face,//表情
-        SendFile,//发送文件
-        CancleSendFile,//取消发送文件
+        GeneralMessage,//普通消息，包含Text Image Face等
+        //SendFile,//发送文件
+        //CancleSendFile,//取消发送文件
+        FileMessage,//文件消息，包含发送文件和取消发送文件
         AvRequest,//请求开视频
         AvRefuse,//取消开视频
         ShakeWindow,//窗口抖动
-        FriendStatusChanged//好友状态改变
+        FriendStatusChanged,//好友状态改变
+        FriendVerify,//好友验证消息poll_type=system_message，type=verify_required
+        GroupAdmin,//群管理员消息poll_type=sys_g_msg，type=group_admin_op，uin_flag=1为设为管理员，0为取消管理员
+        GroupLeave//群T人的消息
     };
     
     QString userStatusToString() const
@@ -105,21 +111,18 @@ private:
     QJSEngine jsEngine;
     void loadApi();
     
-    struct messageData{
-        int fontSize;//字体大小
-        QColor fontColor;//字体颜色
-        bool fontBold;//加黑
-        bool fontItalic;//斜体
-        bool fontUnderline;//下划线
-        QString fontName;//字体名字
-        QString data;
-    };
-    QQCommand::messageData analysisMessage( QJsonObject &obj );//解析基本消息
-    void disposeInputNotify( QJsonObject &obj );//处理好友正在输入消息
-    void disposeFriendStatusChanged( QJsonObject &obj );
-    void disposeFriendMessage( QJsonObject &obj );
-    void disposeGroupMessage( QJsonObject &obj );
-    void disposeDiscuMessage( QJsonObject &obj );
+    QString analysisMessage( QJsonObject &obj );//解析基本消息
+    //void disposeInputNotify( QJsonObject &obj );//处理好友正在输入消息
+    void disposeFriendStatusChanged( QJsonObject &obj );//处理好友状态改变
+    void disposeFriendMessage( QJsonObject &obj, MessageType type=GeneralMessage );//处理好友消息
+    void disposeGroupMessage( QJsonObject &obj, MessageType type=GeneralMessage );//处理群消息
+    void disposeDiscuMessage( QJsonObject &obj, MessageType type=GeneralMessage );//处理讨论组消息
+    void disposeStrangerMessage( QJsonObject &obj, MessageType type=GeneralMessage );//处理陌生人消息
+    void disposeSystemMessage(QJsonObject &obj);//处理系统消息
+    //void disposeFileMessage( QJsonObject &obj );//处理文件传输方面的消息
+    //void disposeAvMessage( QJsonObject &obj, bool open/*true为开视频，false为取消开视频*/ );//处理视频聊天方面的消息
+    //void disposeShakeMessage( QJsonObject &obj );
+    
     QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
     
     double m_windowScale;
@@ -136,7 +139,7 @@ signals:
     void userPasswordChanged(QString arg);
     
     void windowScaleChanged(double arg);
-    void messageArrive(SenderType senderType, QString uin, QString data);
+    void messageArrive(SenderType senderType, QString uin, QString jsonData);
 public slots:
     void setLoginStatus(LoginStatus arg);
     void startPoll2( QByteArray data );
