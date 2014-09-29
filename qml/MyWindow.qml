@@ -10,6 +10,8 @@ MyQuickWindow{
     property int maxWidth: 999999//正无穷
     property int minHeight: 0
     property int maxHeight: 999999//正无穷
+    width: Math.max(minWidth, 300)
+    height: Math.max(minHeight, 300)
 
     function widthIsValidity( num ) {
         if( num<=maxWidth&&num>=minWidth )

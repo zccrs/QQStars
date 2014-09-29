@@ -8,6 +8,7 @@ import mywindow 1.0
 import utility 1.0
 //import Qt.labs.settings 1.0
 import "../"
+import "../MainPanelPage/"
 
 MyWindow{
     id:main
@@ -128,4 +129,5 @@ MyWindow{
              }
          }
     }
+    ChatWindowComponent{}
 }

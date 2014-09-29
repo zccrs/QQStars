@@ -6,9 +6,10 @@ Item{
     id: root
     property alias title: text.text
     property alias text: input.text
+    property alias font: input.font
+    property alias field: input
     Text {
         id: text
-        text: "地址:"
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         font.pointSize: root.height/2
@@ -17,8 +18,8 @@ Item{
         id: input
         anchors.left: text.right
         anchors.right: parent.right
-        //anchors.verticalCenter: text.verticalCenter
-        height: root.height
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         font.pointSize:text.font.pointSize
         style: TextFieldStyle {
                 textColor: "black"

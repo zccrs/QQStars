@@ -81,5 +81,8 @@ OTHER_FILES += \
     qml/QQApi.qml \
     qml/MyComboBoxComponent.qml \
     qml/MyRectangularGlow.qml \
-    qml/MyTextField.qml
+    qml/MyTextField.qml \
+    qml/MainPanelPage/ChatWindowComponent.qml \
+    qml/MainPanelPage/ChatWindowCommand.qml \
+    qml/MyTextArea.qml
 FORMS +=

@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import utility 1.0
 
 Item{
     id: friendlist_main
@@ -218,6 +219,12 @@ Item{
                 anchors.bottom: avatar.bottom
                 font.pointSize: 8
                 text: myqq.getValue(info.uin+"signature", "获取中...")
+            }
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    chat_command.addChat(info.uin, QQ.Friend)
+                }
             }
         }
     }

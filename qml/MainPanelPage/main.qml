@@ -53,11 +53,15 @@ MyWindow{
         }
     }
     
+    ChatWindowCommand{
+        id: chat_command
+    }
+    
     Connections{
         target: myqq
         onMessageArrive:{
             var temp = JSON.parse(jsonData)
-            console.log(jsonData)
+            //console.log(jsonData)
             console.log("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息")
             var content
             var i
@@ -98,6 +102,7 @@ MyWindow{
                         showMessage+="取消视频通话"
                     }
                 }
+                chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Group){//如果是群消息
                 for(i=0; i<temp.content.length; ++i){
                     content = temp.content[i]
@@ -113,6 +118,7 @@ MyWindow{
                         //showMessage+="表情("+content.face_code+")"
                     }
                 }
+                chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Discu){//如果是讨论组消息
                 for(i=0; i<temp.content.length; ++i){
                     content = temp.content[i]
@@ -128,6 +134,7 @@ MyWindow{
                         //showMessage+="表情("+content.face_code+")"
                     }
                 }
+                chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.SystemMessage){//如果是系统消息
                 content = temp
                 type = content.type
