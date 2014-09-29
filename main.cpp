@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
    
     QDir dir;
-    qDebug()<<dir.mkpath (dir.homePath ()+"/webqq");
+    dir.mkpath (dir.homePath ()+"/webqq");
     QSettings mysettings(dir.homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
     utility->initUtility (&mysettings, &engine);

@@ -123,8 +123,8 @@ QQ{
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
                 loginReData = list.result//将数据记录下来
-                var url = "http://q.qlogo.cn/headimg_dl?spec=100&dst_uin="+myqq.userQQ
-                downloadImage(url, myqq.userQQ, "100", getAvatarFinished)//获取头像
+                var url = "http://q.qlogo.cn/headimg_dl?spec=240&dst_uin="+myqq.userQQ
+                downloadImage(url, myqq.userQQ, "240", getAvatarFinished)//获取头像
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
             }else{
                 myqq.showWarningInfo("登陆出错，错误代码："+list.retcode)

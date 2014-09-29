@@ -10,7 +10,8 @@ Item{
     height: effect.actualHeight()
     function reLogin(){
         myqq.loginStatus = QQ.Offline
-        avatar_image.x = -30/77*avatar_image.width
+        animation_avatar.stop()//停止动画
+        avatar_image.x = -30/77*avatar_image.width//将头像位置复原
     }
 
     MyRectangularGlow{
@@ -39,7 +40,7 @@ Item{
                 id:avatar_image
                 maskSource: "qrc:/images/bit.bmp"
                 width: 80*myqq.windowScale
-                source: myqq.getValue("avatar-100", "qrc:/images/avatar.png")
+                source: myqq.getValue("avatar-240", "qrc:/images/avatar.png")
                 x:-30/80*width
                 anchors.verticalCenter: inputarea.verticalCenter
 
@@ -76,6 +77,7 @@ Item{
                     width: defaultSize.width*myqq.windowScale
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
+                    anchors.margins: -0.02*avatar_image.width
                     //sourceSize.width: width
                     //width: 5/16*avatar_image.width
                     visible: myqq.loginStatus == QQ.Offline

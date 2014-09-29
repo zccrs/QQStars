@@ -102,7 +102,7 @@ Window{
         var data = utility.getValue("qq", "")
         data = data.split(",")
         for( var i=1;i<data.length;++i ){
-            mymodel.append({"imageSrc": myqq.getValue("avatar-100", "qrc:/images/avatar.png",data[i]), "nick":myqq.getValue("nick","", data[i]), "uin": data[i]})
+            mymodel.append({"imageSrc": myqq.getValue("avatar-240", "qrc:/images/avatar.png", data[i]), "nick":myqq.getValue("nick","", data[i]), "uin": data[i]})
         }
     }
 

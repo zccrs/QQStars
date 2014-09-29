@@ -58,7 +58,7 @@ MyWindow{
         onMessageArrive:{
             var temp = JSON.parse(jsonData)
             console.log(jsonData)
-            console.log("来自"+myqq.getValue(uin+"nick", uin)+"的消息")
+            console.log("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息")
             var content
             var i
             var type
@@ -104,13 +104,13 @@ MyWindow{
                     type = content.type
                     if(type == QQ.Text){
                         console.log(content.text)
-                        showMessage+=content.text+" "
+                        //showMessage+=content.text+" "
                     }else if(type == QQ.Image){
                         console.log("图片消息")
-                        showMessage+="此处为图片 "
+                        //showMessage+="此处为图片 "
                     }else if(type == QQ.Face){
                         console.log("表情消息："+content.face_code)
-                        showMessage+="表情("+content.face_code+")"
+                        //showMessage+="表情("+content.face_code+")"
                     }
                 }
             }else if(senderType == QQ.Discu){//如果是讨论组消息
@@ -119,13 +119,13 @@ MyWindow{
                     type = content.type
                     if(type == QQ.Text){
                         console.log(content.text)
-                        showMessage+=content.text+" "
+                        //showMessage+=content.text+" "
                     }else if(type == QQ.Image){
                         console.log("图片消息")
-                        showMessage+="此处为图片 "
+                        //showMessage+="此处为图片 "
                     }else if(type == QQ.Face){
                         console.log("表情消息："+content.face_code)
-                        showMessage+="表情("+content.face_code+")"
+                        //showMessage+="表情("+content.face_code+")"
                     }
                 }
             }else if(senderType == QQ.SystemMessage){//如果是系统消息
@@ -133,7 +133,7 @@ MyWindow{
                 type = content.type
                 if(type == QQ.FriendStatusChanged){
                     console.log("状态改变为："+content.status)
-                    showMessage+="状态改变为："+content.status
+                    //showMessage+="状态改变为："+content.status
                 }else if(type == QQ.FriendVerify){
                     console.log("qq号为"+content.account+"要加你为好友")
                     showMessage+="qq号为"+content.account+"要加你为好友"
@@ -150,7 +150,8 @@ MyWindow{
                     showMessage+=content.old_member+"离开了群"
                 }
             }
-            systemTray.showMessage("来自"+myqq.getValue(uin+"nick", uin)+"的消息", showMessage)
+            if(showMessage!="")
+                systemTray.showMessage("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息", showMessage)
         }
     }
     
