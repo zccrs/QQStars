@@ -104,7 +104,7 @@ MyWindow{
                     }
                 }
             }
-            MyButton{
+            MyLoginButton{
                 id: button_affirm
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: root_page.height/20

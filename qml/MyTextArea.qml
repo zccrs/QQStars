@@ -4,13 +4,20 @@ import QtQuick.Controls.Styles 1.2
 
 TextArea{
     id: root
+    backgroundVisible : false
     style: TextAreaStyle {
             id: scroll_style
             textColor: "black"
-            frame: BorderImage {
+            /*frame: BorderImage {
                 source: "qrc:/images/background_input.png"
                 border.left: 5; border.top: 5
                 border.right: 5; border.bottom: 5
+            }*/
+            frame: Rectangle{
+                color: "#f5f5f5"
+                radius: 5
+                border.width: 2
+                border.color: "#ddd"
             }
             property int hovered_count: 0
             property bool hovered: hovered_count>0
@@ -91,6 +98,6 @@ TextArea{
             }
             //selectionColor: "steelblue"
             //selectedTextColor: "#eee"
-            backgroundColor: "transparent"
+            //backgroundColor: "transparent"
         }
 }

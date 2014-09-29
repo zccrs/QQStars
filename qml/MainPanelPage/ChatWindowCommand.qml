@@ -9,7 +9,7 @@ Item{
         
         function removeObject(number){
             console.log("销毁"+number)
-            chatWindow.remove(number)
+            chatWindow.slice(number,1)
         }
     }
     function addChat( uin , senderType){
@@ -23,7 +23,7 @@ Item{
             }
         }
 
-        var component = Qt.createComponent("ChatWindowComponent.qml");
+        var component = Qt.createComponent("ChatWindow.qml");
         if (component.status == Component.Ready){
             console.log("将要创建窗口")
             var data = {"myuin": uin, "control":chat_window, "type":senderType, "closeFun": chat_window.removeObject};

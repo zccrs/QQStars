@@ -237,7 +237,7 @@ Item{
             Connections{
                 target: myqq
                 onUserQQChanged:{
-                    avatar_image.source = myqq.getValue("avatar-100", "qrc:/images/avatar.png")
+                    avatar_image.source = myqq.getValue("avatar-240", "qrc:/images/avatar.png")
                     checkbox_rememberpassword.checked = myqq.getValue("rememberpassword", 0)==1
                     checkbox_autologin.checked = myqq.getValue("autologin", 0)==1
                     myqq.userStatus = Number(myqq.getValue("status", QQ.Online))//设置用户的登录状态
@@ -286,7 +286,7 @@ Item{
                 }
             }
             
-            MyButton{
+            MyLoginButton{
                 id:button_login
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 30/250*root.height-height/2-1*height/defaultSize.height

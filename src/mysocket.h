@@ -23,7 +23,7 @@ public:
 private:
     NetworkAccessManager *manager;
     QNetworkRequest request;
-    QNetworkReply *m_reply;
+    QPointer<QNetworkReply> m_reply;
     
     RequestStatus m_status;
     RequestStatus status();

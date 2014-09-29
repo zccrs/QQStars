@@ -73,7 +73,6 @@ OTHER_FILES += \
     qml/MainPanelPage/FriendList.qml \
     qml/MainPanelPage/AllListPage.qml \
     qml/MainPanelPage/MainPanelPage.qml \
-    qml/MyButton.qml \
     qml/LoginPage/SettingPage.qml \
     qml/CodeInput.qml \
     qml/MyComboBox.qml \
@@ -82,7 +81,10 @@ OTHER_FILES += \
     qml/MyComboBoxComponent.qml \
     qml/MyRectangularGlow.qml \
     qml/MyTextField.qml \
-    qml/MainPanelPage/ChatWindowComponent.qml \
     qml/MainPanelPage/ChatWindowCommand.qml \
-    qml/MyTextArea.qml
+    qml/MyTextArea.qml \
+    qml/MyLoginButton.qml \
+    qml/MyButton.qml \
+    qml/MainPanelPage/MessageListComponent.qml \
+    qml/MainPanelPage/ChatWindow.qml
 FORMS +=

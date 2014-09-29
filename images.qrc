@@ -56,5 +56,13 @@
         <file>images/button-settings.svg</file>
         <file>images/inputBox1.svg</file>
         <file>images/inputBox2.svg</file>
+        <file>images/bubble_放飞心情_left.png</file>
+        <file>images/bubble_放飞心情_right.png</file>
+        <file>images/bubble_经典_left.png</file>
+        <file>images/bubble_经典_right.png</file>
+        <file>images/bubble_祈福_left.png</file>
+        <file>images/bubble_祈福_right.png</file>
+        <file>images/bubble_微笑河马_left.png</file>
+        <file>images/bubble_微笑河马_right.png</file>
     </qresource>
 </RCC>

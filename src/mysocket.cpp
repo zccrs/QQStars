@@ -56,7 +56,7 @@ void MySocket::send(QJSValue callbackFun, QUrl url, QByteArray data)
 
 void MySocket::abort()
 {
-    if(m_reply){
+    if(!m_reply.isNull ()){
         m_reply->abort ();
     }
 }

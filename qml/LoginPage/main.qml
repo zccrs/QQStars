@@ -129,5 +129,5 @@ MyWindow{
              }
          }
     }
-    ChatWindowComponent{}
+    //ChatWindow{}
 }

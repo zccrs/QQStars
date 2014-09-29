@@ -15,6 +15,10 @@ Item{
         KeyNavigation.tab: KeyNavigation.down
         text: utility.getValue("mainqq", "")
         
+        validator: RegExpValidator{
+            regExp: /[1-9][0-9]{4,11}/
+        }
+
         style: TextFieldStyle {
             textColor: "black"
             background: Item{
@@ -61,6 +65,9 @@ Item{
         KeyNavigation.up: input_qq
         KeyNavigation.down: input_qq
         KeyNavigation.tab: KeyNavigation.down
+        validator: RegExpValidator{
+            regExp: /[0-9a-zA-Z`~\!@\#\$%\^&\*\(\)\-\=_\+\[\]\{\}\\\|;\:'"<>\?,\.\/]{6,16}/
+        }
         text: utility.stringUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
         onTextChanged: {
             myqq.userPassword=text

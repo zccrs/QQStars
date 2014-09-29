@@ -61,14 +61,15 @@ MyWindow{
         target: myqq
         onMessageArrive:{
             var temp = JSON.parse(jsonData)
-            //console.log(jsonData)
-            console.log("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息")
+            if(!temp)
+                console.log(jsonData)
+            //console.log("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息")
             var content
             var i
             var type
             var showMessage=""
             if(senderType == QQ.Friend){//如果是好友消息
-                for(i=0; i<temp.content.length; ++i){
+                /*for(i=0; i<temp.content.length; ++i){
                     content = temp.content[i]
                     type = content.type
                     if(type == QQ.Text){
@@ -101,10 +102,10 @@ MyWindow{
                         console.log("取消视频通话")
                         showMessage+="取消视频通话"
                     }
-                }
+                }*/
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Group){//如果是群消息
-                for(i=0; i<temp.content.length; ++i){
+                /*for(i=0; i<temp.content.length; ++i){
                     content = temp.content[i]
                     type = content.type
                     if(type == QQ.Text){
@@ -117,10 +118,10 @@ MyWindow{
                         console.log("表情消息："+content.face_code)
                         //showMessage+="表情("+content.face_code+")"
                     }
-                }
+                }*/
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Discu){//如果是讨论组消息
-                for(i=0; i<temp.content.length; ++i){
+                /*for(i=0; i<temp.content.length; ++i){
                     content = temp.content[i]
                     type = content.type
                     if(type == QQ.Text){
@@ -133,7 +134,7 @@ MyWindow{
                         console.log("表情消息："+content.face_code)
                         //showMessage+="表情("+content.face_code+")"
                     }
-                }
+                }*/
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.SystemMessage){//如果是系统消息
                 content = temp

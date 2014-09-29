@@ -111,11 +111,12 @@ Item{
                         }
                     }
                 }
-                Button {
+                MyButton {
                     text: "测  试"
                     width: root.width/4
                     height: width/4
                     visible: proxy_combo.currentIndex != 0
+                    font.pointSize: proxy_type_text.font.pointSize
                     onClicked:{
                         utility.setApplicationProxy(proxy_combo.currentValue, proxy_location_input.text, proxy_port_input.text, proxy_username_input.text, proxy_password_input.text)
                         utility.socketSend(testNetwork, "http://d.web2.qq.com/channel/poll2")
@@ -137,49 +138,12 @@ Item{
                         else
                             myqq.showWarningInfo("测试通过")
                     }
-                    style: ButtonStyle {
-                        background: Rectangle {
-                            implicitWidth: 80
-                            implicitHeight: 20
-                            radius: 6
-                            border.width: 1
-                            border.color: "#aaa"
-                            gradient: Gradient {
-                                GradientStop { position: 0 ; color: {
-                                        if(!control.enabled)
-                                            return "#888"
-                                        if( control.pressed )
-                                            return "#ff9000"
-                                        if( control.hovered )
-                                            return "#eee"
-                                        return "#fff"
-                                    }
-                                }
-                                GradientStop { position: 1 ; color: {
-                                        if(!control.enabled)
-                                            return "#777"
-                                        if( control.pressed )
-                                            return "#f07000"
-                                        if( control.hovered )
-                                            return "#ddd"
-                                        return "#eee"
-                                    }
-                                }
-                            }
-                        }
-                        label: Text{}
-                    }
-                    Text{
-                        text: parent.text
-                        anchors.centerIn: parent
-                        color: parent.pressed?"white":"black"
-                        font.pointSize: proxy_type_text.font.pointSize
-                    }
+                    
                 }
             }
             
             
-            MyButton{
+            MyLoginButton{
                 id: button_affirm
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 30/250*root.height-height/2-1*height/defaultSize.height
