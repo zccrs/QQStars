@@ -72,14 +72,12 @@ void MyWindow::onKeyPressed()
 
 void MyWindow::focusInEvent(QFocusEvent *ev)
 {
-    //qDebug()<<this<<"得到了焦点";
     setWindowActive (true);
     QQuickWindow::focusInEvent(ev);
 }
 
 void MyWindow::focusOutEvent(QFocusEvent *ev)
 {
-    //qDebug()<<this<<"失去了焦点";
     setWindowActive (false);
     QQuickWindow::focusOutEvent (ev);
 }
@@ -95,6 +93,7 @@ void MyWindow::keyPressEvent(QKeyEvent *ev)
 void MyWindow::keyReleaseEvent(QKeyEvent *ev)
 {
     queue_key.removeOne (ev->key());
+    QQuickWindow::keyReleaseEvent (ev);
 }
 
 bool MyWindow::noBorder()

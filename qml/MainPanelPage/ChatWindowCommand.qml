@@ -23,14 +23,8 @@ Item{
                 }
             }
         }
-
-        var str = function(){
-            if(senderType==QQ.Friend)
-                return "FriendChatWindow.qml"
-            else if(senderType==QQ.Group)
-                return "GroupChatWindow.qml"
-            
-        }
+        var str = senderType==QQ.Friend?"FriendChatWindow.qml":(senderType==QQ.Group?"GroupChatWindow.qml":"")
+        
         console.log(str)
         var component = Qt.createComponent(str);
         if (component.status == Component.Ready){

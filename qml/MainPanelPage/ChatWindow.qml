@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import QtQuick.Window 2.1
 import "../"
 
 MyWindow{
@@ -33,16 +34,20 @@ MyWindow{
             root.newMessage(uin, messageData)
         }
     }
+    Component.onCompleted: {
+        root.x = Screen.desktopAvailableWidth/2 - root.actualWidth/2//让程序居中显示
+        root.y = Screen.desktopAvailableHeight/2 - root.actualHeight/2
+    }
     
     shortcuts: MyShortcutList{
         MyShortcut{
-            shortcut: "Return"
+            shortcut: "Ctrl+Return"
             onTrigger: {
                 button_send.clicked()
             }
         }
         MyShortcut{
-            shortcut: "Enter"
+            shortcut: "Ctrl+Enter"
             onTrigger: {
                 button_send.clicked()
             }
@@ -56,7 +61,7 @@ MyWindow{
         Item{
             id: menu_bar
             height: 30
-            anchors.left: image_quit_icon.right
+            anchors.left: image_minimize_icon.right
             anchors.leftMargin: 10
             anchors.right: parent.right
             anchors.top: parent.top
@@ -85,7 +90,6 @@ MyWindow{
             source: "qrc:/images/button-minimize.svg"
             anchors.top: image_quit_icon.top
             anchors.left: image_quit_icon.right
-            anchors.leftMargin: 10
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
@@ -108,18 +112,13 @@ MyWindow{
             wrapMode: TextEdit.Wrap
             anchors.bottom: button_send.top
             anchors.left: parent.left
-            anchors.right: item_qqshow.left
+            anchors.right: right_bar.left
             anchors.margins: 10
             height: 100
-            onActiveFocusChanged: {
-                if(activeFocus){
-                    
-                }
-            }
         }
         MyButton{
             id: button_send
-            anchors.right: item_qqshow.left
+            anchors.right: right_bar.left
             anchors.bottom: parent.bottom
             anchors.margins: 10
             text: "发送"
@@ -132,7 +131,7 @@ MyWindow{
 
         Rectangle{
             anchors.top: menu_bar.bottom
-            anchors.right: item_qqshow.left
+            anchors.right: right_bar.left
             anchors.bottom: input.top
             anchors.left: parent.left
             anchors.margins: 10

@@ -40,6 +40,6 @@ ChatWindow{
         parent: menuBar
         verticalAlignment: Text.AlignVCenter
         anchors.verticalCenter: parent.verticalCenter
-        text: myqq.setValue(myuin+"nick", myuin)
+        text: myqq.getValue(myuin+"nick", myuin)
     }
 }
