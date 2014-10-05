@@ -63,7 +63,7 @@ void MyWindow::setWindowActive(bool arg)
 
 void MyWindow::onKeyPressed()
 {
-    if(queue_key.count ()>0){
+    if(m_shortcuts&&queue_key.count ()>0){
         foreach (MyWindowShortcut *shortcut, m_shortcuts->list ()) {
             shortcut->onKeyPressed (queue_key);
         }
@@ -72,28 +72,28 @@ void MyWindow::onKeyPressed()
 
 void MyWindow::focusInEvent(QFocusEvent *ev)
 {
-    setWindowActive (true);
     QQuickWindow::focusInEvent(ev);
+    setWindowActive (true);
 }
 
 void MyWindow::focusOutEvent(QFocusEvent *ev)
 {
-    setWindowActive (false);
     QQuickWindow::focusOutEvent (ev);
+    setWindowActive (false);
 }
 
 void MyWindow::keyPressEvent(QKeyEvent *ev)
 {
+    QQuickWindow::keyPressEvent (ev);
     queue_key.append (ev->key ());
     //qDebug()<<ev->key ();
     onKeyPressed ();
-    QQuickWindow::keyPressEvent (ev);
 }
 
 void MyWindow::keyReleaseEvent(QKeyEvent *ev)
 {
-    queue_key.removeOne (ev->key());
     QQuickWindow::keyReleaseEvent (ev);
+    queue_key.removeOne (ev->key());
 }
 
 bool MyWindow::noBorder()

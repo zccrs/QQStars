@@ -66,7 +66,7 @@ public slots:
     
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
-    void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="", MySocket::Priority priority=MySocket::Low);
+    void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="", int priority=0);
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     

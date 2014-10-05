@@ -187,9 +187,10 @@ void Utility::downloadImage(QJSValue callbackFun, QUrl url, QString savePath, QS
     download_image->getImage (callbackFun, url, savePath, saveName);
 }
 
-void Utility::socketSend(QJSValue callbackFun, QUrl url, QByteArray data, MySocket::Priority priority)
+void Utility::socketSend(QJSValue callbackFun, QUrl url, QByteArray data, int priority)
 {
-    socket->send (callbackFun, url, priority, data);
+    //qDebug()<<priority;
+    socket->send (callbackFun, url, (MySocket::Priority)priority, data);
 }
 
 void Utility::socketAbort()

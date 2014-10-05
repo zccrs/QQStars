@@ -19,8 +19,8 @@ public:
         Busy//请求中
     };
     enum Priority{
-        Low,
-        High
+        Low=0,
+        High=1
     };
 
     NetworkAccessManager *getNetworkAccessManager();

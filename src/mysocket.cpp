@@ -47,6 +47,7 @@ void MySocket::finished(QNetworkReply *reply)
 void MySocket::send(QJSValue callbackFun, QUrl url, Priority priority, QByteArray data)
 {
     if(priority==High){
+        qDebug()<<"高优先级的网络请求";
         new MySocketPrivate(callbackFun, url, data);//进行高优先级的网络请求
     }else if(priority==Low){
         queue_callbackFun<<callbackFun;
@@ -93,7 +94,11 @@ void MySocket::setRawHeader(const QByteArray &headerName, const QByteArray &valu
 MySocketPrivate::MySocketPrivate(QJSValue callbackFun, QUrl url, QByteArray data):
     MySocket(0)
 {
-    send(callbackFun, url, Low, data);
+    qDebug()<<"创建了高优先级的网络请求";
+    queue_callbackFun<<callbackFun;
+    queue_url<<url;
+    queue_data<<data;
+    QTimer::singleShot (10, this, SLOT(send()));//不然可能会堵塞ui线程
 }
 
 void MySocketPrivate::finished(QNetworkReply *reply)
