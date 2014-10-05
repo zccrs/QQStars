@@ -29,18 +29,19 @@ int main(int argc, char *argv[])
     engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
     
     qmlRegisterType<MyWindow>("mywindow", 1,0, "MyQuickWindow");
+    qmlRegisterType<MyWindowShortcut>("mywindow", 1, 0, "MyShortcut");
+    qmlRegisterType<MyWindowShortcutList>("mywindow", 1, 0, "MyShortcutList");
     qmlRegisterType<SystemTrayIcon>("mywindow", 1,0, "MySystemTrayIcon");
     qmlRegisterType<MyMenu>("mywindow", 1,0, "MyMenu");
     qmlRegisterType<MenuSeparator>("mywindow", 1,0, "MenuSeparator");
     qmlRegisterType<MyMenuItem>("mywindow", 1,0, "MyMenuItem");
     qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
+    qmlRegisterType<MySocket>("utility", 1, 0, "Socket");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
    
-    QDir dir;
-    dir.mkpath (dir.homePath ()+"/webqq");
-    QSettings mysettings(dir.homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
+    QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
     utility->initUtility (&mysettings, &engine);
     

@@ -3,15 +3,80 @@ import mywindow 1.0
 
 MyQuickWindow{
     id: root
-    property bool removable: true
-    property bool  fixedSize: true
-    property bool dockableWindow: false
+    property bool removable: true//窗口可移动？
+    property bool  fixedSize: true//窗口可改变大小？
+    property bool dockableWindow: false//窗口可停靠？
+    property bool windowGlow: true//开启窗口阴影？
+    property alias windowGlowItem: glow//阴影Item
+    property int windowShakeInterval: animation_shake.duration*12///窗口抖动的时间
+    
     property int minWidth: 0
     property int maxWidth: 999999//正无穷
     property int minHeight: 0
     property int maxHeight: 999999//正无穷
     width: Math.max(minWidth, 300)
     height: Math.max(minHeight, 300)
+    actualWidth: windowGlow?glow.actualWidth:width
+    actualHeight: windowGlow?glow.actualHeight:height
+
+    contentItem{
+        x: windowGlow?glow.actualX+glow.glowLeftWidth:0
+        y: windowGlow?glow.actualY+glow.glowTopHeight:0
+    }
+    
+    Connections{
+        target: windowGlow?contentItem:null
+        onWidthChanged:{
+            contentItem.width=width
+        }
+        onHeightChanged:{
+            contentItem.height=height
+        }
+    }
+    
+    QtObject{
+        id: obj_shake
+        property int windowShakeCount: 0
+    }
+
+    function windowShake() {//抖动窗口
+        if(obj_shake.windowShakeCount>=root.windowShakeInterval/animation_shake.duration/4){
+            obj_shake.windowShakeCount=0
+            return
+        }
+
+        ++obj_shake.windowShakeCount
+        showFront()//先把窗口显示在最前端
+        animation_shake.property = "x"
+        animation_shake.to = root.x-20
+        animation_shake.backFun=function(){
+            animation_shake.property = "y"
+            animation_shake.to = root.y-20
+            animation_shake.backFun=function(){
+                animation_shake.property="x"
+                animation_shake.to=root.x+20
+                animation_shake.backFun=function(){
+                    animation_shake.property="y"
+                    animation_shake.to=root.y+20
+                    animation_shake.backFun=function(){
+                        root.windowShake()
+                    }
+                    animation_shake.start()
+                }
+                animation_shake.start()
+            }
+            animation_shake.start()
+        }
+        animation_shake.start()
+    }
+    function showFront() {//显示到最前面
+        if(root.visible) {
+            if( root.visibility== MyQuickWindow.Minimized){
+                root.show()
+            }
+            root.requestActivate()//让窗体显示到最前端
+        }
+    }
 
     function widthIsValidity( num ) {
         if( num<=maxWidth&&num>=minWidth )
@@ -86,6 +151,53 @@ MyQuickWindow{
         target: root
         duration: 100
     }
+    NumberAnimation{
+        id: animation_shake
+        target: root
+        duration: 20
+        easing.type: Easing.OutInElastic
+        property var backFun: null
+        onStopped: {
+            if(backFun)
+                backFun()
+        }
+    }
+    NumberAnimation{
+        id: animation_shake_x
+        target: root
+        duration: 100
+        property: "x"
+        easing.type: Easing.OutInElastic
+        property var backFun: null
+        onStopped: {
+            if(backFun)
+                backFun()
+        }
+    }
+    NumberAnimation{
+        id: animation_shake_y
+        target: root
+        duration: 100
+        property: "y"
+        easing.type: Easing.OutInElastic
+        property var backFun: null
+        onStopped: {
+            if(backFun)
+                backFun()
+        }
+    }
+    
+    MyRectangularGlow{
+        id: glow
+        visible: windowGlow
+        x:0
+        y:0
+        glowRadius: 20
+        spread: 0.1
+        color: "black"
+        width: root.width
+        height:root.height
+    }
 
     MouseArea{
         id: mouse_main
@@ -125,6 +237,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
         anchors.top: parent.top
@@ -146,6 +259,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
         anchors.bottom: parent.bottom
@@ -165,6 +279,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.left: parent.left
@@ -185,6 +300,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.right: parent.right
@@ -204,6 +320,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         height: 4
@@ -228,6 +345,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right
@@ -252,6 +370,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled:!fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.left: parent.left
@@ -277,6 +396,7 @@ MyQuickWindow{
         }
     }
     MouseArea{
+        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right

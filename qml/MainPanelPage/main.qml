@@ -29,11 +29,8 @@ MyWindow{
         y = 20
     }
     function windowToActive(){//将窗口转为活动状态
+        main.showFront()
         if(main.visible) {
-            if( main.visibility!= Window.Windowed){
-                main.show()
-            }
-            main.requestActivate()//让窗体显示出来
             main.showWindow()//从停靠状态转为可停靠状态
         }
     }
@@ -119,6 +116,7 @@ MyWindow{
                         //showMessage+="表情("+content.face_code+")"
                     }
                 }*/
+                console.log("收到了群消息："+uin+","+jsonData)
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Discu){//如果是讨论组消息
                 /*for(i=0; i<temp.content.length; ++i){

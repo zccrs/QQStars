@@ -6,8 +6,8 @@ import mywindow 1.0
 import "../"
 
 Item{
-    width: effect.x+effect.actualWidth()
-    height: effect.y+effect.actualHeight()
+    width: effect.actualWidth
+    height: effect.actualHeight
     MyRectangularGlow{
         id: effect
         glowRadius: 50
@@ -16,7 +16,7 @@ Item{
         glowOpacity: 0.75
         width: root.width
         height: root.height
-        biasY: 10
+        biasY: 20
 
         item:SvgView {
             id:root

@@ -1,4 +1,5 @@
 import QtQuick 2.2
+import utility 1.0
 
 Item{
     visible: false
@@ -23,7 +24,15 @@ Item{
             }
         }
 
-        var component = Qt.createComponent("ChatWindow.qml");
+        var str = function(){
+            if(senderType==QQ.Friend)
+                return "FriendChatWindow.qml"
+            else if(senderType==QQ.Group)
+                return "GroupChatWindow.qml"
+            
+        }
+        console.log(str)
+        var component = Qt.createComponent(str);
         if (component.status == Component.Ready){
             console.log("将要创建窗口")
             var data = {"myuin": uin, "control":chat_window, "type":senderType, "closeFun": chat_window.removeObject};
@@ -31,7 +40,8 @@ Item{
             sprite.mynumber = chat_window.chatWindow.push(sprite)
         }
     }
-    
+
+
     function addMessage( uin, messageData ){
         chat_window.newMessage(uin, messageData)
     }

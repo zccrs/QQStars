@@ -1,8 +1,6 @@
 TEMPLATE = app
 TARGET = QQStars
-QT += widgets network webkit svg qml quick concurrent
-
-#TRANSLATIONS += other/MyMessage.ts
+QT += widgets network webkit svg qml quick concurrent gui-private
 
 INCLUDEPATH += \
     src \
@@ -86,5 +84,7 @@ OTHER_FILES += \
     qml/MyLoginButton.qml \
     qml/MyButton.qml \
     qml/MainPanelPage/MessageListComponent.qml \
-    qml/MainPanelPage/ChatWindow.qml
+    qml/MainPanelPage/ChatWindow.qml \
+    qml/MainPanelPage/GroupChatWindow.qml \
+    qml/MainPanelPage/FriendChatWindow.qml
 FORMS +=

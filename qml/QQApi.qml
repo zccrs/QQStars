@@ -61,7 +61,7 @@ QQ{
                 mycode = code
                 var p = encryptionPassword(uin, code)
                 var url1 = "https://ssl.ptlogin2.qq.com/login?u="+myqq.userQQ+"&p="+p+"&verifycode="+code+"&webqq_type=10&remember_uin=1&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=5-42-29419&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10087&login_sig=0RH3iE1ODTjmJJtKJ5MtDyoG*Q*pwgh2ABgmvw0E0zjdJpjPBbS*H9aZ4WRwLSFk&pt_uistyle=5"
-                //utility.socketSend(login1Finished, url1)
+                utility.socketSend(login1Finished, url1)
             }else{//先检测qq号是否需要输入验证码
                 utility.socketAbort()//取消以前的网络请求
                 var url2 = "https://ssl.ptlogin2.qq.com/check?uin="+myqq.userQQ+"&appid=1003903&r=0.08757076971232891"
@@ -255,6 +255,13 @@ QQ{
         var url = "http://d.web2.qq.com/channel/send_buddy_msg2"
         var data = 'r={"to":'+uin+',"face":549,"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"楷体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":45070001,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
-        utility.socketSend(backFun, url, data)
+        utility.socketSend(backFun, url, data, Socket.High)
+    }
+    
+    function sendGroupMessage(backFun, uin, message){
+        var url = "http://d.web2.qq.com/channel/send_qun_msg2"
+        var data = 'r={"group_uin":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"楷体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+        data = encodeURI(data)
+        utility.socketSend(backFun, url, data, Socket.High)
     }
 }

@@ -8,15 +8,27 @@
 #ifdef Q_OS_WIN
 #include <winuser.h>
 #endif
+#include <QWidget>
+
+bool test(QObject *, Qt::ShortcutContext)
+{
+    return true;
+}
 
 MyWindow::MyWindow(QQuickWindow *parent) :
-    QQuickWindow(parent), backingStore(0)
+    QQuickWindow(parent)
 {
+    setObjectName ("MyWindow");
+    setActualWidth (QQuickWindow::width ());
+    setActualHeight (QQuickWindow::height ());
+    
     m_noBorder = false;
     m_windowStatus = StopCenter;
     m_topHint = false;
     old_topHint=false;
     m_noNotifyIcon = false;
+    m_windowActive = false;
+    m_shortcuts = NULL;
 }
 
 bool MyWindow::topHint() const
@@ -39,6 +51,50 @@ void MyWindow::setWindowIcon(QUrl icon)
         m_windowIcon = icon;
         emit windowIconChanged ();
     }
+}
+
+void MyWindow::setWindowActive(bool arg)
+{
+    if(arg!=m_windowActive){
+        m_windowActive = arg;
+        emit windowActiveChanged (arg);
+    }
+}
+
+void MyWindow::onKeyPressed()
+{
+    if(queue_key.count ()>0){
+        foreach (MyWindowShortcut *shortcut, m_shortcuts->list ()) {
+            shortcut->onKeyPressed (queue_key);
+        }
+    }
+}
+
+void MyWindow::focusInEvent(QFocusEvent *ev)
+{
+    //qDebug()<<this<<"得到了焦点";
+    setWindowActive (true);
+    QQuickWindow::focusInEvent(ev);
+}
+
+void MyWindow::focusOutEvent(QFocusEvent *ev)
+{
+    //qDebug()<<this<<"失去了焦点";
+    setWindowActive (false);
+    QQuickWindow::focusOutEvent (ev);
+}
+
+void MyWindow::keyPressEvent(QKeyEvent *ev)
+{
+    queue_key.append (ev->key ());
+    //qDebug()<<ev->key ();
+    onKeyPressed ();
+    QQuickWindow::keyPressEvent (ev);
+}
+
+void MyWindow::keyReleaseEvent(QKeyEvent *ev)
+{
+    queue_key.removeOne (ev->key());
 }
 
 bool MyWindow::noBorder()
@@ -164,4 +220,125 @@ void MyWindow::setNoNotifyIcon(bool arg)
         }
         emit noNotifyIconChanged(arg);
     }
+}
+
+void MyWindow::setWidth(int arg)
+{
+    if (m_width != arg) {
+        m_width = arg;
+        emit widthChanged(arg);
+    }
+    contentItem ()->setWidth (arg);
+}
+
+void MyWindow::setHeight(int arg)
+{
+    if (m_height != arg) {
+        m_height = arg;
+        emit heightChanged(arg);
+    }
+    contentItem ()->setHeight (arg);
+}
+
+void MyWindow::setActualWidth(int arg)
+{
+    if (actualWidth ()!= arg) {
+        QQuickWindow::setWidth (arg);
+        emit actualWidthChanged(arg);
+    }
+}
+
+void MyWindow::setActualHeight(int arg)
+{
+    if (actualHeight ()!= arg) {
+        QQuickWindow::setHeight (arg);
+        emit actualHeightChanged(arg);
+    }
+}
+
+void MyWindow::setShortcuts(MyWindowShortcutList *arg)
+{
+    if (m_shortcuts != arg) {
+        m_shortcuts = arg;
+        emit shortcutsChanged(arg);
+    }
+}
+
+
+MyWindowShortcut::MyWindowShortcut(MyWindowShortcutList* parent):
+    QObject(parent)
+{
+    setObjectName ("MyWindowShortcut");
+    shortcutMapId = -1;
+    m_enabled = true;
+}
+
+void MyWindowShortcut::setShortcut(QString arg)
+{
+    if (m_shortcut != arg) {
+        m_shortcut = arg;
+        key_list.clear ();
+        QStringList list = arg.split ("+");
+        foreach (QString key, list) {
+            if(key!=""){
+                if(key=="Ctrl"){
+                    key_list.append (Qt::Key_Control);
+                }else if(key=="Shift"){
+                    key_list.append (Qt::Key_Shift);
+                }else if(key=="Alt"){
+                    key_list.append (Qt::Key_Alt);
+                }else if(key=="Meta"){
+                    key_list.append (Qt::Key_Meta);
+                }else{
+                    QKeySequence sequence=QKeySequence::fromString (key);
+                    if(sequence!=Qt::Key_unknown){
+                        key_list.append (sequence[0]);
+                    }else{
+                        emit shortcutError ("存在位置按键");
+                        break;
+                    }
+                }
+            }else{
+                emit shortcutError ("不可有空按键");
+                break;
+            }
+            qDebug()<<key<<key_list.last ();
+        }
+        emit shortcutChanged(arg);
+    }
+}
+
+void MyWindowShortcut::setEnabled(bool arg)
+{
+    if (m_enabled != arg) {
+        m_enabled = arg;
+        emit enabledChanged(arg);
+    }
+}
+
+void MyWindowShortcut::onKeyPressed(QQueue<int> &list)
+{
+    //qDebug()<<key_list<<list;
+    if(list==key_list&&enabled())
+        emit trigger ();
+}
+
+MyWindowShortcutList::MyWindowShortcutList(QQuickItem *parent):
+    QQuickItem(parent)
+{
+}
+
+void MyWindowShortcutList::componentComplete()
+{
+    foreach (QObject* temp, children ()) {
+        if(temp->objectName ()=="MyWindowShortcut"){
+            MyWindowShortcut* shortcut = qobject_cast<MyWindowShortcut*>(temp);
+            mylist.append (shortcut);
+        }
+    }
+}
+
+QList<MyWindowShortcut *> &MyWindowShortcutList::list()
+{
+    return mylist;
 }

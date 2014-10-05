@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import utility 1.0
 
 Item{
     id: friendlist_main
@@ -145,11 +146,14 @@ Item{
             height: avatar.height
             property var info: obj_info
             property var code: info.code
+            property int type
             property string uin: {
                 if( info.gid ){
+                    type = QQ.Group
                     myqq.setValue(info.gid+"nick", info.name)
                     return info.gid
                 }else{
+                    type = QQ.Discu
                     myqq.setValue(info.did+"nick", info.name)
                     return info.did
                 }
@@ -204,6 +208,12 @@ Item{
                 anchors.leftMargin: 10
                 font.pointSize: 14
                 text: myqq.getValue(info.gid+"alias", info.name)
+            }
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    chat_command.addChat(parent.uin, parent.type)
+                }
             }
         }
     }

@@ -2,17 +2,22 @@ import QtQuick 2.2
 
 Item{
     id: root
-    x: actualX+glowLeftWidth()
-    y:actualY+glowTopHeight()
-    
-    width: item.width
-    height: item.height
+    x: actualX+glowLeftWidth
+    y:actualY+glowTopHeight
     property Item item: null
+    property int glowTopHeight: (shaderItem.height-rootItem.height)/2-rootItem.y
+    property int glowBottomHeight: shaderItem.height-height-glowTopHeight
+    property int glowLeftWidth: (shaderItem.height-rootItem.height)/2-rootItem.x
+    property int glowRightWidth: shaderItem.width-width-glowLeftWidth
+    
+    property int actualWidth: glowLeftWidth+width+glowRightWidth
+    property int actualHeight: glowTopHeight+height+glowBottomHeight
+    
     onItemChanged: {
         item.parent=root
     }
-    property int biasX: 0
-    property int biasY: 0
+    property real biasX: 0//阴影偏移量
+    property real biasY: 0//阴影偏移量
     
     property alias glowRadius: rootItem.glowRadius
     property alias spread: rootItem.spread
@@ -20,10 +25,10 @@ Item{
     property alias cornerRadius: rootItem.cornerRadius
     property alias cached: rootItem.cached
     property alias glowOpacity: rootItem.opacity
-    property int actualX: 0
-    property int actualY: 0
+    property int actualX: 0//真实的X，算着阴影
+    property int actualY: 0//真实的Y，算着阴影
 
-    function glowTopHeight() {
+    /*function glowTopHeight() {
         return glowRadius+cornerRadius*0.6*(1-spread)-biasY
     }
 
@@ -44,22 +49,21 @@ Item{
     }
     function actualHeight(){
         return glowTopHeight()+rootItem.height+glowBottomHeight()
-    }
+    }*/
 
     Item {
         id: rootItem
-        
         property real glowRadius: 0.0
         property real spread: 0.0
         property color color: "white"
         property real cornerRadius: glowRadius
         property bool cached: false
-    
+
         x: (biasX>0?biasX:0)
         y: (biasY>0?biasY:0)
         width: root.width-biasX
         height: root.height-biasY
-        
+
         ShaderEffectSource {
              id: cacheItem
              anchors.fill: shaderItem

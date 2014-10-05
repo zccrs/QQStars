@@ -1,6 +1,5 @@
 import QtQuick 2.2
 import mywindow 1.0
-import utility 1.0
 import "../"
 
 MyWindow{
@@ -15,67 +14,44 @@ MyWindow{
     topHint: true//窗口保持在最前端
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
+    windowGlowItem.color: "#f07000"
     
     property QtObject control: null
     property int mynumber
-    property string myuin: ""
+    property string myuin
     property var type
     property var closeFun//窗口关闭的时候调用此函数
-    
+    signal sendClicked//点击发送按钮好调用此函数
+    property alias menuBar: menu_bar
+    property alias rightBar: right_bar
+    property alias inputBox: input
+    property alias listModel: mymodel
+    signal newMessage(var uin, var messageData)
     Connections{
         target: control
         onNewMessage:{
-            if(uin==myuin){
-                var temp = JSON.parse(messageData)
-                var message=""
-                for(var i=0; i<temp.content.length; ++i){
-                    var content = temp.content[i]
-                    var type = content.type
-                    if(type == QQ.Text){
-                        console.log(content.text)
-                        message+=content.text+" "
-                    }else if(type == QQ.Image){
-                        console.log("图片消息")
-                        message+="此处为图片 "
-                    }else if(type == QQ.ShakeWindow){
-                        console.log("窗口震动消息")
-                        message+="窗口抖动消息"
-                    }else if(type == QQ.InputNotify){
-                        console.log("正在输入消息")
-                        show_text.text = myqq.getValue(uin+"nick", uin)+"正在输入"
-                        return
-                    }else if(type == QQ.Face){
-                        console.log("表情消息："+content.face_code)
-                        message+="表情("+content.face_code+")"
-                    }else if(type == QQ.FileMessage){
-                        if( content.flag==1 ){
-                            console.log("请求发送文件："+content.name)
-                            message+="请求发送文件："+content.name
-                        }else{
-                            console.log("取消发送文件")
-                            message+="取消发送文件"
-                        }
-                    }else if(type == QQ.AvRequest){
-                        console.log("请求开视频")
-                        message+="请求视频通话"
-                    }else if(type == QQ.AvRefuse){
-                        console.log("取消视频通话")
-                        message+="取消视频通话"
-                    }
-                }
-                console.log(message)
-                var data = {"uin":uin, "mode": "right", "message": message}
-                mymodel.append(data)
-            }
+            root.newMessage(uin, messageData)
         }
     }
     
+    shortcuts: MyShortcutList{
+        MyShortcut{
+            shortcut: "Return"
+            onTrigger: {
+                button_send.clicked()
+            }
+        }
+        MyShortcut{
+            shortcut: "Enter"
+            onTrigger: {
+                button_send.clicked()
+            }
+        }
+    }
 
     Rectangle{
         anchors.fill: parent
         color: "#eee"
-        border.width: 1
-        border.color: "#f07000"
         radius: 10
         Item{
             id: menu_bar
@@ -84,24 +60,6 @@ MyWindow{
             anchors.leftMargin: 10
             anchors.right: parent.right
             anchors.top: parent.top
-            Timer{
-                id: timer_show_text
-                interval: 2000
-                onTriggered: {
-                    show_text.text = ""
-                }
-            }
-
-            Text{
-                id: show_text
-                verticalAlignment: Text.AlignVCenter
-                anchors.verticalCenter: parent.verticalCenter
-                onTextChanged: {
-                    if(text!=""){
-                        timer_show_text.start()
-                    }
-                }
-            }
         }
         
         SvgView{
@@ -121,15 +79,27 @@ MyWindow{
                 }
             }
         }
+        SvgView{
+            id:image_minimize_icon
+            width: defaultSize.width*myqq.windowScale
+            source: "qrc:/images/button-minimize.svg"
+            anchors.top: image_quit_icon.top
+            anchors.left: image_quit_icon.right
+            anchors.leftMargin: 10
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    root.showMinimized()
+                }
+            }
+        }
+        
         Item{
-            id: item_qqshow
+            id: right_bar
             anchors.top: menu_bar.bottom
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             width: 150
-            Image{
-                source: "qqshow.png"
-            }
         }
         
         MyTextArea{
@@ -153,21 +123,9 @@ MyWindow{
             anchors.bottom: parent.bottom
             anchors.margins: 10
             text: "发送"
-            function sendMessageFinished(error, data){
-                console.log(data)
-            }
 
-            Keys.onEnterPressed: {
-                button_send.clicked()
-            }
-            Keys.onReturnPressed: {
-                button_send.clicked()
-            }
             onClicked: {
-                myqq.sendMessage(sendMessageFinished, myuin, input.text)//发送消息
-                var data = {"uin":myqq.userQQ, "mode": "left", "message": input.text}
-                mymodel.append(data)
-                input.text = ""
+                sendClicked()//发射信号
             }
         }
         
@@ -189,10 +147,11 @@ MyWindow{
                 anchors.margins: 5
                 Item{
                     height: list.contentHeight+10
-                    width: scroll_list.width
+                    width: scroll_list.width-25
+                    x:5
                     implicitHeight: height
                     implicitWidth: width
-
+                   
                     ListView{
                         id: list
                         anchors.fill: parent
@@ -205,11 +164,5 @@ MyWindow{
                 }
             }
         }
-    }
-    Keys.onEnterPressed: {
-        button_send.clicked()
-    }
-    Keys.onReturnPressed: {
-        button_send.clicked()
     }
 }

@@ -44,13 +44,17 @@ void MySocket::finished(QNetworkReply *reply)
     send();//继续请求
 }
 
-void MySocket::send(QJSValue callbackFun, QUrl url, QByteArray data)
+void MySocket::send(QJSValue callbackFun, QUrl url, Priority priority, QByteArray data)
 {
-    queue_callbackFun<<callbackFun;
-    queue_url<<url;
-    queue_data<<data;
-    if(status ()==Idle){
-        QTimer::singleShot (10, this, SLOT(send()));//不然可能会堵塞ui线程
+    if(priority==High){
+        new MySocketPrivate(callbackFun, url, data);//进行高优先级的网络请求
+    }else if(priority==Low){
+        queue_callbackFun<<callbackFun;
+        queue_url<<url;
+        queue_data<<data;
+        if(status ()==Idle){
+            QTimer::singleShot (10, this, SLOT(send()));//不然可能会堵塞ui线程
+        }
     }
 }
 
@@ -83,4 +87,27 @@ QString MySocket::errorString()
 void MySocket::setRawHeader(const QByteArray &headerName, const QByteArray &value)
 {
     request.setRawHeader (headerName, value);
+}
+
+
+MySocketPrivate::MySocketPrivate(QJSValue callbackFun, QUrl url, QByteArray data):
+    MySocket(0)
+{
+    send(callbackFun, url, Low, data);
+}
+
+void MySocketPrivate::finished(QNetworkReply *reply)
+{
+    if( reply->error () == QNetworkReply::NoError) {
+        QJSValueList list;
+        list.append (QJSValue(false));
+        list.append (QJSValue(QString(reply->readAll ())));
+        queue_callbackFun.dequeue ().call (list);
+    }else{
+        QJSValueList list;
+        list.append (QJSValue(true));
+        list.append (QJSValue(reply->errorString ()));
+        queue_callbackFun.dequeue ().call (list);
+    }
+    deleteLater ();//销毁自己
 }

@@ -1,23 +1,80 @@
 #ifndef MYWINDOW_H
 #define MYWINDOW_H
 
+#include <QObject>
 #include <QQuickWindow>
 #include <QPoint>
 #include <QQuickItem>
 #include <QBackingStore>
 #include <QPixmap>
+#include <QQmlParserStatus>
+#include <QShortcut>
+#include <private/qshortcutmap_p.h>
+#include <QQueue>
+
+class MyWindowShortcut;
+class MyWindowShortcutList : public QQuickItem
+{
+    Q_OBJECT
+public:
+    explicit MyWindowShortcutList(QQuickItem *parent = 0);
+    void componentComplete();
+    QList<MyWindowShortcut*>& list();
+signals:
+    
+private:
+    QList<MyWindowShortcut*> mylist;
+};
+
+class MyWindowShortcut : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString shortcut READ shortcut WRITE setShortcut NOTIFY shortcutChanged)
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+public:
+    explicit MyWindowShortcut(MyWindowShortcutList* parent = 0);
+    QString shortcut() const
+    {
+        return m_shortcut;
+    }
+    bool enabled() const
+    {
+        return m_enabled;
+    }
+public slots:
+    void setShortcut(QString arg);
+    void setEnabled(bool arg);
+    void onKeyPressed(QQueue<int>& list);
+signals:
+    void shortcutChanged(QString arg);
+    void trigger();
+    void enabledChanged(bool arg);
+    void shortcutError(QString arg);
+private:
+     QString m_shortcut;
+     int shortcutMapId;
+     QQueue<int> key_list;
+     bool m_enabled;
+};
 
 class MyWindow : public QQuickWindow
 {
     Q_OBJECT
-    Q_PROPERTY(QUrl windowIcon READ windowIcon WRITE setWindowIcon NOTIFY windowIconChanged)
-    Q_PROPERTY(bool noBorder READ noBorder WRITE setNoBorder NOTIFY noBorderIconChanged)
-    Q_PROPERTY(Status windowStatus READ windowStatus WRITE setWindowStatus NOTIFY windowStatusChanged)
-    Q_PROPERTY(int borderLeft READ borderLeft)
-    Q_PROPERTY(int borderRight READ borderRight)
-    Q_PROPERTY(int borderTop READ borderTop)
+    Q_PROPERTY(QUrl windowIcon READ windowIcon WRITE setWindowIcon NOTIFY windowIconChanged)//状态栏图标
+    Q_PROPERTY(bool noBorder READ noBorder WRITE setNoBorder NOTIFY noBorderIconChanged)//无边框
+    Q_PROPERTY(Status windowStatus READ windowStatus WRITE setWindowStatus NOTIFY windowStatusChanged)//窗口状态
+    Q_PROPERTY(int borderLeft READ borderLeft CONSTANT)//离屏幕左边的距离
+    Q_PROPERTY(int borderRight READ borderRight CONSTANT)//离屏幕右边的距离
+    Q_PROPERTY(int borderTop READ borderTop CONSTANT)//离屏幕上边的距离
     Q_PROPERTY(bool topHint READ topHint WRITE setTopHint NOTIFY topHintChanged)//窗体保持在最前端
     Q_PROPERTY(bool noNotifyIcon READ noNotifyIcon WRITE setNoNotifyIcon NOTIFY noNotifyIconChanged)//无状态栏图标
+    Q_PROPERTY(int width READ width WRITE setWidth NOTIFY widthChanged)//窗口的width（不包含边框的阴影）
+    Q_PROPERTY(int height READ height WRITE setHeight NOTIFY heightChanged)//窗口的height（不包含边框的阴影）
+    Q_PROPERTY(int actualWidth READ actualWidth WRITE setActualWidth NOTIFY actualWidthChanged)//真实的width，包含阴影
+    Q_PROPERTY(int actualHeight READ actualHeight WRITE setActualHeight NOTIFY actualHeightChanged)//真实的height，包含阴影
+    Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged CONSTANT)//窗口是否获得焦点，是否为活跃窗口
+    Q_PROPERTY(MyWindowShortcutList* shortcuts READ shortcuts WRITE setShortcuts NOTIFY shortcutsChanged)
+
     Q_ENUMS(Status)
 public:
     explicit MyWindow(QQuickWindow *parent = 0);
@@ -34,12 +91,36 @@ public:
         return m_noNotifyIcon;
     }
     
-protected:
-    /*bool event(QEvent * ev);
-    void resizeEvent(QResizeEvent *event);
-    void exposeEvent(QExposeEvent *event);*/
+    int width() const
+    {
+        return m_width;
+    }
+    
+    int height() const
+    {
+        return m_height;
+    }
+    
+    int actualWidth() const
+    {
+        return QQuickWindow::width ();
+    }
+    
+    int actualHeight() const
+    {
+        return QQuickWindow::height ();
+    }
+    bool windowActive() const
+    {
+        return m_windowActive;
+    }
+    
+    MyWindowShortcutList* shortcuts() const
+    {
+        return m_shortcuts;
+    }
+    
 private:
-    QBackingStore *backingStore;
     QUrl m_windowIcon;
     QUrl windowIcon();
     void setWindowIcon( QUrl icon );
@@ -48,8 +129,22 @@ private:
     bool m_topHint, old_topHint;
     bool m_noNotifyIcon;
     QPixmap pixmap;
-private slots:
+    qreal m_width;
+    qreal m_height;
+    bool m_windowActive;
+    void setWindowActive(bool arg);
+    MyWindowShortcutList *m_shortcuts;
 
+    QQueue<int> queue_key;
+    void onKeyPressed();
+    
+protected:
+    void focusInEvent(QFocusEvent * ev);
+    void focusOutEvent(QFocusEvent * ev);
+    void keyPressEvent(QKeyEvent * ev);
+    void keyReleaseEvent(QKeyEvent * ev);
+private slots:
+    
 signals:
     void windowIconChanged();
     void noBorderIconChanged();
@@ -57,6 +152,18 @@ signals:
     void topHintChanged(bool arg);
     void noNotifyIconChanged(bool arg);
     
+    void widthChanged(int arg);
+    
+    void heightChanged(int arg);
+    
+    void actualWidthChanged(int arg);
+    
+    void actualHeightChanged(int arg);
+    
+    void windowActiveChanged(bool arg);
+    
+    void shortcutsChanged(MyWindowShortcutList* arg);
+
 public slots:
     bool noBorder();
     void setNoBorder( bool isNoBroder );
@@ -72,6 +179,12 @@ public slots:
     void setTopHint(bool arg);
     
     void setNoNotifyIcon(bool arg);
+    void setWidth(int arg);
+    void setHeight(int arg);
+    void setActualWidth(int arg);
+    void setActualHeight(int arg);
+    void setShortcuts(MyWindowShortcutList* arg);
+    
 };
 
 #endif // MYWINDOW_H

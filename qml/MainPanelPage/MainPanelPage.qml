@@ -7,8 +7,9 @@ Rectangle{
     id: root
     radius: 10
     anchors.fill: parent
-    border.width:1
-    border.color:"#f07000"
+    //border.width:1
+    //border.color:"#f07000"
+    clip:true
     gradient: Gradient {
                     GradientStop { position: 0 ; color:  "#EEEDEC" }
                     GradientStop { position: 120/root.height ; color:  "#E7E5E4" }

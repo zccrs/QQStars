@@ -22,7 +22,8 @@ MyWindow{
     dockableWindow: false//可停靠的
     topHint: false//窗口保持在最前端
     noNotifyIcon: true//隐藏任务栏图标
-    
+    windowGlow: false//不开启阴影
+
     color: "transparent"
     Component.onCompleted: {
         main.x = Screen.desktopAvailableWidth/2 - main.width/2//让程序居中显示
@@ -49,22 +50,12 @@ MyWindow{
         target: systemTray
         onActivated:{
             if( arg == MySystemTrayIcon.Trigger ) {
-                if(main.visible) {
-                    if( main.visibility!= Window.Windowed){
-                        main.show()
-                    }
-                    main.requestActivate()//让窗体显示出来
-                }
+                main.showFront()
             }
         }
         onTriggered: {
             if(arg == "打开主面板"){
-                if(main.visible) {
-                    if( main.visibility!= Window.Windowed){
-                        main.show()
-                    }
-                    main.requestActivate()//让窗体显示出来
-                }
+                main.showFront()
             }
         }
     }
@@ -128,6 +119,9 @@ MyWindow{
                  easing.type: Easing.InQuart
              }
          }
+    }
+    ChatWindowCommand{
+        id: chat_command
     }
     //ChatWindow{}
 }

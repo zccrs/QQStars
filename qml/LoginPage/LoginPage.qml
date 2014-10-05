@@ -6,8 +6,8 @@ import mywindow 1.0
 import "../"
 
 Item{
-    width: effect.actualWidth()
-    height: effect.actualHeight()
+    width: effect.actualWidth
+    height: effect.actualHeight
     function reLogin(){
         myqq.loginStatus = QQ.Offline
         animation_avatar.stop()//停止动画
