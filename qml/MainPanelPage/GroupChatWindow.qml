@@ -3,14 +3,16 @@ import utility 1.0
 
 ChatWindow{
     id: root
+    windowIcon: myqq.getValue(myuin+"avatar-40", "qrc:/images/avatar.png")
+    
     function sendMessageFinished(error, data){
         console.log(data)
     }
     onSendClicked: {
+        myqq.sendGroupMessage(sendMessageFinished, myuin, inputBox.text)//发送消息
         var data = {"uin":myqq.userQQ, "mode": "right", "message": inputBox.text}
         listModel.append(data)
         inputBox.text = ""
-        myqq.sendGroupMessage(sendMessageFinished, myuin, inputBox.text)//发送消息
     }
     onNewMessage:{
         if(uin==myuin){
@@ -30,7 +32,7 @@ ChatWindow{
                     message+="表情("+content.face_code+")"
                 }
             }
-            var data = {"uin":uin, "mode": "left", "message": message}
+            var data = {"uin":temp.send_uin, "mode": "left", "message": message}
             listModel.append(data)
         }
     }

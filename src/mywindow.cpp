@@ -18,6 +18,15 @@ bool test(QObject *, Qt::ShortcutContext)
 MyWindow::MyWindow(QQuickWindow *parent) :
     QQuickWindow(parent)
 {
+    connect (this, &QQuickWindow::widthChanged, this, &MyWindow::actualWidthChanged);
+    connect (this, &QQuickWindow::heightChanged, this, &MyWindow::actualHeightChanged);
+    connect (this, &QQuickWindow::xChanged, this, &MyWindow::actualXChanged);
+    connect (this, &QQuickWindow::yChanged, this, &MyWindow::actualYChanged);
+    connect (this, &QQuickWindow::xChanged, this, &MyWindow::onActualXChanged);
+    connect (this, &QQuickWindow::yChanged, this, &MyWindow::onActualYChanged);
+    connect (contentItem (), &QQuickItem::xChanged, this, &MyWindow::onActualXChanged);
+    connect (contentItem (), &QQuickItem::yChanged, this, &MyWindow::onActualYChanged);
+    
     setObjectName ("MyWindow");
     setActualWidth (QQuickWindow::width ());
     setActualHeight (QQuickWindow::height ());
@@ -94,6 +103,16 @@ void MyWindow::keyReleaseEvent(QKeyEvent *ev)
 {
     QQuickWindow::keyReleaseEvent (ev);
     queue_key.removeOne (ev->key());
+}
+
+void MyWindow::onActualXChanged()
+{
+    emit xChanged (x());
+}
+
+void MyWindow::onActualYChanged()
+{
+    emit yChanged (y());
 }
 
 bool MyWindow::noBorder()
@@ -241,18 +260,12 @@ void MyWindow::setHeight(int arg)
 
 void MyWindow::setActualWidth(int arg)
 {
-    if (actualWidth ()!= arg) {
-        QQuickWindow::setWidth (arg);
-        emit actualWidthChanged(arg);
-    }
+    QQuickWindow::setWidth (arg);
 }
 
 void MyWindow::setActualHeight(int arg)
 {
-    if (actualHeight ()!= arg) {
-        QQuickWindow::setHeight (arg);
-        emit actualHeightChanged(arg);
-    }
+    QQuickWindow::setHeight (arg);
 }
 
 void MyWindow::setShortcuts(MyWindowShortcutList *arg)
@@ -280,13 +293,13 @@ void MyWindowShortcut::setShortcut(QString arg)
         QStringList list = arg.split ("+");
         foreach (QString key, list) {
             if(key!=""){
-                if(key=="Ctrl"){
+                if(QString::compare (key, "Ctrl", Qt::CaseInsensitive)==0){
                     key_list.append (Qt::Key_Control);
-                }else if(key=="Shift"){
+                }else if(QString::compare (key, "Shift", Qt::CaseInsensitive)==0){
                     key_list.append (Qt::Key_Shift);
-                }else if(key=="Alt"){
+                }else if(QString::compare (key, "Alt", Qt::CaseInsensitive)==0){
                     key_list.append (Qt::Key_Alt);
-                }else if(key=="Meta"){
+                }else if(QString::compare (key, "Meta", Qt::CaseInsensitive)==0){
                     key_list.append (Qt::Key_Meta);
                 }else{
                     QKeySequence sequence=QKeySequence::fromString (key);

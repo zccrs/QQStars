@@ -202,7 +202,9 @@ MyQuickWindow{
     MouseArea{
         id: mouse_main
         enabled: removable
-        anchors.fill: parent
+        //anchors.fill: parent
+        width: root.actualWidth
+        height: root.actualHeight
         property real pressedX: 0
         property real pressedY: 0
         hoverEnabled: dockableWindow
@@ -237,7 +239,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
         anchors.top: parent.top
@@ -259,7 +260,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
         anchors.bottom: parent.bottom
@@ -279,7 +279,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.left: parent.left
@@ -300,7 +299,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.right: parent.right
@@ -320,7 +318,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         height: 4
@@ -345,7 +342,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right
@@ -370,7 +366,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled:!fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.left: parent.left
@@ -396,7 +391,6 @@ MyQuickWindow{
         }
     }
     MouseArea{
-        
         enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right

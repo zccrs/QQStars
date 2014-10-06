@@ -252,6 +252,7 @@ QQ{
     }
     
     function sendMessage(backFun, uin, message){
+        console.log(message)
         var url = "http://d.web2.qq.com/channel/send_buddy_msg2"
         var data = 'r={"to":'+uin+',"face":549,"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"楷体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":45070001,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
@@ -259,6 +260,7 @@ QQ{
     }
     
     function sendGroupMessage(backFun, uin, message){
+        console.log(message)
         var url = "http://d.web2.qq.com/channel/send_qun_msg2"
         var data = 'r={"group_uin":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"楷体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)

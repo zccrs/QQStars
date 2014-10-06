@@ -11,6 +11,7 @@
 #include "myimage.h"
 #include "threaddownloadimage.h"
 #include "mysvgview.h"
+#include <QDirModel>
 
 int main(int argc, char *argv[])
 {
@@ -55,6 +56,6 @@ int main(int argc, char *argv[])
     engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     
     engine.load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));
- 
+    
     return app.exec();
 }

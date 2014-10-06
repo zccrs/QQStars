@@ -22,11 +22,10 @@ MyWindow{
     
     width: Math.max(myqq.panelSize.width, minWidth)
     height: Math.max(myqq.panelSize.height, minHeight)
-    
-    x: Screen.desktopAvailableWidth - actualWidth - 20
 
     Component.onCompleted: {
-        y = 20
+        main.x = Screen.desktopAvailableWidth - main.actualWidth
+        main.y = 20
     }
     function windowToActive(){//将窗口转为活动状态
         main.showFront()

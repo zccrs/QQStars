@@ -12,7 +12,7 @@ MyWindow{
     removable: true//可移动的
     fixedSize: false//固定大小的
     dockableWindow: false//可停靠的
-    topHint: true//窗口保持在最前端
+    topHint: false//窗口保持在最前端
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
     windowGlowItem.color: "#f07000"
@@ -35,8 +35,8 @@ MyWindow{
         }
     }
     Component.onCompleted: {
-        root.x = Screen.desktopAvailableWidth/2 - root.actualWidth/2//让程序居中显示
-        root.y = Screen.desktopAvailableHeight/2 - root.actualHeight/2
+        root.x = Screen.desktopAvailableWidth/2 - root.width/2//让程序居中显示
+        root.y = Screen.desktopAvailableHeight/2 - root.height/2
     }
     
     shortcuts: MyShortcutList{

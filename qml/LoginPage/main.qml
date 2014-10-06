@@ -26,8 +26,8 @@ MyWindow{
 
     color: "transparent"
     Component.onCompleted: {
-        main.x = Screen.desktopAvailableWidth/2 - main.actualWidth/2//让程序居中显示
-        main.y = Screen.desktopAvailableHeight/2 - main.actualHeight/2
+        main.x = Screen.desktopAvailableWidth/2 - main.width/2//让程序居中显示
+        main.y = Screen.desktopAvailableHeight/2 - main.height/2
     }
 
     Connections{

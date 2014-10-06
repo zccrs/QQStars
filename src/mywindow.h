@@ -72,6 +72,10 @@ class MyWindow : public QQuickWindow
     Q_PROPERTY(int height READ height WRITE setHeight NOTIFY heightChanged)//窗口的height（不包含边框的阴影）
     Q_PROPERTY(int actualWidth READ actualWidth WRITE setActualWidth NOTIFY actualWidthChanged)//真实的width，包含阴影
     Q_PROPERTY(int actualHeight READ actualHeight WRITE setActualHeight NOTIFY actualHeightChanged)//真实的height，包含阴影
+    Q_PROPERTY(int x READ x WRITE setX NOTIFY xChanged)
+    Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)
+    Q_PROPERTY(int actualX READ actualX WRITE setActualX NOTIFY actualXChanged)
+    Q_PROPERTY(int actualY READ actualY WRITE setActualY NOTIFY actualYChanged)
     Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged CONSTANT)//窗口是否获得焦点，是否为活跃窗口
     Q_PROPERTY(MyWindowShortcutList* shortcuts READ shortcuts WRITE setShortcuts NOTIFY shortcutsChanged)
 
@@ -120,6 +124,26 @@ public:
         return m_shortcuts;
     }
     
+    int x() const
+    {
+        return QQuickWindow::x ()+contentItem ()->x ();
+    }
+    
+    int y() const
+    {
+        return QQuickWindow::y ()+contentItem ()->y ();
+    }
+    
+    int actualX() const
+    {
+        return QQuickWindow::x ();
+    }
+    
+    int actualY() const
+    {
+        return QQuickWindow::y ();
+    }
+    
 private:
     QUrl m_windowIcon;
     QUrl windowIcon();
@@ -137,14 +161,14 @@ private:
 
     QQueue<int> queue_key;
     void onKeyPressed();
-    
 protected:
     void focusInEvent(QFocusEvent * ev);
     void focusOutEvent(QFocusEvent * ev);
     void keyPressEvent(QKeyEvent * ev);
     void keyReleaseEvent(QKeyEvent * ev);
 private slots:
-    
+    void onActualXChanged();
+    void onActualYChanged();
 signals:
     void windowIconChanged();
     void noBorderIconChanged();
@@ -163,6 +187,11 @@ signals:
     void windowActiveChanged(bool arg);
     
     void shortcutsChanged(MyWindowShortcutList* arg);
+    
+    void xChanged(int arg);
+    void yChanged(int arg);
+    void actualXChanged(int arg);
+    void actualYChanged(int arg);
 
 public slots:
     bool noBorder();
@@ -185,6 +214,22 @@ public slots:
     void setActualHeight(int arg);
     void setShortcuts(MyWindowShortcutList* arg);
     
+    void setX(int arg)
+    {
+        QQuickWindow::setX (arg-contentItem ()->x ());
+    }
+    void setY(int arg)
+    {
+        QQuickWindow::setY (arg-contentItem ()->y ());
+    }
+    void setActualX(int arg)
+    {
+        QQuickWindow::setX (arg);
+    }
+    void setActualY(int arg)
+    {
+        QQuickWindow::setY (arg);
+    }
 };
 
 #endif // MYWINDOW_H
