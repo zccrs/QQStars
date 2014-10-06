@@ -3,14 +3,14 @@ import utility 1.0
 
 ChatWindow{
     id: root
-    windowIcon: myqq.getValue(myuin+"avatar-40", "qrc:/images/avatar.png")
+    windowIcon: myqq.getValue("group"+myuin+"avatar-40", "qrc:/images/avatar.png")
     
     function sendMessageFinished(error, data){
-        console.log(data)
+        //console.log(data)
     }
     onSendClicked: {
         myqq.sendGroupMessage(sendMessageFinished, myuin, inputBox.text)//发送消息
-        var data = {"uin":myqq.userQQ, "mode": "right", "message": inputBox.text}
+        var data = {"uin":String(myqq.userQQ), "mode": "right", "message": inputBox.text}
         listModel.append(data)
         inputBox.text = ""
     }
@@ -42,6 +42,6 @@ ChatWindow{
         parent: menuBar
         verticalAlignment: Text.AlignVCenter
         anchors.verticalCenter: parent.verticalCenter
-        text: myqq.getValue(myuin+"nick", myuin)
+        text: myqq.getValue("group"+myuin+"nick", myuin)
     }
 }

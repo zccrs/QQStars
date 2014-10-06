@@ -115,7 +115,7 @@ MyWindow{
                         //showMessage+="表情("+content.face_code+")"
                     }
                 }*/
-                console.log("收到了群消息："+uin+","+jsonData)
+                //console.log("收到了群消息："+uin+","+jsonData)
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Discu){//如果是讨论组消息
                 /*for(i=0; i<temp.content.length; ++i){
@@ -137,7 +137,7 @@ MyWindow{
                 content = temp
                 type = content.type
                 if(type == QQ.FriendStatusChanged){
-                    console.log("状态改变为："+content.status)
+                    //console.log("状态改变为："+content.status)
                     //showMessage+="状态改变为："+content.status
                 }else if(type == QQ.FriendVerify){
                     console.log("qq号为"+content.account+"要加你为好友")

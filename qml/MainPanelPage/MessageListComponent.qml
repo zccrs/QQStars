@@ -21,7 +21,7 @@ Component{
             id: nick
             x: mode=="left"?avatar.x+avatar.width+5:avatar.x-implicitWidth-5
             anchors.top: avatar.top
-            text: myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))
+            text: myqq.getValue(uin+"alias", myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin)))
         }
 
         BorderImage {
