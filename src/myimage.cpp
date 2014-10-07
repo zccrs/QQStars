@@ -28,7 +28,11 @@ void MyImage::setSource(QUrl arg)
 {
     if (m_source != arg) {
         m_source = arg;
-        QString str = arg.toString ();
+        QString str;
+        if(arg.isLocalFile ())
+            str = arg.toLocalFile ();
+        else
+            str = arg.toString ();
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
         if( pixmap.load (str) ){

@@ -56,7 +56,9 @@ int main(int argc, char *argv[])
     
     QQmlComponent component(&engine, "./qml/SystemTray.qml");
     SystemTrayIcon *systemTray = qobject_cast<SystemTrayIcon *>(component.create ());
+#ifdef Q_OS_WIN
     systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题
+#endif
     engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     
     engine.load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));
