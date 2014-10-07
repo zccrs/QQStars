@@ -5,11 +5,8 @@
 #include <QQuickWindow>
 #include <QPoint>
 #include <QQuickItem>
-#include <QBackingStore>
 #include <QPixmap>
-#include <QQmlParserStatus>
-#include <QShortcut>
-#include <private/qshortcutmap_p.h>
+//#include <private/qshortcutmap_p.h>
 #include <QQueue>
 
 class MyWindowShortcut;

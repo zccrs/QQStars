@@ -37,6 +37,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<MenuSeparator>("mywindow", 1,0, "MenuSeparator");
     qmlRegisterType<MyMenuItem>("mywindow", 1,0, "MyMenuItem");
     qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
+    qmlRegisterType<FriendInfo>("utility", 1,0, "FriendInfo");
+    qmlRegisterType<GroupInfo>("utility", 1,0, "GroupInfo");
+    qmlRegisterType<DiscuInfo>("utility", 1,0, "DiscuInfo");
+    qmlRegisterType<RecentInfo>("utility", 1,0, "RecentInfo");
     qmlRegisterType<MySocket>("utility", 1, 0, "Socket");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");

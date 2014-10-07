@@ -72,7 +72,7 @@ Item{
             }
 
             property alias model: mymodel2
-            height: text_name.implicitHeight
+            height: titleBar.height
             width: parent.width
             
             state: "close"
@@ -88,39 +88,44 @@ Item{
                     name: "close"
                     PropertyChanges {
                         target: root
-                        height: text_name.implicitHeight
+                        height: titleBar.height
                     }
                 },
                 State {
                     name: "unfold"
                     PropertyChanges {
                         target: root
-                        height: text_name.implicitHeight+list2.contentHeight+10
+                        height: titleBar.height+list2.contentHeight+10
                     }
                 }
             ]
             
-            Text{
-                id: image_icon
-                x:10
-                anchors.verticalCenter: text_name.verticalCenter
-                text: root.state == "close"?"+":"-"
-                font.pointSize: 16
+            Item{
+                id: titleBar
+                width: parent.width
+                height: Math.max(image_icon.implicitHeight, text_name.implicitHeight)
+                Text{
+                    id: image_icon
+                    x:10
+                    anchors.verticalCenter: text_name.verticalCenter
+                    text: root.state == "close"?"+":"-"
+                    font.pointSize: 16
+                }
+            
+                Text{
+                    id: text_name
+                    text: name
+                    anchors.left: image_icon.right
+                    anchors.leftMargin: 10
+                    font.pointSize: 10
+                    font.bold: true
+                }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
                         root.stateSwitch()
                     }
                 }
-            }
-        
-            Text{
-                id: text_name
-                text: name
-                anchors.left: image_icon.right
-                anchors.leftMargin: 10
-                font.pointSize: 10
-                font.bold: true
             }
         
             ListView{
@@ -131,7 +136,7 @@ Item{
                 }
                 spacing: 10
                 delegate: component2
-                anchors.top: text_name.bottom
+                anchors.top: titleBar.bottom
                 anchors.topMargin: 10
                 width: parent.width
                 height: parent.height
@@ -145,7 +150,7 @@ Item{
             height: avatar.height
             property var friends: obj_friends
             property var info: obj_info
-            property string account: myqq.getValue(info.uin+"account", "")//真实qq号
+            property string account: myqq.value(info.uin+"account", "")//真实qq号
             
             function getQQFinished(error, data){//获取好友真实qq后调用的函数
                 if(error){
@@ -158,8 +163,8 @@ Item{
                     account = data.result.account
                     myqq.setValue(info.uin+"account", account)//保存真实qq
                     if( avatar.source=="qrc:/images/avatar.png" ){
-                        myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, account, "40", getAvatarFinished)//下载头像
-                        console.log(account+"的头像不存在:"+myqq.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png"))
+                        myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+info.uin, "40", getAvatarFinished)//下载头像
+                        console.log(account+"的头像不存在:"+myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png"))
                     }
                 }
             }
@@ -184,7 +189,7 @@ Item{
             Component.onCompleted: {
                 if(account!=""){
                     if( avatar.source=="qrc:/images/avatar.png" ){
-                        myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, account, "40", getAvatarFinished)//下载头像
+                        myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+info.uin, "40", getAvatarFinished)//下载头像
                     }
                 }else{
                     myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
@@ -200,7 +205,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myqq.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
                     avatar.source = "qrc:/images/avatar.png"
                 }
@@ -211,14 +216,14 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: myqq.getValue(info.uin+"alias", info.nick)
+                text: myqq.value(info.uin+"alias", info.nick)
             }
             Text{
                 id:text_signature//个性签名
                 anchors.left: text_nick.left
                 anchors.bottom: avatar.bottom
                 font.pointSize: 8
-                text: myqq.getValue(info.uin+"signature", "获取中...")
+                text: myqq.value(info.uin+"signature", "获取中...")
             }
             MouseArea{
                 anchors.fill: parent

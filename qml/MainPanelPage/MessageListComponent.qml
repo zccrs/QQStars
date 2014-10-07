@@ -12,7 +12,7 @@ Component{
             x:mode=="left"?0:root.width-width
             width:40
             maskSource: "qrc:/images/bit.bmp"
-            source: myqq.getValue(uin+"avatar-40", "qrc:/images/avatar.png")
+            source: myqq.value(uin+"avatar-40", "qrc:/images/avatar.png")
             onLoadError: {
                 avatar.source = "qrc:/images/avatar.png"
             }
@@ -21,7 +21,7 @@ Component{
             id: nick
             x: mode=="left"?avatar.x+avatar.width+5:avatar.x-implicitWidth-5
             anchors.top: avatar.top
-            text: myqq.getValue(uin+"alias", myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin)))
+            text: myqq.value(uin+"alias", myqq.value(uin+"alias", myqq.value(uin+"nick", uin)))
         }
 
         BorderImage {

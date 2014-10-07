@@ -73,7 +73,7 @@ Item{
             }
 
             property alias model: mymodel2
-            height: text_name.implicitHeight
+            height: titleBar.height
             width: parent.width
             
             state: "close"
@@ -89,39 +89,44 @@ Item{
                     name: "close"
                     PropertyChanges {
                         target: root
-                        height: text_name.implicitHeight
+                        height: titleBar.height
                     }
                 },
                 State {
                     name: "unfold"
                     PropertyChanges {
                         target: root
-                        height: text_name.implicitHeight+list2.contentHeight+10
+                        height: titleBar.height+list2.contentHeight+10
                     }
                 }
             ]
             
-            Text{
-                id: image_icon
-                x:10
-                anchors.verticalCenter: text_name.verticalCenter
-                text: root.state == "close"?"+":"-"
-                font.pointSize: 16
+            Item{
+                id: titleBar
+                width: parent.width
+                height: Math.max(image_icon.implicitHeight, text_name.implicitHeight)
+                Text{
+                    id: image_icon
+                    x:10
+                    anchors.verticalCenter: text_name.verticalCenter
+                    text: root.state == "close"?"+":"-"
+                    font.pointSize: 16
+                }
+            
+                Text{
+                    id: text_name
+                    text: name
+                    anchors.left: image_icon.right
+                    anchors.leftMargin: 10
+                    font.pointSize: 10
+                    font.bold: true
+                }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
                         root.stateSwitch()
                     }
                 }
-            }
-        
-            Text{
-                id: text_name
-                text: name
-                anchors.left: image_icon.right
-                anchors.leftMargin: 10
-                font.pointSize: 10
-                font.bold: true
             }
         
             ListView{
@@ -132,7 +137,7 @@ Item{
                 interactive: false
                 spacing: 10
                 delegate: component2
-                anchors.top: text_name.bottom
+                anchors.top: titleBar.bottom
                 anchors.topMargin: 10
                 width: parent.width
                 height: parent.height
@@ -157,7 +162,7 @@ Item{
                     return info.did
                 }
             }
-            property string account: myqq.getValue("group"+uin+"account", "")//真实的群号
+            property string account: myqq.value("group"+uin+"account", "")//真实的群号
             
             function getQQFinished(error, data){//获取真实群号后调用的函数
                 if(error){
@@ -168,10 +173,10 @@ Item{
                 data = JSON.parse(data)
                 if( data.retcode==0 ){
                     account = data.result.account
-                    console.log(myqq.getValue("group"+uin+"nick", info.name)+"的真实QQ是："+account+","+info.code+","+uin)
+                    //console.log(myqq.value("group"+uin+"nick", info.name)+"的真实QQ是："+account+","+info.code+","+uin)
                     myqq.setValue("group"+uin+"account", account)//保存真实qq
                     if( avatar.source=="qrc:/images/avatar.png" )//如果头像不存在
-                        myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group"+account, "40", getAvatarFinished)//下载头像
+                        myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
                 }
             }
             function getAvatarFinished( path ,name){
@@ -181,13 +186,13 @@ Item{
             }
 
             Component.onCompleted: {
-                //console.log(myqq.getValue("group"+uin+"nick", info.name)+"的真实QQ是："+account)
+                //console.log(myqq.value("group"+uin+"nick", info.name)+"的真实QQ是："+account)
                 if( type == QQ.Group ){
                     if(account==""){
                         myqq.getFriendQQ(info.code, getQQFinished)
                     }else{
                         if( avatar.source=="qrc:/images/avatar.png" )//如果头像不存在
-                            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group"+account, "40", getAvatarFinished)//下载头像
+                            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
                     }
                 }
             }
@@ -197,7 +202,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myqq.getValue("group"+parent.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myqq.value("group"+parent.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
                     avatar.source = "qrc:/images/avatar.png"
                 }
@@ -208,7 +213,7 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: myqq.getValue("group"+parent.uin+"alias", info.name)
+                text: myqq.value("group"+parent.uin+"alias", info.name)
             }
             MouseArea{
                 anchors.fill: parent

@@ -29,7 +29,12 @@ QQ{
         else if(dosktopWidth>2600)
             return 2
     }
-    
+    FriendInfo{
+        id: myinfo
+        userQQ: root.userQQ
+        uin: userQQ
+    }
+
     Component.onCompleted: {
         clientid = getClientid()
     }
@@ -50,8 +55,6 @@ QQ{
         if (component.status == Component.Ready){
             var data = {"str": uin, "backFun":callbackFun};
             var sprite = component.createObject(root, data);
-        }else{
-            console.log("CodeInput.qml未准备好")
         }
     }
     
@@ -103,14 +106,14 @@ QQ{
         }
     }
     
-    function login2( data ) {
+    function login2() {
         if( myqq.loginStatus == QQ.Logining ){
             var url = "http://d.web2.qq.com/channel/login2"
             ptwebqq = utility.getCookie("ptwebqq")//储存cookie
             list_hash = getHash()//储存hash
-            var r = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
-            r = encodeURI(r)
-            utility.socketSend(login2Finished, url, r)
+            var data = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
+            data = encodeURI(data)
+            utility.socketSend(login2Finished, url, data)
         }
     }
     
@@ -124,7 +127,7 @@ QQ{
             if( list.retcode==0 ) {
                 loginReData = list.result//将数据记录下来
                 var url = "http://q.qlogo.cn/headimg_dl?spec=240&dst_uin="+myqq.userQQ
-                downloadImage(url, myqq.userQQ, "240", getAvatarFinished)//获取头像
+                downloadImage(url, "friend_"+myqq.userQQ, "240", getAvatarFinished)//获取头像
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
             }else{
                 myqq.showWarningInfo("登陆出错，错误代码："+list.retcode)
@@ -147,6 +150,7 @@ QQ{
             if( list.retcode==0 ) {
                 userData = list.result
                 getPanelSize()//获取主面板的大小
+                myinfo.nick = userData.nick//储存昵称
             }else{
                 myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)
             }
@@ -170,20 +174,21 @@ QQ{
             //utility.consoleLog("获取主面板大小出错，错误代码："+list.retcode)
             panelSize = JSON.parse('{"height":500,"defaultMode":"restore","width":240}')
         //}
-        
+       
         myqq.loginStatus = QQ.LoginFinished//设置为登录成功
-        var allqq = utility.getValue("qq", "")
+        var allqq = utility.value("qq", "")
         if(allqq.indexOf(myqq.userQQ)<0){
             utility.setValue("qq", allqq+","+myqq.userQQ)
         }
-        var temp = myqq.getValue("rememberpassword", 0)==1
+        var temp = myqq.value("rememberpassword", 0)==1
+        console.log("是否保存密码："+temp)
         if( temp ){//如果要保存密码
             var pass = utility.stringEncrypt(myqq.userPassword, "xingchenQQ")//加密后储存
             myqq.setValue("password", pass)
+            console.log("保存的密码为："+myqq.value("password", ""))
         }
         
         myqq.setValue( "nick", userData.nick)//保存昵称
-        
         var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
     }

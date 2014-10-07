@@ -13,7 +13,7 @@ Item{
         KeyNavigation.down: input_password
         KeyNavigation.up: input_password
         KeyNavigation.tab: KeyNavigation.down
-        text: utility.getValue("mainqq", "")
+        text: utility.value("mainqq", "")
         
         validator: RegExpValidator{
             regExp: /[1-9][0-9]{4,11}/
@@ -50,7 +50,7 @@ Item{
         }
         onTextChanged: {
             myqq.userQQ=text
-            input_password.text = utility.stringUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
+            input_password.text = utility.stringUncrypt(myqq.value("password", ""), "xingchenQQ")//解密
         }
         Component.onCompleted: {
             input_qq.forceActiveFocus()
@@ -68,7 +68,7 @@ Item{
         validator: RegExpValidator{
             regExp: /[0-9a-zA-Z`~\!@\#\$%\^&\*\(\)\-\=_\+\[\]\{\}\\\|;\:'"<>\?,\.\/]{6,16}/
         }
-        text: utility.stringUncrypt(myqq.getValue("password", ""), "xingchenQQ")//解密
+        text: utility.stringUncrypt(myqq.value("password", ""), "xingchenQQ")//解密
         onTextChanged: {
             myqq.userPassword=text
         }

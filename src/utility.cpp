@@ -158,7 +158,7 @@ void Utility::setValue(const QString &key, const QVariant &value)
         qDebug()<<"mysetting=NULL";
 }
 
-QVariant Utility::getValue(const QString &key, const QVariant &defaultValue) const
+QVariant Utility::value(const QString &key, const QVariant &defaultValue) const
 {
     if( mysettings )
         return mysettings->value (key, defaultValue);
@@ -189,8 +189,17 @@ void Utility::downloadImage(QJSValue callbackFun, QUrl url, QString savePath, QS
 
 void Utility::socketSend(QJSValue callbackFun, QUrl url, QByteArray data, int priority)
 {
-    //qDebug()<<priority;
-    socket->send (callbackFun, url, (MySocket::Priority)priority, data);
+    socket->send (callbackFun, url, data, (MySocket::Priority)priority);
+}
+
+void Utility::httpGet(QObject *caller, QByteArray slotName, QUrl url, int priority)
+{
+    socket->get (caller, slotName, url, (MySocket::Priority)priority);
+}
+
+void Utility::httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, int priority)
+{
+    socket->post (caller, slotName, url, data, (MySocket::Priority)priority);
 }
 
 void Utility::socketAbort()

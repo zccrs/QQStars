@@ -62,7 +62,7 @@ Item{
                     width: root.width/2.5
                     height: width/8
                     title: "地址:"
-                    text: utility.getValue("proxyLocation", "")
+                    text: utility.value("proxyLocation", "")
                 }
                 MyTextField{
                     id: proxy_port_input
@@ -70,7 +70,7 @@ Item{
                     width: root.width/2.5
                     height: width/8
                     title: "端口:"
-                    text: utility.getValue("proxyPort", "")
+                    text: utility.value("proxyPort", "")
                 }
                 MyTextField{
                     id: proxy_username_input
@@ -78,7 +78,7 @@ Item{
                     width: root.width/2.5
                     height: width/8
                     title: "账户:"
-                    text: utility.getValue("proxyUsername", "")
+                    text: utility.value("proxyUsername", "")
                 }
                 MyTextField{
                     id: proxy_password_input
@@ -86,7 +86,7 @@ Item{
                     width: root.width/2.5
                     height: width/8
                     title: "密码:"
-                    text: utility.getValue("proxyPassword", "")
+                    text: utility.value("proxyPassword", "")
                 }
                 Item{
                     width: root.width/2.5
@@ -103,7 +103,7 @@ Item{
                         height: parent.height
                         anchors.left: proxy_type_text.right
                         anchors.right: parent.right
-                        currentIndex: utility.getValue("proxyTypeIndex", 0)
+                        currentIndex: utility.value("proxyTypeIndex", 0)
                         model: ListModel {
                             ListElement { text: "不使用代理"; value: Utility.NoProxy}
                             ListElement { text: "HTTP代理"; value: Utility.HttpProxy}
@@ -125,11 +125,11 @@ Item{
                     }
                     
                     function testNetwork(error ,data) {
-                        var temp1 = utility.getValue("proxyLocation", "")
-                        var temp2 = utility.getValue("proxyPort", "")
-                        var temp3 = utility.getValue("proxyUsername", "")
-                        var temp4 = utility.getValue("proxyPassword", "")
-                        var temp5 = utility.getValue("proxyType", Utility.NoProxy)
+                        var temp1 = utility.value("proxyLocation", "")
+                        var temp2 = utility.value("proxyPort", "")
+                        var temp3 = utility.value("proxyUsername", "")
+                        var temp4 = utility.value("proxyPassword", "")
+                        var temp5 = utility.value("proxyType", Utility.NoProxy)
                         utility.setApplicationProxy(temp5, temp1, temp2, temp3, temp4)//将代理设置复原
                         button_affirm.enabled = true
                         enabled = true

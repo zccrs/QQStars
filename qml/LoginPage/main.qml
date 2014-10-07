@@ -23,8 +23,8 @@ MyWindow{
     topHint: false//窗口保持在最前端
     noNotifyIcon: true//隐藏任务栏图标
     windowGlow: false//不开启阴影
-
     color: "transparent"
+
     Component.onCompleted: {
         main.x = Screen.desktopAvailableWidth/2 - main.width/2//让程序居中显示
         main.y = Screen.desktopAvailableHeight/2 - main.height/2

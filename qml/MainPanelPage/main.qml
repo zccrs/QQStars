@@ -59,7 +59,7 @@ MyWindow{
             var temp = JSON.parse(jsonData)
             if(!temp)
                 console.log(jsonData)
-            //console.log("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息")
+            //console.log("来自"+myqq.value(uin+"alias", myqq.value(uin+"nick", uin))+"的消息")
             var content
             var i
             var type
@@ -79,7 +79,7 @@ MyWindow{
                         showMessage+="窗口抖动消息"
                     }else if(type == QQ.InputNotify){
                         console.log("正在输入消息")
-                        showMessage+=myqq.getValue(uin+"nick", uin)+"正在输入"
+                        showMessage+=myqq.value(uin+"nick", uin)+"正在输入"
                     }else if(type == QQ.Face){
                         console.log("表情消息："+content.face_code)
                         showMessage+="表情("+content.face_code+")"
@@ -156,7 +156,7 @@ MyWindow{
                 }
             }
             if(showMessage!="")
-                systemTray.showMessage("来自"+myqq.getValue(uin+"alias", myqq.getValue(uin+"nick", uin))+"的消息", showMessage)
+                systemTray.showMessage("来自"+myqq.value(uin+"alias", myqq.value(uin+"nick", uin))+"的消息", showMessage)
         }
     }
     

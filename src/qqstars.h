@@ -17,12 +17,11 @@ class QQCommand : public QQuickItem
     Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged)
     Q_PROPERTY(LoginStatus loginStatus READ loginStatus WRITE setLoginStatus NOTIFY loginStatusChanged)
     Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
+    
     Q_ENUMS(QQStatus)
     Q_ENUMS(LoginStatus)
     Q_ENUMS(SenderType)
     Q_ENUMS(MessageType)
-    Q_ENUMS(ProxyType)
-   
 public:
     explicit QQCommand(QQuickItem *parent = 0);
     enum LoginStatus{
@@ -75,7 +74,7 @@ public:
         return m_loginStatus;
     }
     
-    QString userQQ() const
+    QString userQQ()
     {
         return m_userQQ;
     }
@@ -124,9 +123,8 @@ private:
     //void disposeShakeMessage( QJsonObject &obj );
     
     QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
-    
     double m_windowScale;
-
+    
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
@@ -143,40 +141,123 @@ signals:
 public slots:
     void setLoginStatus(LoginStatus arg);
     void startPoll2( QByteArray data );
-    void setUserQQ(QString arg)
-    {
-        if (m_userQQ != arg) {
-            m_userQQ = arg;
-            
-            emit userQQChanged(arg);
-        }
-    }
-    void setUserPassword(QString arg)
-    {
-        if (m_userPassword != arg) {
-            m_userPassword = arg;
-            emit userPasswordChanged(arg);
-        }
-    }
+    void setUserQQ(QString arg);
+    void setUserPassword(QString arg);
     void showWarningInfo(QString message);
     void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );
     
     void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
-    QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
+    QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
     void removeValue( const QString & key, const QString & userQQ="" );
     
     void updataApi(const QString content);
     QString getHash();
     QString encryptionPassword(const QString &uin, const QString &code);
-    void setWindowScale(double arg)
-    {
-        if (m_windowScale != arg) {
-            m_windowScale = arg;
-            emit windowScaleChanged(arg);
-        }
-    }
+    void setWindowScale(double arg);
     
     int openMessageBox( QJSValue value );
 };
+
+class QQItemInfo:public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged FINAL)
+    Q_PROPERTY(QString uin READ uin WRITE setUin)
+    Q_PROPERTY(QString nick READ nick WRITE setNick NOTIFY nickChanged)
+    Q_PROPERTY(QString alias READ alias WRITE setAlias NOTIFY aliasChanged)
+    Q_PROPERTY(QString aliasOrNick READ aliasOrNick NOTIFY aliasOrNickChanged CONSTANT)
+    Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
+    Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
+    Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
+
+    friend class FriendInfo;
+    friend class GroupInfo;
+    friend class DiscuInfo;
+    friend class RecentInfo;
+protected:
+    enum Type{
+        Friend,//好友
+        Group,//群
+        Discu,//讨论组
+        Recent//最近联系人
+    };
+private:
+    explicit QQItemInfo(Type type, QObject *parent=0);
+protected:
+    QString m_uin;
+    QPointer<QSettings> mysettings;
+    QString m_aliasOrNick;
+    QString m_userQQ;
+    Type mytype;
+    QString typeString;
+public:
+    QString uin() const;
+    QString nick();
+    QString alias();
+    QString avatarSource() const;
+    QString account() const;
+    QString avatar40() const;
+    QString avatar240() const;
+    QString aliasOrNick();
+    QString userQQ() const;
+    QString typeToString();
+
+public slots:
+    void setUin(QString arg);
+    void setNick(QString arg);
+    void setAlias(QString arg);
+    void setAccount(QString arg);
+    void setAvatar40(QString arg);
+    void setAvatar240(QString arg);
+    void setAliasOrNick(QString arg);
+    void setUserQQ(QString arg);
+signals:
+    void nickChanged(QString arg);
+    void aliasChanged(QString arg);
+    void accountChanged(QString arg);
+    void avatar40Changed(QString arg);
+    void avatar240Changed(QString arg);
+    void aliasOrNickChanged(QString arg);
+    void userQQChanged(QString arg);
+};
+
+class FriendInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY QQSignatureChanged)//个性签名
+    Q_ENUMS(Type)
+public:
+    explicit FriendInfo(QObject *parent=0);
+    QString QQSignature();
+public slots:
+    void setQQSignature(QString arg);
+signals:
+    void QQSignatureChanged(QString arg);
+};
+
+class GroupInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_ENUMS(Type)
+public:
+    explicit GroupInfo(QObject *parent=0);
+};
+
+class DiscuInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_ENUMS(Type)
+public:
+    explicit DiscuInfo(QObject *parent=0);
+};
+
+class RecentInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_ENUMS(Type)
+public:
+    explicit RecentInfo(QObject *parent=0);
+};
+
 
 #endif // QQCommand_H

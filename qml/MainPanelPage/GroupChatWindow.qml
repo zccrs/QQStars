@@ -3,7 +3,7 @@ import utility 1.0
 
 ChatWindow{
     id: root
-    windowIcon: myqq.getValue("group"+myuin+"avatar-40", "qrc:/images/avatar.png")
+    windowIcon: myqq.value("group"+myuin+"avatar-40", "qrc:/images/avatar.png")
     
     function sendMessageFinished(error, data){
         //console.log(data)
@@ -42,6 +42,6 @@ ChatWindow{
         parent: menuBar
         verticalAlignment: Text.AlignVCenter
         anchors.verticalCenter: parent.verticalCenter
-        text: myqq.getValue("group"+myuin+"nick", myuin)
+        text: myqq.value("group"+myuin+"nick", myuin)
     }
 }

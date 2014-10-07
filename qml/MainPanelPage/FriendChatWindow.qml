@@ -3,7 +3,7 @@ import utility 1.0
 
 ChatWindow{
     id: root
-    windowIcon: myqq.getValue(myuin+"avatar-40", "qrc:/images/avatar.png")
+    windowIcon: myqq.value(myuin+"avatar-40", "qrc:/images/avatar.png")
     
     function sendMessageFinished(error, data){
         console.log(data)
@@ -33,7 +33,7 @@ ChatWindow{
                     message+="窗口震动消息 "
                 }else if(type == QQ.InputNotify){
                     console.log("正在输入消息")
-                    show_text.text = myqq.getValue(uin+"nick", uin)+"正在输入"
+                    show_text.text = myqq.value(uin+"nick", uin)+"正在输入"
                     return
                 }else if(type == QQ.Face){
                     console.log("表情消息："+content.face_code)

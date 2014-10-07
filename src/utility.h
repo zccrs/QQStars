@@ -61,12 +61,14 @@ public slots:
     
     void setQSettings(QSettings *settings);
     void setValue( const QString & key, const QVariant & value);
-    QVariant getValue(const QString & key, const QVariant & defaultValue = QVariant()) const;
+    QVariant value(const QString & key, const QVariant & defaultValue = QVariant()) const;
     void removeValue( const QString & key );
     
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="", int priority=0);
+    void httpGet(QObject *caller, QByteArray slotName, QUrl url, int priority=0);
+    void httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, int priority=0);
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     

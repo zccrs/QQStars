@@ -33,10 +33,10 @@ Item{
             width: parent.width
             height: avatar.height
             property var info: obj_info
-            property var account: myqq.getValue(info.uin+"account", "")//真实qq号
+            property var account: myqq.value(info.uin+"account", "")//真实qq号
 
             onInfoChanged: {
-                if(myqq.getValue(info.uin+"nick", "")==""){
+                if(myqq.value(info.uin+"nick", "")==""){
                     myqq.getFriendInfo( info.uin, getFriendInfoFinished )//获取昵称
                     myqq.getFriendQQ( info.uin, getQQFinished )//获取真实qq号
                 }
@@ -58,9 +58,9 @@ Item{
                     myqq.setValue(info.uin+"account", account)//保存真实qq
                     if( avatar.source=="qrc:/images/avatar.png" ){ //如果头像不存在
                         if(info.type==0)
-                            myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, account, "40", getAvatarFinished)//下载头像
+                            myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+info.uin, "40", getAvatarFinished)//下载头像
                         else
-                            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group"+account, "40", getAvatarFinished)//下载头像
+                            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+info.uin, "40", getAvatarFinished)//下载头像
                     }
                 }
             }
@@ -81,9 +81,9 @@ Item{
                 if(account!=""){
                     if( avatar.source=="qrc:/images/avatar.png" ){
                         if(info.type==0)
-                            myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, account, "40", getAvatarFinished)//下载头像
+                            myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+info.uin, "40", getAvatarFinished)//下载头像
                         else
-                            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group"+account, "40", getAvatarFinished)//下载头像
+                            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+info.uin, "40", getAvatarFinished)//下载头像
                     }
                 }else{
                     myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
@@ -94,7 +94,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myqq.getValue(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
                     avatar.source = "qrc:/images/avatar.png"
                 }
@@ -105,7 +105,7 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: myqq.getValue(info.uin+"alias", myqq.getValue(info.uin+"nick", ""))
+                text: myqq.value(info.uin+"alias", myqq.value(info.uin+"nick", ""))
             }
         }
     }

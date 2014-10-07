@@ -89,7 +89,7 @@ Window{
                     anchors.fill: parent
                     onClicked: {
                         mymodel.remove(index)
-                        var data = utility.getValue("qq", "")
+                        var data = utility.value("qq", "")
                         data = data.replace(new RegExp(","+parent.qq), "")
                         utility.setValue("qq", data)//将qq号码从里边删除
                         myqq.removeValue(parent.qq, "password")//将密码清除
@@ -99,10 +99,10 @@ Window{
         }
     }
     Component.onCompleted: {
-        var data = utility.getValue("qq", "")
+        var data = utility.value("qq", "")
         data = data.split(",")
         for( var i=1;i<data.length;++i ){
-            mymodel.append({"imageSrc": myqq.getValue("avatar-240", "qrc:/images/avatar.png", data[i]), "nick":myqq.getValue("nick","", data[i]), "uin": data[i]})
+            mymodel.append({"imageSrc": myqq.value("avatar-240", "qrc:/images/avatar.png", data[i]), "nick":myqq.value("nick","", data[i]), "uin": data[i]})
         }
     }
 
