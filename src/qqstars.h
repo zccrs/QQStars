@@ -8,20 +8,129 @@
 #include "mymessagebox.h"
 #include "mynetworkaccessmanagerfactory.h"
 
-class QQCommand : public QQuickItem
+class QQItemInfo:public QQuickItem
+{
+    Q_OBJECT
+    Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged)
+    Q_PROPERTY(QString uin READ uin WRITE setUin NOTIFY uinChanged)
+    Q_PROPERTY(QString nick READ nick WRITE setNick NOTIFY nickChanged)
+    Q_PROPERTY(QString alias READ alias WRITE setAlias NOTIFY aliasChanged)
+    Q_PROPERTY(QString aliasOrNick READ aliasOrNick NOTIFY aliasOrNickChanged CONSTANT FINAL)
+    Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
+    Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
+    Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
+
+    friend class FriendInfo;
+    friend class GroupInfo;
+    friend class DiscuInfo;
+    friend class RecentInfo;
+protected:
+    enum QQItemType{
+        Friend,//好友
+        Group,//群
+        Discu,//讨论组
+        Recent//最近联系人
+    };
+private:
+    explicit QQItemInfo(QQItemType type, QQuickItem *parent=0);
+protected:
+    QString m_uin;
+    QPointer<QSettings> mysettings;
+    QString m_aliasOrNick;
+    QString m_userQQ;
+    QQItemType mytype;
+    QString typeString;
+    
+    void initSettings();
+public:
+    QString uin() const;
+    QString nick();
+    QString alias();
+    QString avatarSource() const;
+    QString account() const;
+    QString avatar40() const;
+    QString avatar240() const;
+    QString aliasOrNick();
+    QString userQQ() const;
+    QString typeToString();
+
+public slots:
+    void setUin(QString arg);
+    void setNick(QString arg);
+    void setAlias(QString arg);
+    void setAccount(QString arg);
+    void setAvatar40(QString arg);
+    void setAvatar240(QString arg);
+    void setAliasOrNick(QString arg);
+    void setUserQQ(QString arg);
+    
+    void clearSettings();
+signals:
+    void nickChanged();
+    void aliasChanged();
+    void accountChanged();
+    void avatar40Changed();
+    void avatar240Changed();
+    void aliasOrNickChanged();
+    void userQQChanged();
+    void uinChanged();
+};
+
+class FriendInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY QQSignatureChanged)//个性签名
+    Q_ENUMS(QQItemType)
+public:
+    explicit FriendInfo(QQuickItem *parent=0);
+    QString QQSignature();
+public slots:
+    void setQQSignature(QString arg);
+signals:
+    void QQSignatureChanged();
+};
+
+class GroupInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_ENUMS(QQItemType)
+public:
+    explicit GroupInfo(QQuickItem *parent=0);
+};
+
+class DiscuInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_ENUMS(QQItemType)
+public:
+    explicit DiscuInfo(QQuickItem *parent=0);
+};
+
+class RecentInfo:public  QQItemInfo
+{
+    Q_OBJECT
+    Q_ENUMS(QQItemType)
+public:
+    explicit RecentInfo(QQuickItem *parent=0);
+};
+
+class QQCommand : public FriendInfo
 {
     Q_OBJECT
     Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged)
     Q_PROPERTY(QString userPassword READ userPassword WRITE setUserPassword NOTIFY userPasswordChanged)
     Q_PROPERTY(QQStatus userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
-    Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged)
+    Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged CONSTANT FINAL)
     Q_PROPERTY(LoginStatus loginStatus READ loginStatus WRITE setLoginStatus NOTIFY loginStatusChanged)
     Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
+    Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)//是否记住密码
+    Q_PROPERTY(bool autoLogin READ autoLogin WRITE setAutoLogin NOTIFY autoLoginChanged)//是否自动登录
     
     Q_ENUMS(QQStatus)
     Q_ENUMS(LoginStatus)
     Q_ENUMS(SenderType)
     Q_ENUMS(MessageType)
+    Q_ENUMS(QQItemType)
 public:
     explicit QQCommand(QQuickItem *parent = 0);
     enum LoginStatus{
@@ -31,7 +140,7 @@ public:
     };
 
     enum QQStatus{
-        Offlineing,//离线
+        Offlineing,//离线中
         Online,//在线
         Callme,//Q我吧
         Away,//离开
@@ -81,7 +190,9 @@ public:
     
     QString userPassword() const
     {
-        return m_userPassword;
+        if(mysettings)
+            return mysettings->value ("password", "").toString ();
+        return "";
     }
     
     double windowScale() const
@@ -89,7 +200,22 @@ public:
         return m_windowScale;
     }
     
+    bool rememberPassword() const
+    {
+        if(mysettings)
+            return mysettings->value ("rememberPassword", false).toBool ();
+        return false;
+    }
+    
+    bool autoLogin() const
+    {
+        if(mysettings)
+            return mysettings->value ("autoLogin", false).toBool ();
+        return false;
+    }
+    
 private slots:
+    void setStatusToString();
     void beginPoll2();
     void poll2Finished(QNetworkReply *replys);
 private:
@@ -124,20 +250,22 @@ private:
     
     QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
     double m_windowScale;
-    
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
-    void loginStatusChanged(LoginStatus arg);
+    void loginStatusChanged();
     void poll2ReData( QString data );
-    void userQQChanged(QString arg);
+    void userQQChanged();
     void error( QString message );//有错误产生就发送信号
     void updateCode();//刷新验证码
     void inputCodeClose();//关闭验证码输入
-    void userPasswordChanged(QString arg);
+    void userPasswordChanged();
     
-    void windowScaleChanged(double arg);
+    void windowScaleChanged();
     void messageArrive(SenderType senderType, QString uin, QString jsonData);
+    void rememberPasswordChanged();
+    void autoLoginChanged();
+
 public slots:
     void setLoginStatus(LoginStatus arg);
     void startPoll2( QByteArray data );
@@ -146,9 +274,9 @@ public slots:
     void showWarningInfo(QString message);
     void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );
     
-    void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
-    QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
-    void removeValue( const QString & key, const QString & userQQ="" );
+    //void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
+    //QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
+    //void removeValue( const QString & key, const QString & userQQ="" );
     
     void updataApi(const QString content);
     QString getHash();
@@ -156,108 +284,7 @@ public slots:
     void setWindowScale(double arg);
     
     int openMessageBox( QJSValue value );
+    void setRememberPassword(bool arg);
+    void setAutoLogin(bool arg);
 };
-
-class QQItemInfo:public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged FINAL)
-    Q_PROPERTY(QString uin READ uin WRITE setUin)
-    Q_PROPERTY(QString nick READ nick WRITE setNick NOTIFY nickChanged)
-    Q_PROPERTY(QString alias READ alias WRITE setAlias NOTIFY aliasChanged)
-    Q_PROPERTY(QString aliasOrNick READ aliasOrNick NOTIFY aliasOrNickChanged CONSTANT)
-    Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
-    Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
-    Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
-
-    friend class FriendInfo;
-    friend class GroupInfo;
-    friend class DiscuInfo;
-    friend class RecentInfo;
-protected:
-    enum Type{
-        Friend,//好友
-        Group,//群
-        Discu,//讨论组
-        Recent//最近联系人
-    };
-private:
-    explicit QQItemInfo(Type type, QObject *parent=0);
-protected:
-    QString m_uin;
-    QPointer<QSettings> mysettings;
-    QString m_aliasOrNick;
-    QString m_userQQ;
-    Type mytype;
-    QString typeString;
-public:
-    QString uin() const;
-    QString nick();
-    QString alias();
-    QString avatarSource() const;
-    QString account() const;
-    QString avatar40() const;
-    QString avatar240() const;
-    QString aliasOrNick();
-    QString userQQ() const;
-    QString typeToString();
-
-public slots:
-    void setUin(QString arg);
-    void setNick(QString arg);
-    void setAlias(QString arg);
-    void setAccount(QString arg);
-    void setAvatar40(QString arg);
-    void setAvatar240(QString arg);
-    void setAliasOrNick(QString arg);
-    void setUserQQ(QString arg);
-signals:
-    void nickChanged(QString arg);
-    void aliasChanged(QString arg);
-    void accountChanged(QString arg);
-    void avatar40Changed(QString arg);
-    void avatar240Changed(QString arg);
-    void aliasOrNickChanged(QString arg);
-    void userQQChanged(QString arg);
-};
-
-class FriendInfo:public  QQItemInfo
-{
-    Q_OBJECT
-    Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY QQSignatureChanged)//个性签名
-    Q_ENUMS(Type)
-public:
-    explicit FriendInfo(QObject *parent=0);
-    QString QQSignature();
-public slots:
-    void setQQSignature(QString arg);
-signals:
-    void QQSignatureChanged(QString arg);
-};
-
-class GroupInfo:public  QQItemInfo
-{
-    Q_OBJECT
-    Q_ENUMS(Type)
-public:
-    explicit GroupInfo(QObject *parent=0);
-};
-
-class DiscuInfo:public  QQItemInfo
-{
-    Q_OBJECT
-    Q_ENUMS(Type)
-public:
-    explicit DiscuInfo(QObject *parent=0);
-};
-
-class RecentInfo:public  QQItemInfo
-{
-    Q_OBJECT
-    Q_ENUMS(Type)
-public:
-    explicit RecentInfo(QObject *parent=0);
-};
-
-
 #endif // QQCommand_H

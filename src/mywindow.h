@@ -73,7 +73,7 @@ class MyWindow : public QQuickWindow
     Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(int actualX READ actualX WRITE setActualX NOTIFY actualXChanged)
     Q_PROPERTY(int actualY READ actualY WRITE setActualY NOTIFY actualYChanged)
-    Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged CONSTANT)//窗口是否获得焦点，是否为活跃窗口
+    Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged CONSTANT FINAL)//窗口是否获得焦点，是否为活跃窗口
     Q_PROPERTY(MyWindowShortcutList* shortcuts READ shortcuts WRITE setShortcuts NOTIFY shortcutsChanged)
 
     Q_ENUMS(Status)

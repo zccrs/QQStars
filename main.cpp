@@ -37,10 +37,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<MenuSeparator>("mywindow", 1,0, "MenuSeparator");
     qmlRegisterType<MyMenuItem>("mywindow", 1,0, "MyMenuItem");
     qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
-    qmlRegisterType<FriendInfo>("utility", 1,0, "FriendInfo");
-    qmlRegisterType<GroupInfo>("utility", 1,0, "GroupInfo");
-    qmlRegisterType<DiscuInfo>("utility", 1,0, "DiscuInfo");
-    qmlRegisterType<RecentInfo>("utility", 1,0, "RecentInfo");
+    qmlRegisterType<FriendInfo>("QQItemInfo", 1,0, "FriendInfo");
+    qmlRegisterType<GroupInfo>("QQItemInfo", 1,0, "GroupInfo");
+    qmlRegisterType<DiscuInfo>("QQItemInfo", 1,0, "DiscuInfo");
+    qmlRegisterType<RecentInfo>("QQItemInfo", 1,0, "RecentInfo");
     qmlRegisterType<MySocket>("utility", 1, 0, "Socket");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
@@ -50,18 +50,18 @@ int main(int argc, char *argv[])
     Utility *utility=Utility::createUtilityClass ();
     utility->initUtility (&mysettings, &engine);
     
-    QQmlComponent component0(&engine, "./qml/QQApi.qml");
+    QQmlComponent component0(&engine, "./qml/Api/QQApi.qml");
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
     engine.rootContext ()->setContextProperty ("myqq", qqapi);
     
-    QQmlComponent component(&engine, "./qml/SystemTray.qml");
+    QQmlComponent component(&engine, "./qml/Utility/SystemTray.qml");
     SystemTrayIcon *systemTray = qobject_cast<SystemTrayIcon *>(component.create ());
 #ifdef Q_OS_WIN
     systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题
 #endif
     engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     
-    engine.load(QUrl(QStringLiteral("qml/LoginPage/main.qml")));
+    engine.load(QUrl(QStringLiteral("qml/Login/main.qml")));
     
     return app.exec();
 }

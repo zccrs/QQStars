@@ -5,8 +5,14 @@
 #include "aes.h"
 
 QQCommand::QQCommand(QQuickItem *parent) :
-    QQuickItem(parent)
+    FriendInfo(parent)
 {
+    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::rememberPasswordChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::autoLoginChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::userStatusChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::userPasswordChanged);
+    connect (this, &QQCommand::userStatusChanged, this, &QQCommand::setStatusToString);
+    
     Utility *utility=Utility::createUtilityClass ();
     int temp1 = utility->value ("proxyType", QNetworkProxy::NoProxy).toInt ();
     QString temp2 = utility->value ("proxyLocation", "").toString ();
@@ -17,9 +23,7 @@ QQCommand::QQCommand(QQuickItem *parent) :
     
     setUserQQ (utility->value ("mainqq","").toString ());
     m_loginStatus = Offline;
-    m_userStatusToString = "online";
     m_windowScale = 1;
-    connect (this, SIGNAL(userStatusChanged()), SIGNAL(userStatusToStringChanged()));
     
     request.setUrl (QUrl("http://d.web2.qq.com/channel/poll2"));
     request.setRawHeader ("Origin", "http://d.web2.qq.com");
@@ -31,6 +35,36 @@ QQCommand::QQCommand(QQuickItem *parent) :
     connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
     
     loadApi ();//加载api的js文件
+}
+
+void QQCommand::setStatusToString()
+{
+    switch(userStatus ())
+    {
+    case Online:
+        m_userStatusToString = "online";
+        break;
+    case Callme:
+        m_userStatusToString = "callme";
+        break;
+    case Away:
+        m_userStatusToString = "away";
+        break;
+    case Busy:
+        m_userStatusToString = "busy";
+        break;
+    case Silent:
+        m_userStatusToString = "silent";
+        break;
+    case Hidden:
+        m_userStatusToString = "hidden";
+        break;
+    case Offlineing:
+        m_userStatusToString = "offline";
+        break;
+    default:break;
+    }
+    emit userStatusToStringChanged ();
 }
 
 void QQCommand::beginPoll2()
@@ -111,45 +145,23 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
 
 QQCommand::QQStatus QQCommand::userStatus()
 {
-    return qq_status;
+    if(mysettings)
+        return (QQStatus)mysettings->value ("QQStatus", (int)Online).toInt ();
+    return Online;
 }
 
 void QQCommand::setUserStatus(QQCommand::QQStatus new_status)
 {
-    if( new_status!=qq_status ) {
-        qq_status = new_status;
-        switch(qq_status)
-        {
-        case Online:
-            m_userStatusToString = "online";
-            break;
-        case Callme:
-            m_userStatusToString = "callme";
-            break;
-        case Away:
-            m_userStatusToString = "away";
-            break;
-        case Busy:
-            m_userStatusToString = "busy";
-            break;
-        case Silent:
-            m_userStatusToString = "silent";
-            break;
-        case Hidden:
-            m_userStatusToString = "hidden";
-            break;
-        case Offlineing:
-            m_userStatusToString = "offline";
-            break;
-        default:break;
-        }
+    if( userStatus()!=qq_status ) {
+        if(mysettings)
+            mysettings->setValue ("QQStatus", (int)new_status);
         emit userStatusChanged ();
     }
 }
 
 void QQCommand::loadApi()
 {
-    QString fileName = "qml/api.js";
+    QString fileName = "qml/Api/api.js";
     QFile scriptFile(fileName);
     if (!scriptFile.open(QIODevice::ReadOnly))
         qDebug()<<"打开"+fileName+"失败";
@@ -413,7 +425,7 @@ void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)
 {
     if (m_loginStatus != arg) {
         m_loginStatus = arg;
-        emit loginStatusChanged(arg);
+        emit loginStatusChanged();
     }
 }
 
@@ -428,15 +440,18 @@ void QQCommand::setUserQQ(QString arg)
 {
     if (m_userQQ != arg) {
         m_userQQ = arg;
-        emit userQQChanged(arg);
+        FriendInfo::setUserQQ (arg);
+        FriendInfo::setUin (arg);
+        emit userQQChanged();
     }
 }
 
 void QQCommand::setUserPassword(QString arg)
 {
-    if (m_userPassword != arg) {
-        m_userPassword = arg;
-        emit userPasswordChanged(arg);
+    if (rememberPassword ()&&userPassword() != arg) {//先判断是否允许记住密码
+        if(mysettings)
+            mysettings->setValue ("password", arg);
+        emit userPasswordChanged();
     }
 }
 
@@ -454,7 +469,7 @@ void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
 }
 
-void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)
+/*void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)
 {
     QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
     mysettings.setValue (key, value);
@@ -470,7 +485,7 @@ void QQCommand::removeValue(const QString &key, const QString & userQQ )
 {
     QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
     mysettings.remove (key);
-}
+}*/
 
 void QQCommand::updataApi(const QString content)
 {
@@ -495,7 +510,7 @@ void QQCommand::setWindowScale(double arg)
 {
     if (m_windowScale != arg) {
         m_windowScale = arg;
-        emit windowScaleChanged(arg);
+        emit windowScaleChanged();
     }
 }
 
@@ -538,10 +553,38 @@ int QQCommand::openMessageBox(QJSValue value)
     return message.exec ();
 }
 
-
-QQItemInfo::QQItemInfo(Type type, QObject *parent):
-    QObject(parent), typeString(type)
+void QQCommand::setRememberPassword(bool arg)
 {
+    if (mysettings&&rememberPassword ()!= arg) {
+        mysettings->setValue ("rememberPassword", arg);
+        emit rememberPasswordChanged();
+    }
+}
+
+void QQCommand::setAutoLogin(bool arg)
+{
+    if (mysettings&&autoLogin() != arg) {
+        mysettings->setValue ("autoLogin", arg);
+        emit autoLoginChanged();
+    }
+}
+
+
+QQItemInfo::QQItemInfo(QQItemType type, QQuickItem *parent):
+    QQuickItem(parent), typeString(type)
+{
+    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::accountChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::nickChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::aliasChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::avatar40Changed);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::avatar240Changed);
+    
+    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::accountChanged);
+    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::nickChanged);
+    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::aliasChanged);
+    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::avatar40Changed);
+    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::avatar240Changed);
+    
     switch (type) {
     case Friend:
         typeString = "friend";
@@ -555,6 +598,19 @@ QQItemInfo::QQItemInfo(Type type, QObject *parent):
     default:
         break;
     }
+    mysettings = new QSettings(QDir::homePath ()+"/webqq/"+m_userQQ+"/"+typeString+"_"+m_uin+"/.config.ini", QSettings::IniFormat);
+}
+
+void QQItemInfo::initSettings()
+{
+    QString userqq = userQQ ();
+    QString uin = this->uin();
+    if(uin==""||userqq=="")
+        return;
+    if(mysettings){
+        mysettings->deleteLater ();
+    }
+    mysettings = new QSettings(QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+uin+"/.config.ini", QSettings::IniFormat);
 }
 
 QString QQItemInfo::uin() const
@@ -620,9 +676,10 @@ QString QQItemInfo::account() const
 
 void QQItemInfo::setUin(QString arg)
 {
-    if (m_uin==""&&m_uin != arg) {//m_uin==""保证uin只被设置一次
+    if (m_uin != arg) {//m_uin==""保证uin只被设置一次
         m_uin = arg;
-        mysettings = new QSettings(QDir::homePath ()+"/webqq/"+userQQ()+"/"+typeString+"_"+arg+"/.config.ini", QSettings::IniFormat);
+        initSettings();
+        emit uinChanged ();
     }
 }
 
@@ -630,7 +687,7 @@ void QQItemInfo::setNick(QString arg)
 {
     if (mysettings&&nick() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"nick", arg);
-        emit nickChanged (arg);
+        emit nickChanged ();
         
     }
 }
@@ -639,7 +696,7 @@ void QQItemInfo::setAlias(QString arg)
 {
     if (mysettings&&alias() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"alias", arg);
-        emit aliasChanged(arg);
+        emit aliasChanged();
     }
 }
 
@@ -647,7 +704,7 @@ void QQItemInfo::setAccount(QString arg)
 {
     if (mysettings&&account() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"account", arg);
-        emit accountChanged(arg);
+        emit accountChanged();
     }
 }
 
@@ -655,14 +712,15 @@ void QQItemInfo::setAvatar40(QString arg)
 {
     if (mysettings&&avatar40() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"avatar-40", arg);
-        emit avatar40Changed(arg);
+        emit avatar40Changed();
     }
 }
 
 void QQItemInfo::setAvatar240(QString arg)
 {
-    if (avatar240() != arg) {
-        emit avatar240Changed(arg);
+    if (mysettings&&avatar240() != arg) {
+        mysettings->setValue (typeString+"_"+uin()+"avatar-240", arg);
+        emit avatar240Changed();
     }
 }
 
@@ -670,19 +728,30 @@ void QQItemInfo::setAliasOrNick(QString arg)
 {
     if (m_aliasOrNick != arg) {
         m_aliasOrNick = arg;
-        emit aliasOrNickChanged(arg);
+        emit aliasOrNickChanged();
     }
 }
 
 void QQItemInfo::setUserQQ(QString arg)
 {
-    m_userQQ = arg;
+    if(m_userQQ!=arg) {
+        m_userQQ = arg;
+        initSettings();
+        emit userQQChanged ();
+    }
 }
 
-FriendInfo::FriendInfo(QObject *parent):
+void QQItemInfo::clearSettings()
+{
+    if(mysettings)
+        mysettings->clear ();//清除所有储存的信息
+}
+
+FriendInfo::FriendInfo(QQuickItem *parent):
     QQItemInfo(Friend, parent)
 {
-    
+    connect (this, &QQItemInfo::userQQChanged, this, &FriendInfo::QQSignatureChanged);
+    connect (this, &QQItemInfo::uinChanged, this, &FriendInfo::QQSignatureChanged);
 }
 
 QString FriendInfo::QQSignature()
@@ -696,26 +765,26 @@ void FriendInfo::setQQSignature(QString arg)
 {
     if (mysettings&&QQSignature() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"signature", arg);
-        emit QQSignatureChanged(arg);
+        emit QQSignatureChanged();
     }
 }
 
 
-GroupInfo::GroupInfo(QObject *parent):
+GroupInfo::GroupInfo(QQuickItem *parent):
     QQItemInfo(Group, parent)
 {
     
 }
 
 
-DiscuInfo::DiscuInfo(QObject *parent):
+DiscuInfo::DiscuInfo(QQuickItem *parent):
     QQItemInfo(Discu, parent)
 {
     
 }
 
 
-RecentInfo::RecentInfo(QObject *parent):
+RecentInfo::RecentInfo(QQuickItem *parent):
     QQItemInfo(Recent, parent)
 {
     
