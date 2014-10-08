@@ -156,8 +156,8 @@ MyWindow{
                     showMessage+=content.old_member+"离开了群"
                 }
             }
-            if(showMessage!="")
-                systemTray.showMessage("来自"+myqq.value(uin+"alias", myqq.value(uin+"nick", uin))+"的消息", showMessage)
+            //if(showMessage!="")
+                //systemTray.showMessage("来自"+myqq.value(uin+"alias", myqq.value(uin+"nick", uin))+"的消息", showMessage)
         }
     }
     

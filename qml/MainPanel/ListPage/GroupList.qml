@@ -2,6 +2,7 @@ import QtQuick 2.2
 import mywindow 1.0
 import utility 1.0
 import "../"
+import "../QQItemInfo"
 
 Item{
     id: friendlist_main
@@ -18,7 +19,9 @@ Item{
         if(data.retcode ==0 ) {
             var groupmarknames = data.result.gmarklist//群备注信息
             for( var i=0; i<groupmarknames.length;++i ) {
-                myqq.setValue("group"+groupmarknames[i].uin+"alias", groupmarknames[i].markname)//储存备注信息
+                var newObject = Qt.createQmlObject('import QQItemInfo 1.0; GroupInfo{userQQ:'+myqq.userQQ+';uin:'+marknames[i].uin+'}')
+                //myqq.setValue("group"+groupmarknames[i].uin+"alias", groupmarknames[i].markname)//储存备注信息
+                newObject.alias = groupmarknames[i].markname
             }
             var list_info = data.result.gnamelist
             mymodel.append({"obj_name": "群", "obj_listData": JSON.stringify(list_info) })
@@ -155,17 +158,24 @@ Item{
             property string uin: {
                 if( info.gid ){
                     type = QQ.Group
-                    myqq.setValue("group"+info.gid+"nick", info.name)
+                    myinfo.uin = info.gid
+                    myinfo.nick = info.name
+                    //myqq.setValue("group"+info.gid+"nick", info.name)
                     return info.gid
                 }else{
                     type = QQ.Discu
-                    myqq.setValue("group"+info.did+"nick", info.name)
+                    myinfo.uin = info.did
+                    myinfo.nick = info.name
+                    //myqq.setValue("group"+info.did+"nick", info.name)
                     return info.did
                 }
             }
-            property string account: myqq.value("group"+uin+"account", "")//真实的群号
-            
-            function getQQFinished(error, data){//获取真实群号后调用的函数
+            //property string account: myinfo.account//myqq.value("group"+uin+"account", "")//真实的群号
+            GroupInfo{
+                id: myinfo
+            }
+
+            /*function getQQFinished(error, data){//获取真实群号后调用的函数
                 if(error){
                     myqq.getFriendQQ(info.code, getQQFinished)
                     return
@@ -175,14 +185,16 @@ Item{
                 if( data.retcode==0 ){
                     account = data.result.account
                     //console.log(myqq.value("group"+uin+"nick", info.name)+"的真实QQ是："+account+","+info.code+","+uin)
-                    myqq.setValue("group"+uin+"account", account)//保存真实qq
+                    //myqq.setValue("group"+uin+"account", account)//保存真实qq
+                    myinfo.account = account
                     if( avatar.source=="qrc:/images/avatar.png" )//如果头像不存在
                         myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
                 }
             }
             function getAvatarFinished( path ,name){
                 var imageName = path+"/"+name+".png"
-                myqq.setValue("group"+uin+name, imageName)//保存头像的地址
+                //myqq.setValue("group"+uin+name, imageName)//保存头像的地址
+                myinfo.avatar40 = imageName
                 avatar.source = imageName
             }
 
@@ -196,16 +208,16 @@ Item{
                             myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
                     }
                 }
-            }
+            }*/
 
             MyImage{
                 id: avatar
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myqq.value("group"+parent.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myinfo.avatar40//myqq.value("group"+parent.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
-                    avatar.source = "qrc:/images/avatar.png"
+                    myinfo.avatar40 = "qrc:/images/avatar.png"
                 }
             }
             Text{
@@ -214,7 +226,7 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: myqq.value("group"+parent.uin+"alias", info.name)
+                text: myinfo.aliasOrNick//myqq.value("group"+parent.uin+"alias", info.name)
             }
             MouseArea{
                 anchors.fill: parent

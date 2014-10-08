@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import mywindow 1.0
 import "../"
+import "../QQItemInfo"
 
 Item{
     clip:true
@@ -34,9 +35,15 @@ Item{
             width: parent.width
             height: avatar.height
             property var info: obj_info
-            property var account: myqq.value(info.uin+"account", "")//真实qq号
+            //property string account: myinfo.account//myqq.value(info.uin+"account", "")//真实qq号
+            
+            RecentInfo{
+                id: myinfo
+                uin: info.uin
+                type: info.type
+            }
 
-            onInfoChanged: {
+            /*onInfoChanged: {
                 if(myqq.value(info.uin+"nick", "")==""){
                     myqq.getFriendInfo( info.uin, getFriendInfoFinished )//获取昵称
                     myqq.getFriendQQ( info.uin, getQQFinished )//获取真实qq号
@@ -89,15 +96,15 @@ Item{
                 }else{
                     myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
                 }
-            }
+            }*/
             MyImage{
                 id: avatar
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myinfo.avatar40//myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
-                    avatar.source = "qrc:/images/avatar.png"
+                    myinfo.avatar40 = "qrc:/images/avatar.png"
                 }
             }
             Text{
@@ -106,7 +113,7 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: myqq.value(info.uin+"alias", myqq.value(info.uin+"nick", ""))
+                text: myinfo.aliasOrNick//myqq.value(info.uin+"alias", myqq.value(info.uin+"nick", ""))
             }
         }
     }

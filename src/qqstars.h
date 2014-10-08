@@ -190,9 +190,7 @@ public:
     
     QString userPassword() const
     {
-        if(mysettings)
-            return mysettings->value ("password", "").toString ();
-        return "";
+        return m_userPassword;
     }
     
     double windowScale() const
@@ -218,6 +216,7 @@ private slots:
     void setStatusToString();
     void beginPoll2();
     void poll2Finished(QNetworkReply *replys);
+    void initUserPassword();
 private:
     QQStatus qq_status;
     QQStatus userStatus();

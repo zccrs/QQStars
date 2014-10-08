@@ -10,7 +10,7 @@ QQCommand::QQCommand(QQuickItem *parent) :
     connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::rememberPasswordChanged);
     connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::autoLoginChanged);
     connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::userStatusChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::userPasswordChanged);
+    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::initUserPassword);
     connect (this, &QQCommand::userStatusChanged, this, &QQCommand::setStatusToString);
     
     Utility *utility=Utility::createUtilityClass ();
@@ -140,6 +140,14 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
         }
     }else{
         beginPoll2();//重新post
+    }
+}
+
+void QQCommand::initUserPassword()
+{
+    if(mysettings){
+        QByteArray pass=mysettings->value ("password", "").toByteArray ();
+        setUserPassword (Utility::createUtilityClass ()->stringUncrypt (pass, "xingchenQQ"));
     }
 }
 
@@ -448,9 +456,8 @@ void QQCommand::setUserQQ(QString arg)
 
 void QQCommand::setUserPassword(QString arg)
 {
-    if (rememberPassword ()&&userPassword() != arg) {//先判断是否允许记住密码
-        if(mysettings)
-            mysettings->setValue ("password", arg);
+    if (m_userPassword != arg) {
+        m_userPassword = arg;
         emit userPasswordChanged();
     }
 }
@@ -557,6 +564,8 @@ void QQCommand::setRememberPassword(bool arg)
 {
     if (mysettings&&rememberPassword ()!= arg) {
         mysettings->setValue ("rememberPassword", arg);
+        if(!arg)
+            mysettings->remove ("password");
         emit rememberPasswordChanged();
     }
 }
