@@ -18,12 +18,12 @@ MyQuickWindow{
     height: Math.max(minHeight, 300)
     actualWidth: windowGlow?glow.actualWidth:width
     actualHeight: windowGlow?glow.actualHeight:height
-
-    contentItem{
-        x: windowGlow?glow.actualX+glow.glowLeftWidth:0
-        y: windowGlow?glow.actualY+glow.glowTopHeight:0
-    }
     
+    contentItem{
+        x: windowGlow?glow.glowLeftWidth:0
+        y: windowGlow?glow.glowTopHeight:0
+    }
+
     Connections{
         target: windowGlow?contentItem:null
         onWidthChanged:{
@@ -35,17 +35,21 @@ MyQuickWindow{
     }
     
     QtObject{
-        id: obj_shake
+        id: obj
         property int windowShakeCount: 0
+        property real back_glowOpacity
+        Component.onCompleted: {
+            back_glowOpacity = glow.glowOpacity
+        }
     }
 
     function windowShake() {//抖动窗口
-        if(obj_shake.windowShakeCount>=root.windowShakeInterval/animation_shake.duration/4){
-            obj_shake.windowShakeCount=0
+        if(obj.windowShakeCount>=root.windowShakeInterval/animation_shake.duration/4){
+            obj.windowShakeCount=0
             return
         }
 
-        ++obj_shake.windowShakeCount
+        ++obj.windowShakeCount
         showFront()//先把窗口显示在最前端
         animation_shake.property = "x"
         animation_shake.to = root.x-20
@@ -78,13 +82,13 @@ MyQuickWindow{
         }
     }
 
-    function widthIsValidity( num ) {
+    function widthIsValidity( num ) {//判断width是否合法
         if( num<=maxWidth&&num>=minWidth )
             return true
         else
             return false
     }
-    function heightIsValidity( num ) {
+    function heightIsValidity( num ) {//判断height是否合法
         if( num<=maxHeight&&num>=minHeight )
             return true
         else
@@ -189,7 +193,7 @@ MyQuickWindow{
     
     MyRectangularGlow{
         id: glow
-        visible: windowGlow
+        visible: windowGlow&&root.windowActive
         x:0
         y:0
         glowRadius: 20
@@ -198,7 +202,19 @@ MyQuickWindow{
         width: root.width
         height:root.height
     }
-
+    
+    MyRectangularGlow{
+        id: glow_inactive
+        anchors.fill: glow
+        glowRadius: glow.glowRadius/2
+        spread: glow.spread
+        color: glow.color
+        glowOpacity: glow.glowOpacity
+        cornerRadius: glow.cornerRadius
+        cached: glow.cached
+        visible: windowGlow&&(!root.windowActive)
+    }
+    
     MouseArea{
         id: mouse_main
         enabled: removable

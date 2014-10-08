@@ -24,8 +24,8 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     connect (this, &QQuickWindow::yChanged, this, &MyWindow::actualYChanged);
     connect (this, &QQuickWindow::xChanged, this, &MyWindow::onActualXChanged);
     connect (this, &QQuickWindow::yChanged, this, &MyWindow::onActualYChanged);
-    connect (contentItem (), &QQuickItem::xChanged, this, &MyWindow::onActualXChanged);
-    connect (contentItem (), &QQuickItem::yChanged, this, &MyWindow::onActualYChanged);
+    connect (contentItem (), &QQuickItem::xChanged, this, &MyWindow::xChanged);
+    connect (contentItem (), &QQuickItem::yChanged, this, &MyWindow::yChanged);
     
     setObjectName ("MyWindow");
     setActualWidth (QQuickWindow::width ());
@@ -107,12 +107,12 @@ void MyWindow::keyReleaseEvent(QKeyEvent *ev)
 
 void MyWindow::onActualXChanged()
 {
-    emit xChanged (x());
+    emit xChanged();
 }
 
 void MyWindow::onActualYChanged()
 {
-    emit yChanged (y());
+    emit yChanged();
 }
 
 bool MyWindow::noBorder()

@@ -174,19 +174,14 @@ signals:
     void noNotifyIconChanged(bool arg);
     
     void widthChanged(int arg);
-    
     void heightChanged(int arg);
-    
     void actualWidthChanged(int arg);
-    
     void actualHeightChanged(int arg);
-    
     void windowActiveChanged(bool arg);
-    
     void shortcutsChanged(MyWindowShortcutList* arg);
     
-    void xChanged(int arg);
-    void yChanged(int arg);
+    void xChanged();
+    void yChanged();
     void actualXChanged(int arg);
     void actualYChanged(int arg);
 

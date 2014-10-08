@@ -3,7 +3,7 @@ import QtQuick 2.2
 Item{
     id: root
     x: actualX+glowLeftWidth
-    y:actualY+glowTopHeight
+    y: actualY+glowTopHeight
     property Item item: null
     property int glowTopHeight: (shaderItem.height-rootItem.height)/2-rootItem.y
     property int glowBottomHeight: shaderItem.height-height-glowTopHeight
@@ -26,30 +26,19 @@ Item{
     property alias cached: rootItem.cached
     property alias glowOpacity: rootItem.opacity
     property int actualX: 0//真实的X，算着阴影
+    onActualXChanged: {
+        x = actualX+glowLeftWidth
+    }
     property int actualY: 0//真实的Y，算着阴影
-
-    /*function glowTopHeight() {
-        return glowRadius+cornerRadius*0.6*(1-spread)-biasY
+    onActualYChanged: {
+        y = actualY+glowTopHeight
     }
-
-    function glowBottomHeight() {
-        return rootItem.y+rootItem.height+2*glowRadius+cornerRadius-glowTopHeight()-root.height
+    onXChanged: {
+        actualX = x-glowLeftWidth
     }
-
-    function glowLeftWidth() {
-        return glowRadius+cornerRadius*0.6*(1-spread)-biasX
+    onYChanged: {
+        actualY = y-glowTopHeight
     }
-
-    function glowRightWidth() {
-        return rootItem.x+rootItem.width+2*glowRadius+cornerRadius-glowLeftWidth()-root.width
-    }
-    
-    function actualWidth(){
-        return glowLeftWidth()+rootItem.width+glowRightWidth()
-    }
-    function actualHeight(){
-        return glowTopHeight()+rootItem.height+glowBottomHeight()
-    }*/
 
     Item {
         id: rootItem

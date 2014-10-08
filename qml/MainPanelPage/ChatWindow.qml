@@ -15,7 +15,7 @@ MyWindow{
     topHint: false//窗口保持在最前端
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
-    windowGlowItem.color: "#f07000"
+    windowGlowItem.color: "black"//"#f07000"
     
     property QtObject control: null
     property int mynumber
