@@ -175,8 +175,8 @@ QQ{
         if(allqq.indexOf(myqq.userQQ)<0){
             utility.setValue("qq", allqq+","+myqq.userQQ)
         }
-        var temp = myqq.value("rememberpassword", 0)==1
-        /*console.log("是否保存密码："+temp)
+        /*var temp = myqq.value("rememberpassword", 0)==1
+        console.log("是否保存密码："+temp)
         if( temp ){//如果要保存密码
             var pass = utility.stringEncrypt(myqq.userPassword, "xingchenQQ")//加密后储存
             
