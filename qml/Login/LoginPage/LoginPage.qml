@@ -213,10 +213,8 @@ Item{
                     anchors.topMargin: root.height/12
                     text: "记住密码"
                     onCheckedChanged: {
-                        myqq.rememberPassword = checked//保存更改
                         if( !checked ){
                             checkbox_autologin.checked = false
-                            myqq.userPassword = ""//将密码置空
                             //myqq.removeValue("password")//将密码置空
                         }
                     }
@@ -232,7 +230,6 @@ Item{
                     anchors.topMargin: root.height/12
                     text: "自动登录"
                     onCheckedChanged: {
-                        myqq.autoLogin = checked//保存更改
                         if(checked)
                             checkbox_rememberpassword.checked = true
                     }
@@ -301,9 +298,13 @@ Item{
                 font.pointSize: width/15
                 
                 onClicked: {
+                    console.log("1")
                     if( myqq.loginStatus == QQ.Offline ){
+                        console.log(myqq.userQQ+","+myqq.userPassword)
                         if( myqq.userQQ!=""&&myqq.userPassword!="" ){
                             myqq.loginStatus = QQ.Logining
+                            myqq.autoLogin = checkbox_autologin.checked
+                            myqq.rememberPassword = checkbox_rememberpassword.checked
                             //myqq.setValue("autologin", Number(checkbox_autologin.checked))
                             //myqq.setValue("rememberpassword", Number(checkbox_rememberpassword.checked))
                             //myqq.setValue("status", myqq.userStatus)//设置下次登录的状态

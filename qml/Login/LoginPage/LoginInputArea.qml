@@ -69,10 +69,9 @@ Item{
         validator: RegExpValidator{
             regExp: /[0-9a-zA-Z`~\!@\#\$%\^&\*\(\)\-\=_\+\[\]\{\}\\\|;\:'"<>\?,\.\/]{6,16}/
         }
-        text: utility.stringUncrypt(myqq.userPassword, "xingchenQQ")//解密//utility.stringUncrypt(myqq.value("password", ""), "xingchenQQ")//解密
+        text: myqq.userPassword//utility.stringUncrypt(myqq.userPassword, "xingchenQQ")//解密//utility.stringUncrypt(myqq.value("password", ""), "xingchenQQ")//解密
         onTextChanged: {
-            if(myqq.rememberPassword)
-                myqq.userPassword=text
+            myqq.userPassword=text
         }
 
         style: TextFieldStyle {

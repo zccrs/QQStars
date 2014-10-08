@@ -41,7 +41,7 @@ MyWindow{
         }
         onLoginStatusChanged:{
             if(myqq.loginStatus == QQ.LoginFinished){
-                utility.loadQml("qml/MainPanelPage/main.qml")
+                utility.loadQml("qml/MainPanel/main.qml")
                 main.close()
             }
         }
