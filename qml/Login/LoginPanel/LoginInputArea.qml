@@ -50,8 +50,6 @@ Item{
         }
         onTextChanged: {
             myqq.userQQ=text
-            //input_password.text = utility.stringUncrypt(myqq.value("password", ""), "xingchenQQ")//解密
-            input_password.text = utility.stringUncrypt(myqq.userPassword, "xingchenQQ")//解密
         }
         Component.onCompleted: {
             input_qq.forceActiveFocus()
@@ -69,8 +67,10 @@ Item{
         validator: RegExpValidator{
             regExp: /[0-9a-zA-Z`~\!@\#\$%\^&\*\(\)\-\=_\+\[\]\{\}\\\|;\:'"<>\?,\.\/]{6,16}/
         }
-        text: myqq.userPassword//utility.stringUncrypt(myqq.userPassword, "xingchenQQ")//解密//utility.stringUncrypt(myqq.value("password", ""), "xingchenQQ")//解密
+
+        text: myqq.userPassword
         onTextChanged: {
+            //console.log(myqq.userPassword+","+text)
             myqq.userPassword=text
         }
 

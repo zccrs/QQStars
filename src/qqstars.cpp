@@ -7,10 +7,10 @@
 QQCommand::QQCommand(QQuickItem *parent) :
     FriendInfo(parent)
 {
-    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::rememberPasswordChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::autoLoginChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::userStatusChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQCommand::initUserPassword);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::rememberPasswordChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::autoLoginChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::userStatusChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::initUserPassword);
     connect (this, &QQCommand::userStatusChanged, this, &QQCommand::setStatusToString);
     
     Utility *utility=Utility::createUtilityClass ();
@@ -145,24 +145,23 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
 
 void QQCommand::initUserPassword()
 {
-    if(mysettings){
-        QByteArray pass=mysettings->value ("password", "").toByteArray ();
+    if(isCanUseSetting()){
+        QString pass=mysettings->value ("password", "").toString ();
         setUserPassword (Utility::createUtilityClass ()->stringUncrypt (pass, "xingchenQQ"));
     }
 }
 
 QQCommand::QQStatus QQCommand::userStatus()
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return (QQStatus)mysettings->value ("QQStatus", (int)Online).toInt ();
     return Online;
 }
 
 void QQCommand::setUserStatus(QQCommand::QQStatus new_status)
 {
-    if( userStatus()!=qq_status ) {
-        if(mysettings)
-            mysettings->setValue ("QQStatus", (int)new_status);
+    if( isCanUseSetting()&&userStatus()!=qq_status ) {
+        mysettings->setValue ("QQStatus", (int)new_status);
         emit userStatusChanged ();
     }
 }
@@ -457,6 +456,7 @@ void QQCommand::setUserQQ(QString arg)
 void QQCommand::setUserPassword(QString arg)
 {
     if (m_userPassword != arg) {
+        //qDebug()<<"设置了密码"<<arg;
         m_userPassword = arg;
         emit userPasswordChanged();
     }
@@ -578,21 +578,25 @@ void QQCommand::setAutoLogin(bool arg)
     }
 }
 
+void QQCommand::saveUserPassword()
+{
+    if(rememberPassword()&&mysettings){//先判断是否记住了密码
+        QString pass = Utility::createUtilityClass ()->stringEncrypt (userPassword (), "xingchenQQ");
+        mysettings->setValue ("password", pass);
+    }
+}
+
 
 QQItemInfo::QQItemInfo(QQItemType type, QQuickItem *parent):
     QQuickItem(parent), typeString(type)
 {
-    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::accountChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::nickChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::aliasChanged);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::avatar40Changed);
-    connect (this, &QQItemInfo::userQQChanged, this, &QQItemInfo::avatar240Changed);
-    
-    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::accountChanged);
-    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::nickChanged);
-    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::aliasChanged);
-    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::avatar40Changed);
-    connect (this, &QQItemInfo::uinChanged, this, &QQItemInfo::avatar240Changed);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::accountChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::nickChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::aliasChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar40Changed);
+    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar240Changed);
+    connect (this, &QQItemInfo::nickChanged, this, &QQItemInfo::updataAliasOrNick);
+    connect (this, &QQItemInfo::aliasChanged, this, &QQItemInfo::updataAliasOrNick);
     
     switch (type) {
     case Friend:
@@ -614,12 +618,23 @@ void QQItemInfo::initSettings()
 {
     QString userqq = userQQ ();
     QString uin = this->uin();
+    
     if(uin==""||userqq=="")
         return;
+    QString name = QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+uin+"/.config.ini";
     if(mysettings){
+        if(mysettings->fileName ()==name)
+            return;
         mysettings->deleteLater ();
     }
-    mysettings = new QSettings(QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+uin+"/.config.ini", QSettings::IniFormat);
+    mysettings = new QSettings(name, QSettings::IniFormat);
+    
+    emit settingsChanged ();
+}
+
+bool QQItemInfo::isCanUseSetting() const
+{
+    return (mysettings&&userQQ()!=""&&uin()!="");
 }
 
 QString QQItemInfo::uin() const
@@ -627,33 +642,31 @@ QString QQItemInfo::uin() const
     return m_uin;
 }
 
-QString QQItemInfo::nick()
+QString QQItemInfo::nick() const
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return mysettings->value (typeString+"_"+uin()+"nick", "").toString ();
-    setAliasOrNick (aliasOrNick ());//更新aliasOrNick
     return "";
 }
 
-QString QQItemInfo::alias()
+QString QQItemInfo::alias() const
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return mysettings->value (typeString+"_"+uin()+"alias", "").toString ();
-    setAliasOrNick (aliasOrNick ());//更新aliasOrNick
     return "";
 }
 
 
 QString QQItemInfo::avatar40() const
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return mysettings->value (typeString+"_"+uin()+"avatar-40", "qrc:/images/avatar.png").toString ();
     return "qrc:/images/avatar.png";
 }
 
 QString QQItemInfo::avatar240() const
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return mysettings->value (typeString+"_"+uin()+"avatar-240", "qrc:/images/avatar.png").toString ();
     return "qrc:/images/avatar.png";
 }
@@ -678,7 +691,7 @@ QString QQItemInfo::typeToString()
 
 QString QQItemInfo::account() const
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return mysettings->value (typeString+"_"+uin()+"account", "").toString ();
     return "";
 }
@@ -694,16 +707,15 @@ void QQItemInfo::setUin(QString arg)
 
 void QQItemInfo::setNick(QString arg)
 {
-    if (mysettings&&nick() != arg) {
+    if (isCanUseSetting()&&nick() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"nick", arg);
         emit nickChanged ();
-        
     }
 }
 
 void QQItemInfo::setAlias(QString arg)
 {
-    if (mysettings&&alias() != arg) {
+    if (isCanUseSetting()&&alias() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"alias", arg);
         emit aliasChanged();
     }
@@ -711,7 +723,7 @@ void QQItemInfo::setAlias(QString arg)
 
 void QQItemInfo::setAccount(QString arg)
 {
-    if (mysettings&&account() != arg) {
+    if (isCanUseSetting()&&account() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"account", arg);
         emit accountChanged();
     }
@@ -719,7 +731,7 @@ void QQItemInfo::setAccount(QString arg)
 
 void QQItemInfo::setAvatar40(QString arg)
 {
-    if (mysettings&&avatar40() != arg) {
+    if (isCanUseSetting()&&avatar40() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"avatar-40", arg);
         emit avatar40Changed();
     }
@@ -727,14 +739,15 @@ void QQItemInfo::setAvatar40(QString arg)
 
 void QQItemInfo::setAvatar240(QString arg)
 {
-    if (mysettings&&avatar240() != arg) {
+    if (isCanUseSetting()&&avatar240() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"avatar-240", arg);
         emit avatar240Changed();
     }
 }
 
-void QQItemInfo::setAliasOrNick(QString arg)
+void QQItemInfo::updataAliasOrNick()
 {
+    QString arg = aliasOrNick ();
     if (m_aliasOrNick != arg) {
         m_aliasOrNick = arg;
         emit aliasOrNickChanged();
@@ -752,27 +765,26 @@ void QQItemInfo::setUserQQ(QString arg)
 
 void QQItemInfo::clearSettings()
 {
-    if(mysettings)
+    if(isCanUseSetting())
         mysettings->clear ();//清除所有储存的信息
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):
     QQItemInfo(Friend, parent)
 {
-    connect (this, &QQItemInfo::userQQChanged, this, &FriendInfo::QQSignatureChanged);
-    connect (this, &QQItemInfo::uinChanged, this, &FriendInfo::QQSignatureChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::QQSignatureChanged);
 }
 
 QString FriendInfo::QQSignature()
 {
-    if(mysettings)
+    if(isCanUseSetting())
         return mysettings->value (typeString+"_"+uin()+"signature", "").toString ();
     return "";
 }
 
 void FriendInfo::setQQSignature(QString arg)
 {
-    if (mysettings&&QQSignature() != arg) {
+    if (isCanUseSetting()&&QQSignature() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"signature", arg);
         emit QQSignatureChanged();
     }

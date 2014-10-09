@@ -3,6 +3,7 @@ import mywindow 1.0
 import utility 1.0
 import "../"
 import "../../QQItemInfo"
+import "../../Utility"
 
 Item{
     id: friendlist_main

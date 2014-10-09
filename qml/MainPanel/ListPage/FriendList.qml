@@ -2,6 +2,7 @@ import QtQuick 2.2
 import mywindow 1.0
 import utility 1.0
 import "../"
+import "../../Utility"
 import "../../QQItemInfo"
 
 Item{

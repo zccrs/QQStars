@@ -305,6 +305,7 @@ Item{
                             myqq.loginStatus = QQ.Logining
                             myqq.autoLogin = checkbox_autologin.checked
                             myqq.rememberPassword = checkbox_rememberpassword.checked
+                            myqq.saveUserPassword()//保存密码
                             //myqq.setValue("autologin", Number(checkbox_autologin.checked))
                             //myqq.setValue("rememberpassword", Number(checkbox_rememberpassword.checked))
                             //myqq.setValue("status", myqq.userStatus)//设置下次登录的状态

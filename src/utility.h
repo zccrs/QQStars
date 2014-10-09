@@ -35,9 +35,9 @@ public:
 private:
     explicit Utility(QObject *parent = 0);
     ~Utility();
-    QQmlApplicationEngine *engine;
+    QPointer<QQmlApplicationEngine> engine;
     QPoint old_pos;
-    QSettings *mysettings;
+    QPointer<QSettings> mysettings;
     
     MySocket *socket;
     ThreadDownloadImage *download_image;
@@ -72,8 +72,8 @@ public slots:
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     
-    QString stringEncrypt(const QByteArray &content, QByteArray key);//加密任意字符串
-    QString stringUncrypt(const QByteArray &content_hex, QByteArray key);//解密加密后的字符串
+    QString stringEncrypt(const QString &content, QString key);//加密任意字符串
+    QString stringUncrypt(const QString &content_hex, QString key);//解密加密后的字符串
     
     void removePath(QString dirPath ,bool deleteHidden = true, bool deleteSelf = false );
 };

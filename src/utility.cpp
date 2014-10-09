@@ -14,16 +14,10 @@ Utility *Utility::createUtilityClass()
 Utility::Utility(QObject *parent) :
     QObject(parent)
 {
-    qDebug()<<"调用了utility的构造函数";
     qmlRegisterType<UtilityPrivate>("utility", 1, 0, "Utility");
-    
-    mysettings = NULL;
-    engine = NULL;
-    
+
     socket = new MySocket(this);
-    
     download_image = new ThreadDownloadImage(this);
-    
     old_pos = QPoint(-1,-1);
 }
 
@@ -218,15 +212,15 @@ void Utility::setApplicationProxy(int type, QString location, QString port, QStr
     QNetworkProxy::setApplicationProxy(proxy);
 }
 
-QString Utility::stringEncrypt(const QByteArray &content, QByteArray key)
+QString Utility::stringEncrypt(const QString &content, QString key)
 {
     if(content==""||key=="")
         return content;
     if(key.size ()>256)
         key = key.mid (0,256);//密匙最长256位
-    QByteArray data = strZoarium (content.toBase64 ());
+    QByteArray data = strZoarium (content.toLatin1 ().toBase64 ());
     int data_size = data.size ();
-    QByteArray mykey = strZoarium (key.toHex ());
+    QByteArray mykey = strZoarium (key.toLatin1 ().toHex ());
     int key_size = mykey.size ();
     //qDebug()<<data;
     data=fillContent (data, 2*key_size-data_size);//填充字符串
@@ -239,18 +233,18 @@ QString Utility::stringEncrypt(const QByteArray &content, QByteArray key)
             temp.append (QString(ch));
     }
     //qDebug()<<temp;
-    return temp.toBase64 ();
+    return QString::fromLatin1 (temp.toBase64 ());
 }
 
-QString Utility::stringUncrypt(const QByteArray &content_hex, QByteArray key)
+QString Utility::stringUncrypt(const QString &content_hex, QString key)
 {
     if(content_hex==""||key=="")
         return content_hex;
     if(key.size ()>256)
         key = key.mid (0,256);//密匙最长256位
-    QByteArray data = QString::fromUtf8 (QByteArray::fromBase64 (content_hex)).toLatin1 ();
+    QByteArray data = QString::fromUtf8 (QByteArray::fromBase64 (content_hex.toLatin1 ())).toLatin1 ();
     //qDebug()<<data.size ();
-    QByteArray mykey = strZoarium (key.toHex ());
+    QByteArray mykey = strZoarium (key.toLatin1 ().toHex ());
     int key_size = mykey.size ();
     QByteArray temp;
 
@@ -269,7 +263,7 @@ QString Utility::stringUncrypt(const QByteArray &content_hex, QByteArray key)
     temp = temp.mid (fill_size+3, temp.size ()-fill_size-3);//除去填充的字符
     //qDebug()<<temp;
     
-    return QByteArray::fromBase64 (temp);
+    return QString::fromLatin1 (QByteArray::fromBase64 (temp));
 }
 
 bool myRemovePath(QString dirPath, bool deleteHidden, bool deleteSelf)

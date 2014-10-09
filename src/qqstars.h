@@ -33,6 +33,7 @@ protected:
     };
 private:
     explicit QQItemInfo(QQItemType type, QQuickItem *parent=0);
+    void initSettings();
 protected:
     QString m_uin;
     QPointer<QSettings> mysettings;
@@ -40,12 +41,11 @@ protected:
     QString m_userQQ;
     QQItemType mytype;
     QString typeString;
-    
-    void initSettings();
+    bool isCanUseSetting() const;
 public:
     QString uin() const;
-    QString nick();
-    QString alias();
+    QString nick() const;
+    QString alias() const;
     QString avatarSource() const;
     QString account() const;
     QString avatar40() const;
@@ -53,7 +53,8 @@ public:
     QString aliasOrNick();
     QString userQQ() const;
     QString typeToString();
-
+private slots:
+    void updataAliasOrNick();
 public slots:
     void setUin(QString arg);
     void setNick(QString arg);
@@ -61,9 +62,7 @@ public slots:
     void setAccount(QString arg);
     void setAvatar40(QString arg);
     void setAvatar240(QString arg);
-    void setAliasOrNick(QString arg);
     void setUserQQ(QString arg);
-    
     void clearSettings();
 signals:
     void nickChanged();
@@ -74,6 +73,8 @@ signals:
     void aliasOrNickChanged();
     void userQQChanged();
     void uinChanged();
+    
+    void settingsChanged();
 };
 
 class FriendInfo:public  QQItemInfo
@@ -200,14 +201,14 @@ public:
     
     bool rememberPassword() const
     {
-        if(mysettings)
+        if(isCanUseSetting())
             return mysettings->value ("rememberPassword", false).toBool ();
         return false;
     }
     
     bool autoLogin() const
     {
-        if(mysettings)
+        if(isCanUseSetting())
             return mysettings->value ("autoLogin", false).toBool ();
         return false;
     }
@@ -285,5 +286,7 @@ public slots:
     int openMessageBox( QJSValue value );
     void setRememberPassword(bool arg);
     void setAutoLogin(bool arg);
+    
+    void saveUserPassword();
 };
 #endif // QQCommand_H
