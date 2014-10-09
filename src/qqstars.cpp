@@ -464,13 +464,13 @@ void QQCommand::setUserPassword(QString arg)
 
 void QQCommand::showWarningInfo(QString message)
 {
-    //QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/MyMessageBox.qml");
-    //QObject *obj = component.create ();
+    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/MyMessageBox.qml");
+    QObject *obj = component.create ();
     //if(obj)
         //obj->setProperty ("text", QVariant(message));
     //else
         //qDebug()<<"创建MyMessageBox.qml失败";
-    //emit error (message);
+    emit error (message);
 }
 
 void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue callbackFun)

@@ -33,7 +33,7 @@ MyWindow{
             updateCode()//刷新验证码
         }
         onInputCodeClose:{
-            //root_window.close()
+            root_window.close()
         }
     }
 
