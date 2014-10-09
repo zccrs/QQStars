@@ -9,28 +9,21 @@ Item{
     id: root
     clip: true
     
-    function getGroupListFinished( error, data ) {
+    function getDiscusListFinished(error, data) {//获取讨论组列表完成
         if(error){
-            myqq.getGroupList(getGroupListFinished) //获取群列表
+            myqq.getDiscusList(getDiscusListFinished) //讨论组列表
             return
         }
-        
         data = JSON.parse(data)
         if(data.retcode ==0 ) {
-            var groupmarknames = data.result.gmarklist//群备注信息
-            var i=0;
-            for( i=0; i<groupmarknames.length;++i ) {
-                var newObject = Qt.createQmlObject('import QQItemInfo 1.0; GroupInfo{userQQ:'+myqq.userQQ+';uin:'+marknames[i].uin+'}')
-                newObject.alias = groupmarknames[i].markname
-            }
-            var list_info = data.result.gnamelist
-            for( i=0; i< list_info.length;++i ) {
+            var list_info = data.result.dnamelist
+            for( var i=0; i< list_info.length;++i ) {
                 mymodel.append({"obj_info": list_info[i]})
             }
         }
     }
     Component.onCompleted: {
-        myqq.getGroupList(getGroupListFinished)
+        myqq.getDiscusList(getDiscusListFinished) //讨论组列表
     }
     MyScrollView{
         anchors.fill: parent
@@ -60,7 +53,7 @@ Item{
             property var info: obj_info
             DiscuInfo{
                 id: myinfo
-                uin: parent.info.gid
+                uin: parent.info.did
                 nick: parent.info.name
             }
 
@@ -69,10 +62,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myinfo.avatar40
-                onLoadError: {
-                    myinfo.avatar40 = "qrc:/images/avatar.png"
-                }
+                source: "qrc:/images/avatar.png"
             }
             Text{
                 id:text_nick
@@ -85,7 +75,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(myinfo.uin, GroupInfo.Discu)
+                    chat_command.addChat(myinfo.uin, DiscuInfo.Discu)
                 }
             }
         }

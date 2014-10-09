@@ -465,9 +465,12 @@ void QQCommand::setUserPassword(QString arg)
 void QQCommand::showWarningInfo(QString message)
 {
     emit error (message);
-    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/MyMessageBox.qml");
+    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/MyMessageBox.qml");
     QObject *obj = component.create ();
-    obj->setProperty ("text", QVariant(message));
+    if(obj)
+        obj->setProperty ("text", QVariant(message));
+    else
+        qDebug()<<"创建MyMessageBox.qml失败";
 }
 
 void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue callbackFun)

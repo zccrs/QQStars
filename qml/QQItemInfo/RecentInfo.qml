@@ -5,12 +5,6 @@ RecentInfo{
     property int type: RecentInfo.Friend
     userQQ: myqq.userQQ
     
-    /*onInfoChanged: {
-        if(myqq.value(info.uin+"nick", "")==""){
-            myqq.getFriendInfo( info.uin, getFriendInfoFinished )//获取昵称
-            myqq.getFriendQQ( info.uin, getQQFinished )//获取真实qq号
-        }
-    }*/
     onNickChanged:{
         if(nick==""){
             myqq.getFriendInfo( info.uin, getFriendInfoFinished )//获取昵称
@@ -44,16 +38,24 @@ RecentInfo{
             nick = data.nick
         }
     }
-    onAccountChanged:{
+    function getAvatar(size) {
         if(account!=""){
             if( avatar40=="qrc:/images/avatar.png" ){
                 if(type==RecentInfo.Friend)
-                    myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+uin, "40", getAvatarFinished)//下载头像
+                    myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account, "friend_"+uin, String(size), getAvatarFinished)//下载头像
                 else if(type==RecentInfo.Group)
-                    myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
+                    myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+uin, String(size), getAvatarFinished)//下载头像
             }
         }else{
             myqq.getFriendQQ( uin, getQQFinished )//获取好友的真实qq号
         }
+    }
+
+    onAccountChanged:{
+        getAvatar(40)
+    }
+    onAvatar40Changed: {
+        if( avatar40=="qrc:/images/avatar.png" )
+            getAvatar(40)
     }
 }

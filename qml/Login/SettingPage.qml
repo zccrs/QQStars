@@ -119,6 +119,7 @@ Item{
                     visible: proxy_combo.currentIndex != 0
                     font.pointSize: proxy_type_text.font.pointSize
                     onClicked:{
+                        console.log("fdsafds")
                         utility.setApplicationProxy(proxy_combo.currentValue, proxy_location_input.text, proxy_port_input.text, proxy_username_input.text, proxy_password_input.text)
                         utility.socketSend(testNetwork, "http://d.web2.qq.com/channel/poll2")
                         button_affirm.enabled = false

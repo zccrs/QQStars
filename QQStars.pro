@@ -92,6 +92,8 @@ OTHER_FILES += \
     qml/QQItemInfo/DiscuInfo.qml \
     qml/QQItemInfo/FriendInfo.qml \
     qml/QQItemInfo/GroupInfo.qml \
-    qml/QQItemInfo/RecentInfo.qml
+    qml/QQItemInfo/RecentInfo.qml \
+    qml/MainPanel/ListPage/DiscuList.qml \
+    qml/MainPanel/ListPage/GroupAndDiscuPage.qml
             
 FORMS +=

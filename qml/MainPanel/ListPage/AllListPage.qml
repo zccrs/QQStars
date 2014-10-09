@@ -36,7 +36,7 @@ TabView {
     }
     Tab {
         active: true
-        GroupList{
+        GroupAndDiscuPage{
             id:rect2
             width: parent.width
             height: parent.height
@@ -107,11 +107,11 @@ TabView {
                 anchors.horizontalCenter: parent.horizontalCenter
                 source: {
                     if(index==0)
-                        return "qrc:/images/contact_press.png"
+                        return "qrc:/images/friendList_select.png"
                     else if(index==1)
-                        return "qrc:/images/group_press.png"
+                        return "qrc:/images/groupList_select.png"
                     else
-                        return "qrc:/images/TempSession_press.png"
+                        return "qrc:/images/RecentList_select.png"
                 }
             }
         }

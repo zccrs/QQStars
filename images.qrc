@@ -64,5 +64,11 @@
         <file>images/bubble_祈福_right.png</file>
         <file>images/bubble_微笑河马_left.png</file>
         <file>images/bubble_微笑河马_right.png</file>
+        <file>images/friendList_select.svg</file>
+        <file>images/friendList_unselect.svg</file>
+        <file>images/groupList_select.svg</file>
+        <file>images/groupList_unselect.svg</file>
+        <file>images/recentList_select.svg</file>
+        <file>images/recentList_unselect.svg</file>
     </qresource>
 </RCC>

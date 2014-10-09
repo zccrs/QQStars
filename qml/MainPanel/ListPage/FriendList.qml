@@ -159,7 +159,8 @@ Item{
             
             FriendInfo{
                 id:myinfo
-                uin: info.uin
+                uin: parent.info.uin
+                nick: parent.info.name
             }
 
             /*function getQQFinished(error, data){//获取好友真实qq后调用的函数

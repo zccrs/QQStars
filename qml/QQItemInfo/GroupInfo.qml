@@ -22,13 +22,20 @@ GroupInfo{
         var imageName = path+"/"+name+".png"
         avatar40 = imageName
     }
-
-    Component.onCompleted: {
-        if(account==""){
-            myqq.getFriendQQ(code, getQQFinished)
-        }else{
+    function getAvatar(size){
+        if(account!=""){
             if( avatar40=="qrc:/images/avatar.png" )//如果头像不存在
-                myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
+                myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+uin, String(size), getAvatarFinished)//下载头像
+        }else{
+            myqq.getFriendQQ(code, getQQFinished)
         }
+    }
+
+    onAccountChanged:{
+        getAvatar(40)
+    }
+    onAvatar40Changed: {
+        if(avatar40=="qrc:/images/avatar.png")
+            getAvatar(40)
     }
 }

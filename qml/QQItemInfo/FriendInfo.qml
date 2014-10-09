@@ -33,16 +33,27 @@ FriendInfo{
             QQSignature = data.result[0].lnick//储存个性签名
         }
     }
-    Component.onCompleted: {
+    onQQSignatureChanged: {
+        if( QQSignature=="" ){
+            myqq.getQQSignature( uin, getQQSignatureFinished )//获取个性签名
+        }
+    }
+    function getAvatar(size){
         if(account!=""){
             if( avatar40=="qrc:/images/avatar.png" ){
-                myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+uin, "40", getAvatarFinished)//下载头像
+                myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account, "friend_"+uin, String(size), getAvatarFinished)//下载头像
             }
         }else{
             myqq.getFriendQQ( uin, getQQFinished )//获取好友的真实qq号
         }
-        if( QQSignature=="" ){
-            myqq.getQQSignature( uin, getQQSignatureFinished )//获取个性签名
-        }
+    }
+
+    onAccountChanged: {
+        getAvatar(40)
+    }
+    
+    onAvatar40Changed: {
+        if( avatar40=="qrc:/images/avatar.png" )
+            getAvatar(40)
     }
 }
