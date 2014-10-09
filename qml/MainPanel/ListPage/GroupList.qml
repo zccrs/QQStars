@@ -2,7 +2,7 @@ import QtQuick 2.2
 import mywindow 1.0
 import utility 1.0
 import "../"
-import "../QQItemInfo"
+import "../../QQItemInfo"
 
 Item{
     id: friendlist_main

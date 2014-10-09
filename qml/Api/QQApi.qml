@@ -46,10 +46,11 @@ QQ{
     }
     
     function showInputCodePage(callbackFun, uin) {
-        var component = Qt.createComponent("CodeInput.qml");
+        var component = Qt.createComponent("../Utility/CodeInput.qml");
         if (component.status == Component.Ready){
-            var data = {"str": uin, "backFun":callbackFun};
-            var sprite = component.createObject(root, data);
+            var url = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+uin
+            var data = {"source": url, "backFun":callbackFun};
+            var sprite = component.createObject(null, data);
         }
     }
     

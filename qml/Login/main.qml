@@ -7,9 +7,9 @@ import QtQuick.Dialogs 1.2
 import mywindow 1.0
 import utility 1.0
 //import Qt.labs.settings 1.0
-import "../Utility/Window"
+import "../Utility"
 import "../MainPanel"
-import "LoginPage"
+import "LoginPanel"
 
 MyWindow{
     id:main

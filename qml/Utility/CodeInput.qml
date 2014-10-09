@@ -3,7 +3,6 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import utility 1.0
-import "Window"
 
 MyWindow{
     id: root_window
@@ -20,12 +19,10 @@ MyWindow{
     height: root_page.height
     property string str: ""
     property var backFun//验证码获取成功后调用此函数
-    onStrChanged: {
-        if(str!="")
-            code_image.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
-    }
+    property string source
+    
     function updateCode(){
-        code_image.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
+        code_image.source = source
         code_input.text = ""
     }
     
@@ -91,16 +88,15 @@ MyWindow{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top :text_code.top
             anchors.topMargin: root_page.height/12
-            source: "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
+            source: root_window.source
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    parent.source = ""
-                    parent.source = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+myqq.userQQ+"&cap_cd="+str
+                    updateCode()
                 }
             }
         }
-        MyLoginButton{
+        MyButton{
             id: button_affirm
             anchors.bottom: parent.bottom
             anchors.bottomMargin: root_page.height/20

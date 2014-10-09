@@ -62,10 +62,6 @@ OTHER_FILES += \
     qml/Api/QQApi.qml \
     qml/Login/KeyboardPage/SoftKeyboard.qml \
     qml/Login/KeyboardPage/SoftKeyboardButton.qml \
-    qml/Login/LoginPage/AccountList.qml \
-    qml/Login/LoginPage/LoginCheckBox.qml \
-    qml/Login/LoginPage/LoginInputArea.qml \
-    qml/Login/LoginPage/LoginPage.qml \
     qml/Login/main.qml \
     qml/Login/SettingPage.qml \
     qml/MainPanel/ChatWindow/qqshow.png \
@@ -73,21 +69,29 @@ OTHER_FILES += \
     qml/MainPanel/ListPage/FriendList.qml \
     qml/MainPanel/ListPage/GroupList.qml \
     qml/MainPanel/ListPage/RecentList.qml \
-    qml/MainPanel/QQItemInfo/DiscuInfo.qml \
-    qml/MainPanel/QQItemInfo/FriendInfo.qml \
-    qml/MainPanel/QQItemInfo/GroupInfo.qml \
-    qml/MainPanel/QQItemInfo/RecentInfo.qml \
     qml/MainPanel/main.qml \
     qml/MainPanel/MainPanelPage.qml \
     qml/Utility/ComboBox/MyComboBox.qml \
     qml/Utility/ComboBox/MyComboBoxComponent.qml \
-    qml/Utility/Window/MyWindow.qml \
     qml/Login/MyLoginButton.qml \
     qml/Chat/ChatWindow.qml \
     qml/Chat/ChatWindowCommand.qml \
     qml/Chat/FriendChatWindow.qml \
     qml/Chat/GroupChatWindow.qml \
     qml/Chat/MessageListComponent.qml \
-    qml/Chat/qqshow.png
+    qml/Chat/qqshow.png \
+    qml/Utility/KeyboardPage/SoftKeyboard.qml \
+    qml/Utility/KeyboardPage/SoftKeyboardButton.qml \
+    qml/Utility/MyRectangularGlow.qml \
+    qml/Utility/MyWindow.qml \
+    qml/Utility/MyScrollView.qml \
+    qml/Login/LoginPanel/AccountList.qml \
+    qml/Login/LoginPanel/LoginCheckBox.qml \
+    qml/Login/LoginPanel/LoginInputArea.qml \
+    qml/Login/LoginPanel/LoginPage.qml \
+    qml/QQItemInfo/DiscuInfo.qml \
+    qml/QQItemInfo/FriendInfo.qml \
+    qml/QQItemInfo/GroupInfo.qml \
+    qml/QQItemInfo/RecentInfo.qml
             
 FORMS +=

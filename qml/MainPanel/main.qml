@@ -2,8 +2,8 @@ import QtQuick 2.2
 import mywindow 1.0
 import QtQuick.Window 2.1
 import utility 1.0
-import "../Utility/Window"
-import "ChatWindow"
+import "../Utility"
+import "../Chat"
 
 MyWindow{
     id:main

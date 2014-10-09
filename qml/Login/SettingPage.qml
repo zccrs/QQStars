@@ -3,7 +3,6 @@ import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import utility 1.0
 import mywindow 1.0
-import "../Utility/Window"
 import "../Utility"
 import "../Utility/ComboBox"
 
