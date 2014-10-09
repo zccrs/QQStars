@@ -1,9 +1,9 @@
 import QtQuick 2.2
 import mywindow 1.0
 import QtQuick.Window 2.1
-import "../../Utility/Window"
+import "../Utility/Window"
 import "../"
-import "../../Utility"
+import "../Utility"
 
 MyWindow{
     id: root
