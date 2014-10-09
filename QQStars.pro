@@ -68,11 +68,6 @@ OTHER_FILES += \
     qml/Login/LoginPage/LoginPage.qml \
     qml/Login/main.qml \
     qml/Login/SettingPage.qml \
-    qml/MainPanel/ChatWindow/ChatWindow.qml \
-    qml/MainPanel/ChatWindow/ChatWindowCommand.qml \
-    qml/MainPanel/ChatWindow/FriendChatWindow.qml \
-    qml/MainPanel/ChatWindow/GroupChatWindow.qml \
-    qml/MainPanel/ChatWindow/MessageListComponent.qml \
     qml/MainPanel/ChatWindow/qqshow.png \
     qml/MainPanel/ListPage/AllListPage.qml \
     qml/MainPanel/ListPage/FriendList.qml \
@@ -84,11 +79,15 @@ OTHER_FILES += \
     qml/MainPanel/QQItemInfo/RecentInfo.qml \
     qml/MainPanel/main.qml \
     qml/MainPanel/MainPanelPage.qml \
-    qml/MainPanel/MyScrollView.qml \
     qml/Utility/ComboBox/MyComboBox.qml \
     qml/Utility/ComboBox/MyComboBoxComponent.qml \
-    qml/Utility/Window/MyRectangularGlow.qml \
     qml/Utility/Window/MyWindow.qml \
-    qml/Login/MyLoginButton.qml
+    qml/Login/MyLoginButton.qml \
+    qml/Chat/ChatWindow.qml \
+    qml/Chat/ChatWindowCommand.qml \
+    qml/Chat/FriendChatWindow.qml \
+    qml/Chat/GroupChatWindow.qml \
+    qml/Chat/MessageListComponent.qml \
+    qml/Chat/qqshow.png
             
 FORMS +=
