@@ -15,7 +15,7 @@ MyWindow{
     topHint: true//窗口保持在最前端
     noNotifyIcon: true//隐藏任务栏图标
     color: "transparent"
-    
+    centered: false
     minWidth: 220
     minHeight: 400
     maxWidth: 500

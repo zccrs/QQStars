@@ -84,6 +84,16 @@ void MySocket::post(QObject *caller, QByteArray slotName, QUrl url, QByteArray d
     send(caller, slotName, url, data, priority);
 }
 
+void MySocket::get(QJSValue callbackFun, QUrl url, MySocket::Priority priority)
+{
+    send (callbackFun, url, "", priority);
+}
+
+void MySocket::post(QJSValue callbackFun, QUrl url, QByteArray data, MySocket::Priority priority)
+{
+    send (callbackFun, url, data, priority);
+}
+
 void MySocket::send(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, MySocket::Priority priority)
 {
     if(caller==NULL||slotName==""||url.toString ()=="")

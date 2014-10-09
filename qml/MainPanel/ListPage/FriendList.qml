@@ -24,13 +24,15 @@ Item{
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
             for( var i=0; i<marknames.length;++i ) {
-                var newObject = Qt.createQmlObject('import QQItemInfo 1.0; FriendInfo{userQQ:'+myqq.userQQ+';uin:'+marknames[i].uin+'}')
-                //myqq.setValue(marknames[i].uin+"alias", marknames[i].markname)//储存备注信息
+                console.log("增加备注信息："+marknames[i].markname)
+                var newObject = Qt.createQmlObject('import QQItemInfo 1.0; FriendInfo{userQQ:'+myqq.userQQ+';uin:'+marknames[i].uin+';}', null, "")
                 newObject.alias = marknames[i].markname//储存备注信息
+                console.log(newObject)
             }
             var categories = data.result.categories//分组信息
             for(i=0; i<categories.length;++i){
                 addModel(categories[i].name, categories[i].index, data.result)//增加分组
+                console.log("增加了分组："+categories[i].name)
             }
         }
     }
@@ -155,61 +157,13 @@ Item{
             height: avatar.height
             property var friends: obj_friends
             property var info: obj_info
-            //property string account: myinfo.account//myqq.value(info.uin+"account", "")//真实qq号
             
             FriendInfo{
                 id:myinfo
                 uin: parent.info.uin
                 nick: parent.info.name
             }
-
-            /*function getQQFinished(error, data){//获取好友真实qq后调用的函数
-                if(error){
-                    myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
-                    return
-                }
-                
-                data = JSON.parse(data)
-                if( data.retcode==0 ){
-                    account = data.result.account
-                    myqq.setValue(info.uin+"account", account)//保存真实qq
-                    if( avatar.source=="qrc:/images/avatar.png" ){
-                        myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+info.uin, "40", getAvatarFinished)//下载头像
-                        console.log(account+"的头像不存在:"+myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png"))
-                    }
-                }
-            }
-            function getAvatarFinished( path ,name){
-                var imageName = path+"/"+name+".png"
-                myqq.setValue(info.uin+name, imageName)//保存自己头像的地址
-                avatar.source = imageName
-            }
-            function getQQSignatureFinished(error, data){//获取个性签名完成
-                if(error){
-                    myqq.getQQSignature( info.uin, getQQSignatureFinished )//获取个性签名
-                    return
-                }
-                
-                data = JSON.parse(data)
-                if( data.retcode==0 ){
-                    text_signature.text = data.result[0].lnick//显示个性签名
-                    myqq.setValue(info.uin+"signature", text_signature.text)
-                }
-            }
             
-            Component.onCompleted: {
-                if(account!=""){
-                    if( avatar.source=="qrc:/images/avatar.png" ){
-                        myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+info.uin, "40", getAvatarFinished)//下载头像
-                    }
-                }else{
-                    myqq.getFriendQQ( info.uin, getQQFinished )//获取好友的真实qq号
-                }
-                if( text_signature.text=="获取中..." ){
-                    text_signature.text=""
-                    myqq.getQQSignature( info.uin, getQQSignatureFinished )//获取个性签名
-                }
-            }*/
             MyImage{
                 id: avatar
                 x:10

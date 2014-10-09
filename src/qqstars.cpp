@@ -464,13 +464,13 @@ void QQCommand::setUserPassword(QString arg)
 
 void QQCommand::showWarningInfo(QString message)
 {
-    emit error (message);
-    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/MyMessageBox.qml");
-    QObject *obj = component.create ();
-    if(obj)
-        obj->setProperty ("text", QVariant(message));
-    else
-        qDebug()<<"创建MyMessageBox.qml失败";
+    //QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/MyMessageBox.qml");
+    //QObject *obj = component.create ();
+    //if(obj)
+        //obj->setProperty ("text", QVariant(message));
+    //else
+        //qDebug()<<"创建MyMessageBox.qml失败";
+    //emit error (message);
 }
 
 void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue callbackFun)
@@ -775,7 +775,7 @@ void QQItemInfo::clearSettings()
 FriendInfo::FriendInfo(QQuickItem *parent):
     QQItemInfo(Friend, parent)
 {
-    connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::QQSignatureChanged);
+    connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::qQSignatureChanged);
 }
 
 QString FriendInfo::QQSignature()
@@ -789,7 +789,7 @@ void FriendInfo::setQQSignature(QString arg)
 {
     if (isCanUseSetting()&&QQSignature() != arg) {
         mysettings->setValue (typeString+"_"+uin()+"signature", arg);
-        emit QQSignatureChanged();
+        emit qQSignatureChanged();
     }
 }
 

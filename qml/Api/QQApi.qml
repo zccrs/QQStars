@@ -93,7 +93,7 @@ QQ{
         if( myqq.loginStatus == QQ.Logining ){
             var list = data.split ("'");
             if( list[1]==0 ){
-                inputCodeClose()//关闭验证码的窗口
+                //inputCodeClose()//关闭验证码的窗口
                 var url = list[5]//先get一下返回数据中的url，来获取必要的Cookie
                 utility.socketSend(login2, url)//此地址GET完成后调用二次登录
             }else{
@@ -197,26 +197,26 @@ QQ{
         var url = "http://s.web2.qq.com/api/get_user_friends2"
         var data = 'r={"h":"hello","hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
         data = encodeURI(data)
-        utility.socketSend(backFun, url, data)
+        utility.httpPost(backFun, url, data, Socket.High)
     }
     
     function getGroupList(backFun) {//获取群列表
         var url = "http://s.web2.qq.com/api/get_group_name_list_mask2"
         var data = 'r={"hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
         data = encodeURI(data)
-        utility.socketSend(backFun, url, data)
+        utility.httpPost(backFun, url, data, Socket.High)
     }
     
     function getRecentList(backFun) {//获取最近联系人
         var url = "http://d.web2.qq.com/channel/get_recent_list2"
         var data = 'r={"vfwebqq":"'+loginReData.vfwebqq+'","clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
-        utility.socketSend(backFun, url, data)
+        utility.httpPost(backFun, url, data, Socket.High)
     }
     
     function getDiscusList(backFun) {//讨论组列表
         var url = "http://s.web2.qq.com/api/get_discus_list?clientid="+clientid+"&psessionid="+loginReData.psessionid+"&vfwebqq="+loginReData.vfwebqq
-        utility.socketSend(backFun, url)
+        utility.httpGet(backFun, url, Socket.High)
     }
     
     function getFriendQQ( tuin, backFun ) {//获得好友真实的qq

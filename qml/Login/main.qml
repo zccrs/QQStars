@@ -14,8 +14,8 @@ import "LoginPanel"
 MyWindow{
     id:main
     windowIcon: "qrc:/images/avatar.png"
-    width: login_page.width
-    height: login_page.height
+    actualWidth: 350*myqq.windowScale+200
+    actualHeight: 250*myqq.windowScale+150
     visible: true//可视的
     noBorder: true//无边框的
     removable: true//可移动的
@@ -26,17 +26,12 @@ MyWindow{
     windowGlow: false//不开启阴影
     color: "transparent"
 
-    Component.onCompleted: {
-        main.x = Screen.desktopAvailableWidth/2 - main.width/2//让程序居中显示
-        main.y = Screen.desktopAvailableHeight/2 - main.height/2
-    }
-
     Connections{
         target: myqq
         onError:{
             if( message.indexOf("验证码")<0 ){
                 login_page.reLogin()//重新登录
-                myqq.inputCodeClose()//关闭输入验证码
+                //myqq.inputCodeClose()//关闭输入验证码
             }
         }
         onLoginStatusChanged:{

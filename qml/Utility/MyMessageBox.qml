@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
-import QtQuick.Window 2.1
 
 MyWindow {
     id:root
@@ -19,8 +18,6 @@ MyWindow {
     property string text
     Component.onCompleted: {
         button_ok.forceActiveFocus()
-        root.x = Screen.desktopAvailableWidth/2 - root.width/2//让程序居中显示
-        root.y = Screen.desktopAvailableHeight/2 - root.height/2
     }
     Rectangle{
         anchors.fill: parent
@@ -56,6 +53,7 @@ MyWindow {
                 button_ok.clicked()
             }
             onClicked: {
+                console.log("fdsafds")
                 root.close()
             }
         }

@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import QtQuick.Window 2.1
 
 MyQuickWindow{
     id: root
@@ -9,16 +10,23 @@ MyQuickWindow{
     property bool windowGlow: true//开启窗口阴影？
     property alias windowGlowItem: glow//阴影Item
     property int windowShakeInterval: animation_shake.duration*12///窗口抖动的时间
-    
+    property bool centered: true
     property int minWidth: 0
     property int maxWidth: 999999//正无穷
     property int minHeight: 0
     property int maxHeight: 999999//正无穷
+    
     width: Math.max(minWidth, 300)
     height: Math.max(minHeight, 300)
     actualWidth: windowGlow?glow.actualWidth:width
     actualHeight: windowGlow?glow.actualHeight:height
-    
+    Component.onCompleted: {
+        if(centered){
+            actualX = Screen.desktopAvailableWidth/2-actualWidth/2
+            actualY = Screen.desktopAvailableHeight/2-actualHeight/2
+        }
+    }
+
     contentItem{
         x: windowGlow?glow.glowLeftWidth:0
         y: windowGlow?glow.glowTopHeight:0

@@ -69,6 +69,8 @@ public slots:
     void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="", int priority=0);
     void httpGet(QObject *caller, QByteArray slotName, QUrl url, int priority=0);
     void httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, int priority=0);
+    void httpGet(QJSValue callbackFun, QUrl url, int priority=0 );
+    void httpPost(QJSValue callbackFun, QUrl url, QByteArray data="", int priority=0 );
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     

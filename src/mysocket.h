@@ -56,6 +56,8 @@ public slots:
     void send( QJSValue callbackFun, QUrl url, QByteArray data="", Priority priority=Low );
     void get(QObject *caller, QByteArray slotName, QUrl url, Priority priority=Low );
     void post(QObject *caller, QByteArray slotName, QUrl url, QByteArray data="", Priority priority=Low );
+    void get(QJSValue callbackFun, QUrl url, Priority priority=Low );
+    void post(QJSValue callbackFun, QUrl url, QByteArray data="", Priority priority=Low );
     void abort();//取消当前网络请求
     QString errorString();
     void setRawHeader(const QByteArray &headerName, const QByteArray &value);

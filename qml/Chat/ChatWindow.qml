@@ -1,6 +1,5 @@
 import QtQuick 2.2
 import mywindow 1.0
-import QtQuick.Window 2.1
 import "../"
 import "../Utility"
 
@@ -34,10 +33,6 @@ MyWindow{
         onNewMessage:{
             root.newMessage(uin, messageData)
         }
-    }
-    Component.onCompleted: {
-        root.x = Screen.desktopAvailableWidth/2 - root.width/2//让程序居中显示
-        root.y = Screen.desktopAvailableHeight/2 - root.height/2
     }
     
     shortcuts: MyShortcutList{

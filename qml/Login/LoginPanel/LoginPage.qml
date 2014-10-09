@@ -24,11 +24,12 @@ Item{
         width: root.width
         height: root.height
         biasY: 20
-   
+       
         item:SvgView {
             id: root
             source: "qrc:/images/login-panel.svg"
             width: defaultSize.width*myqq.windowScale
+            
             Connections{
                 target: myqq
                 onLoginStatusChanged:{
@@ -298,9 +299,7 @@ Item{
                 font.pointSize: width/15
                 
                 onClicked: {
-                    console.log("1")
                     if( myqq.loginStatus == QQ.Offline ){
-                        console.log(myqq.userQQ+","+myqq.userPassword)
                         if( myqq.userQQ!=""&&myqq.userPassword!="" ){
                             myqq.loginStatus = QQ.Logining
                             myqq.autoLogin = checkbox_autologin.checked

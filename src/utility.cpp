@@ -196,6 +196,16 @@ void Utility::httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArra
     socket->post (caller, slotName, url, data, (MySocket::Priority)priority);
 }
 
+void Utility::httpGet(QJSValue callbackFun, QUrl url, int priority)
+{
+    socket->get (callbackFun, url, (MySocket::Priority)priority);
+}
+
+void Utility::httpPost(QJSValue callbackFun, QUrl url, QByteArray data, int priority)
+{
+    socket->post (callbackFun, url, data, (MySocket::Priority)priority);
+}
+
 void Utility::socketAbort()
 {
     socket->abort ();

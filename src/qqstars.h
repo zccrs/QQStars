@@ -80,7 +80,7 @@ signals:
 class FriendInfo:public  QQItemInfo
 {
     Q_OBJECT
-    Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY QQSignatureChanged)//个性签名
+    Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY qQSignatureChanged)//个性签名
     Q_ENUMS(QQItemType)
 public:
     explicit FriendInfo(QQuickItem *parent=0);
@@ -88,7 +88,7 @@ public:
 public slots:
     void setQQSignature(QString arg);
 signals:
-    void QQSignatureChanged();
+    void qQSignatureChanged();
 };
 
 class GroupInfo:public  QQItemInfo

@@ -107,11 +107,11 @@ TabView {
                 anchors.horizontalCenter: parent.horizontalCenter
                 source: {
                     if(index==0)
-                        return "qrc:/images/friendList_select.png"
+                        return "qrc:/images/friendList_select.svg"
                     else if(index==1)
-                        return "qrc:/images/groupList_select.png"
+                        return "qrc:/images/groupList_select.svg"
                     else
-                        return "qrc:/images/RecentList_select.png"
+                        return "qrc:/images/recentList_select.svg"
                 }
             }
         }

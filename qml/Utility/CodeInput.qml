@@ -13,10 +13,11 @@ MyWindow{
     fixedSize: true//固定大小的
     dockableWindow: false//可停靠的
     topHint: false//窗口保持在最前端
-    noNotifyIcon: false//隐藏任务栏图标
+    noNotifyIcon: true//隐藏任务栏图标
     modality : Qt.ApplicationModal
     width: root_page.width
     height: root_page.height
+    
     property string str: ""
     property var backFun//验证码获取成功后调用此函数
     property string source
@@ -25,14 +26,14 @@ MyWindow{
         code_image.source = source
         code_input.text = ""
     }
-    
+
     Connections{
         target: myqq
         onUpdateCode:{
             updateCode()//刷新验证码
         }
         onInputCodeClose:{
-            root_window.close()
+            //root_window.close()
         }
     }
 
@@ -109,9 +110,6 @@ MyWindow{
                     backFun(code_input.text)
                 }
             }
-        }
-        Component.onCompleted: {
-            forceActiveFocus()
         }
         Keys.onEnterPressed: {
             button_affirm.clicked()

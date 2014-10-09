@@ -244,18 +244,18 @@ void MyWindow::setWidth(int arg)
 {
     if (m_width != arg) {
         m_width = arg;
+        contentItem ()->setWidth (arg);
         emit widthChanged(arg);
     }
-    contentItem ()->setWidth (arg);
 }
 
 void MyWindow::setHeight(int arg)
 {
     if (m_height != arg) {
         m_height = arg;
+        contentItem ()->setHeight (arg);
         emit heightChanged(arg);
     }
-    contentItem ()->setHeight (arg);
 }
 
 void MyWindow::setActualWidth(int arg)
