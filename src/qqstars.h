@@ -269,7 +269,7 @@ public slots:
     void setUserPassword(QString arg);
     void showWarningInfo(QString message);
     void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );
-    void showCodeWindow(const QVariant callbackFun, const QString code_uin);
+    void showCodeWindow(const QJSValue callbackFun, const QString code_uin);
     void closeCodeWindow();
     //void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
     //QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;

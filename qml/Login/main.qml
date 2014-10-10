@@ -31,7 +31,7 @@ MyWindow{
         onError:{
             if( message.indexOf("验证码")<0 ){
                 login_page.reLogin()//重新登录
-                myqq.inputCodeClose()//关闭输入验证码
+                myqq.closeCodeWindow()//关闭输入验证码的窗口
             }
         }
         onLoginStatusChanged:{

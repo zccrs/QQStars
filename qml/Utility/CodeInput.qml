@@ -21,7 +21,7 @@ MyWindow{
     property string code: code_input.text
     property var backFun//验证码获取成功后调用此函数
     property alias source: code_image.source
-    
+
     function updateCode(){
         var temp = source
         source = ""

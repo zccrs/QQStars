@@ -500,15 +500,18 @@ void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
 }
 
-void QQCommand::showCodeWindow(const QVariant callbackFun, const QString code_uin)
+void QQCommand::showCodeWindow(const QJSValue callbackFun, const QString code_uin)
 {
-    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/CodeInput.qml");
+    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+    QQmlComponent component(engine, "./qml/Utility/CodeInput.qml");
     QObject *obj = component.create ();
     if(obj){
         code_window = qobject_cast<MyWindow*>(obj);
-        obj->setProperty ("backFun", callbackFun);
         QString url = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+userQQ()+"&cap_cd="+code_uin;
         obj->setProperty ("source", url);
+        QJSValue value = engine->newQObject (obj);
+        if(value.isObject ())
+            value.setProperty ("backFun", callbackFun);
     }else
         qDebug()<<"创建CodeInput.qml失败";
 }
