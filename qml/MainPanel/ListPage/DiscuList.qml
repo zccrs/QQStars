@@ -2,8 +2,8 @@ import QtQuick 2.2
 import mywindow 1.0
 import utility 1.0
 import "../"
-import "../../QQItemInfo"
 import "../../Utility"
+import QQItemInfo 1.0
 
 Item{
     id: root
@@ -19,6 +19,7 @@ Item{
             var list_info = data.result.dnamelist
             for( var i=0; i< list_info.length;++i ) {
                 mymodel.append({"obj_info": list_info[i]})
+                //console.log("增加讨论组")
             }
         }
     }
@@ -48,21 +49,20 @@ Item{
     Component{
         id: component
         Item{
+            id: item_root
             width: parent.width
             height: avatar.height
-            property var info: obj_info
-            DiscuInfo{
-                id: myinfo
-                uin: parent.info.did
-                nick: parent.info.name
+            property var myinfo: myqq.createDiscuInfo(obj_info.did) 
+            Component.onCompleted: {
+                myinfo.nick = obj_info.name
             }
 
             MyImage{
                 id: avatar
                 x:10
                 width:40
-                maskSource: "qrc:/images/bit.bmp"
                 source: "qrc:/images/avatar.png"
+                maskSource: "qrc:/images/bit.bmp"
             }
             Text{
                 id:text_nick
@@ -70,12 +70,12 @@ Item{
                 anchors.left: avatar.right
                 anchors.leftMargin: 10
                 font.pointSize: 14
-                text: myinfo.aliasOrNick
+                text: item_root.myinfo.aliasOrNick
             }
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(myinfo.uin, DiscuInfo.Discu)
+                    chat_command.addChat(item_root.myinfo.uin, DiscuInfo.Discu)
                 }
             }
         }

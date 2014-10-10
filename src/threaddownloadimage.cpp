@@ -12,7 +12,6 @@ ThreadDownloadImage::ThreadDownloadImage(QObject *parent) :
 
 ThreadDownloadImage::~ThreadDownloadImage()
 {
-    qDebug()<<"我擦，下载图片被销毁了";
 }
 
 void ThreadDownloadImage::downloadFinish(QNetworkReply *replys)

@@ -2,8 +2,8 @@ import QtQuick 2.2
 import mywindow 1.0
 import utility 1.0
 import "../"
-import "../../QQItemInfo"
 import "../../Utility"
+import QQItemInfo 1.0
 
 Item{
     id: root
@@ -19,10 +19,13 @@ Item{
         if(data.retcode ==0 ) {
             var groupmarknames = data.result.gmarklist//群备注信息
             var i=0;
+            
             for( i=0; i<groupmarknames.length;++i ) {
-                var newObject = Qt.createQmlObject('import QQItemInfo 1.0; GroupInfo{userQQ:'+myqq.userQQ+';uin:'+marknames[i].uin+'}')
-                newObject.alias = groupmarknames[i].markname
+                var newObject = myqq.createGroupInfo(groupmarknames[i].uin)
+                if(newObject!=null)
+                    newObject.alias = groupmarknames[i].markname
             }
+
             var list_info = data.result.gnamelist
             for( i=0; i< list_info.length;++i ) {
                 mymodel.append({"obj_info": list_info[i]})
@@ -55,13 +58,13 @@ Item{
     Component{
         id: component
         Item{
+            id: item_root
             width: parent.width
             height: avatar.height
-            property var info: obj_info
-            DiscuInfo{
-                id: myinfo
-                uin: parent.info.gid
-                nick: parent.info.name
+            property var myinfo: myqq.createGroupInfo(obj_info.gid)
+            Component.onCompleted: {
+                myinfo.code = obj_info.code
+                myinfo.nick = obj_info.name
             }
 
             MyImage{
@@ -71,7 +74,7 @@ Item{
                 maskSource: "qrc:/images/bit.bmp"
                 source: myinfo.avatar40
                 onLoadError: {
-                    myinfo.avatar40 = "qrc:/images/avatar.png"
+                    item_root.myinfo.avatar40 = "qrc:/images/avatar.png"
                 }
             }
             Text{
@@ -85,7 +88,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(myinfo.uin, GroupInfo.Discu)
+                    chat_command.addChat(item_root.myinfo.uin, GroupInfo.Discu)
                 }
             }
         }

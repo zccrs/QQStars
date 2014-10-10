@@ -39,11 +39,23 @@ MyWindow{
         MyShortcut{
             shortcut: "Ctrl+Return"
             onTrigger: {
-                button_send.clicked()
+                input.text+="\n"
             }
         }
         MyShortcut{
             shortcut: "Ctrl+Enter"
+            onTrigger: {
+                input.text+="\n"
+            }
+        }
+        MyShortcut{
+            shortcut: "Return"
+            onTrigger: {
+                button_send.clicked()
+            }
+        }
+        MyShortcut{
+            shortcut: "Enter"
             onTrigger: {
                 button_send.clicked()
             }
@@ -105,7 +117,7 @@ MyWindow{
         MyTextArea{
             id: input
             //font.pointSize: 12
-            wrapMode: TextEdit.Wrap
+            //wrapMode: TextEdit.Wrap
             anchors.bottom: button_send.top
             anchors.left: parent.left
             anchors.right: right_bar.left

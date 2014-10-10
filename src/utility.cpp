@@ -23,7 +23,6 @@ Utility::Utility(QObject *parent) :
 
 Utility::~Utility()
 {
-    qDebug()<<"我擦，Utility竟然被销毁了！";
 }
 
 char Utility::numToStr(int num)

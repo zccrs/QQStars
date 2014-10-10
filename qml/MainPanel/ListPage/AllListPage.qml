@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
+import mywindow 1.0
 
 TabView {
     id: frame
@@ -93,16 +94,15 @@ TabView {
     }
 
     style: TabViewStyle {
-        tabOverlap: 10
+        //tabOverlap: 10
         tabsMovable : true
         tabsAlignment:Qt.AlignHCenter
         tab: Item{
-            implicitHeight: height
-            implicitWidth: width
-            width: control.width/3
+            implicitHeight: icon.height+20
+            implicitWidth: control.width/3
+            //width: control.width/3
             
-            height: icon.implicitHeight
-            Image{
+            SvgView{
                 id: icon
                 anchors.horizontalCenter: parent.horizontalCenter
                 source: {
@@ -115,8 +115,6 @@ TabView {
                 }
             }
         }
-
-        //rightCorner :Rectangle { color: "steelblue" }
         frame: Item {}
     }
 }

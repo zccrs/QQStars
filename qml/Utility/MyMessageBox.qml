@@ -54,7 +54,6 @@ MyWindow {
             }
             onClicked: {
                 root.close()
-                root.destroy()
             }
         }
     }

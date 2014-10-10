@@ -3,7 +3,7 @@ import mywindow 1.0
 import utility 1.0
 import "../"
 import "../../Utility"
-import "../../QQItemInfo"
+import QQItemInfo 1.0
 
 Item{
     id: friendlist_main
@@ -23,16 +23,16 @@ Item{
         data = JSON.parse(data)
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
+            
             for( var i=0; i<marknames.length;++i ) {
-                console.log("增加备注信息："+marknames[i].markname)
-                var newObject = Qt.createQmlObject('import QQItemInfo 1.0; FriendInfo{userQQ:'+myqq.userQQ+';uin:'+marknames[i].uin+';}', null, "")
-                newObject.alias = marknames[i].markname//储存备注信息
-                console.log(newObject)
+                var newObject = myqq.createFriendInfo(marknames[i].uin)
+                if(newObject!=null)
+                    newObject.alias = marknames[i].markname//储存备注信息
             }
             var categories = data.result.categories//分组信息
             for(i=0; i<categories.length;++i){
                 addModel(categories[i].name, categories[i].index, data.result)//增加分组
-                console.log("增加了分组："+categories[i].name)
+                //console.log("增加了分组："+categories[i].name)
             }
         }
     }
@@ -71,8 +71,7 @@ Item{
                 var friends = friendListData.friends//好友列表
                 var friends_info = friendListData.info//好友信息
                 for( var i=0; i< friends.length;++i ) {
-                    if( friends[i].categories==groupingIndex ){
-                        //myqq.setValue(friends_info[i].uin+"nick", friends_info[i].nick )//保存昵称
+                    if( friends[i].categories==groupingIndex ){//判断是否是本分组的内容
                         mymodel2.append({"obj_friends": friends[i], "obj_info": friends_info[i]})//增加好友 
                     }
                 }
@@ -156,14 +155,11 @@ Item{
             width: parent.width
             height: avatar.height
             property var friends: obj_friends
-            property var info: obj_info
-            
-            FriendInfo{
-                id:myinfo
-                uin: parent.info.uin
-                nick: parent.info.name
+            property var myinfo: myqq.createFriendInfo(obj_info.uin)
+            Component.onCompleted: {
+                myinfo.nick = obj_info.nick
             }
-            
+
             MyImage{
                 id: avatar
                 x:10
@@ -171,7 +167,6 @@ Item{
                 maskSource: "qrc:/images/bit.bmp"
                 source: myinfo.avatar40//myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {
-                    //avatar.source = "qrc:/images/avatar.png"
                     myinfo.avatar40 = "qrc:/images/avatar.png"
                 }
             }

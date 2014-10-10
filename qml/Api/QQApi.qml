@@ -91,11 +91,12 @@ QQ{
         if( myqq.loginStatus == QQ.Logining ){
             var list = data.split ("'");
             if( list[1]==0 ){
-                inputCodeClose()//关闭验证码的窗口
+                closeCodeWindow()//关闭输入验证码的窗口
                 var url = list[5]//先get一下返回数据中的url，来获取必要的Cookie
                 utility.socketSend(login2, url)//此地址GET完成后调用二次登录
             }else{
                 myqq.showWarningInfo("登录失败："+list[9])
+                myqq.error(list[9])
             }
         }
     }

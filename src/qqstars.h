@@ -16,7 +16,7 @@ class QQItemInfo:public QQuickItem
     Q_PROPERTY(QString uin READ uin WRITE setUin NOTIFY uinChanged)
     Q_PROPERTY(QString nick READ nick WRITE setNick NOTIFY nickChanged)
     Q_PROPERTY(QString alias READ alias WRITE setAlias NOTIFY aliasChanged)
-    Q_PROPERTY(QString aliasOrNick READ aliasOrNick NOTIFY aliasOrNickChanged CONSTANT FINAL)
+    Q_PROPERTY(QString aliasOrNick READ aliasOrNick NOTIFY aliasOrNickChanged CONSTANT)
     Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
     Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
     Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
@@ -40,9 +40,11 @@ protected:
     QPointer<QSettings> mysettings;
     QString m_aliasOrNick;
     QString m_userQQ;
+    QString m_alias;
     QQItemType mytype;
     QString typeString;
     bool isCanUseSetting() const;
+    
 public:
     QString uin() const;
     QString nick() const;
@@ -108,12 +110,36 @@ public:
     explicit DiscuInfo(QQuickItem *parent=0);
 };
 
-class RecentInfo:public  QQItemInfo
+class RecentInfo:public  QObject
 {
     Q_OBJECT
-    Q_ENUMS(QQItemType)
+    Q_PROPERTY(QQuickItem* infoData READ infoData NOTIFY infoDataChanged CONSTANT)
+    Q_PROPERTY(FriendInfo* infoToFriend READ infoToFriend NOTIFY infoToFriendChanged CONSTANT)
+    Q_PROPERTY(GroupInfo* infoToGroup READ infoToGroup NOTIFY infoToGroupChanged CONSTANT)
+    Q_PROPERTY(DiscuInfo* infoToDiscu READ infoToDiscu NOTIFY infoToDiscuChanged CONSTANT)
 public:
-    explicit RecentInfo(QQuickItem *parent=0);
+    //explicit RecentInfo(QQuickItem *parent=0);
+    explicit RecentInfo(FriendInfo *info, QQuickItem *parent=0);
+    explicit RecentInfo(GroupInfo *info, QQuickItem *parent=0);
+    explicit RecentInfo(DiscuInfo *info, QQuickItem *parent=0);
+    QQuickItem* infoData() const;
+    FriendInfo* infoToFriend() const;
+    GroupInfo* infoToGroup() const;
+    DiscuInfo* infoToDiscu() const;
+signals:
+    void infoDataChanged();
+    void infoToFriendChanged(FriendInfo* arg);
+    void infoToGroupChanged(GroupInfo* arg);
+    void infoToDiscuChanged(DiscuInfo* arg);
+private:
+    void setInfoData(QQuickItem* info);
+    void setInfoToFriend(FriendInfo* arg);
+    void setInfoToGroup(GroupInfo* arg);
+    void setInfoToDiscu(DiscuInfo* arg);
+    QPointer<QQuickItem> m_infoData;
+    QPointer<FriendInfo> m_infoToFriend;
+    QPointer<GroupInfo> m_infoToGroup;
+    QPointer<DiscuInfo> m_infoToDiscu;
 };
 
 class QQCommand : public FriendInfo
@@ -122,7 +148,7 @@ class QQCommand : public FriendInfo
     Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged)
     Q_PROPERTY(QString userPassword READ userPassword WRITE setUserPassword NOTIFY userPasswordChanged)
     Q_PROPERTY(QQStatus userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
-    Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged CONSTANT FINAL)
+    Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged CONSTANT)
     Q_PROPERTY(LoginStatus loginStatus READ loginStatus WRITE setLoginStatus NOTIFY loginStatusChanged)
     Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
     Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)//是否记住密码
@@ -245,7 +271,8 @@ private:
     QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
     double m_windowScale;
     QString m_codeText;
-    
+    QPointer<MyWindow> warning_info_window;
+    QMap<QString, QQItemInfo*> map_itemInfo;
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
@@ -253,8 +280,6 @@ signals:
     void poll2ReData( QString data );
     void userQQChanged();
     void error( QString message );//有错误产生就发送信号
-    void updateCode();//刷新验证码
-    void inputCodeClose();//关闭验证码输入
     void userPasswordChanged();
     
     void windowScaleChanged();
@@ -271,9 +296,14 @@ public slots:
     void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );
     void showCodeWindow(const QJSValue callbackFun, const QString code_uin);
     void closeCodeWindow();
+    void updataCode();//刷新验证码的显示
     //void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
     //QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
     //void removeValue( const QString & key, const QString & userQQ="" );
+    FriendInfo* createFriendInfo(const QString uin);
+    GroupInfo* createGroupInfo(const QString uin);
+    DiscuInfo* createDiscuInfo(const QString uin);
+    RecentInfo* createRecentInfo(QQItemInfo::QQItemType type, const QString uin);
     
     void updataApi(const QString content);
     QString getHash();

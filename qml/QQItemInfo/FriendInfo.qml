@@ -12,10 +12,7 @@ FriendInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
-            if( avatar40=="qrc:/images/avatar.png" ){
-                myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec=40&dst_uin="+account, "friend_"+uin, "40", getAvatarFinished)//下载头像
-                console.log(account+"的头像不存在:"+avatar40)
-            }
+            getAvatar(40)
         }
     }
     function getAvatarFinished( path ,name){

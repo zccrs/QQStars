@@ -486,12 +486,17 @@ void QQCommand::setUserPassword(QString arg)
 
 void QQCommand::showWarningInfo(QString message)
 {
-    QQmlComponent component(new QQmlEngine, "./qml/Utility/MyMessageBox.qml");
-    QObject *obj = component.create ();
-    if(obj)
-        obj->setProperty ("text", QVariant(message));
-    else
-        qDebug()<<"创建MyMessageBox.qml失败";
+    if(warning_info_window){
+        warning_info_window->show ();
+    }else{
+        QQmlComponent component(new QQmlEngine, "./qml/Utility/MyMessageBox.qml");
+        QObject *obj = component.create ();
+        warning_info_window = qobject_cast<MyWindow*>(obj);
+        if(obj)
+            obj->setProperty ("text", QVariant(message));
+        else
+            qDebug()<<"创建MyMessageBox.qml失败";
+    }
 }
 
 void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue callbackFun)
@@ -503,17 +508,25 @@ void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue
 void QQCommand::showCodeWindow(const QJSValue callbackFun, const QString code_uin)
 {
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
-    QQmlComponent component(engine, "./qml/Utility/CodeInput.qml");
-    QObject *obj = component.create ();
-    if(obj){
-        code_window = qobject_cast<MyWindow*>(obj);
-        QString url = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+userQQ()+"&cap_cd="+code_uin;
-        obj->setProperty ("source", url);
-        QJSValue value = engine->newQObject (obj);
+    if(!code_window){
+        QQmlComponent component(engine, "./qml/Utility/CodeInput.qml");
+        QObject *obj = component.create ();
+        if(obj){
+            code_window = qobject_cast<MyWindow*>(obj);
+        }else{
+            qDebug()<<"创建CodeInput.qml失败";
+            return;
+        }
+    }
+    //qDebug()<<"显示验证码"<<code_uin<<code_window;
+    if(code_window){
+        QJSValue value = engine->newQObject (code_window);
         if(value.isObject ())
             value.setProperty ("backFun", callbackFun);
-    }else
-        qDebug()<<"创建CodeInput.qml失败";
+        QString url = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+userQQ()+"&cap_cd="+code_uin;
+        code_window->setProperty ("source", url);
+        code_window->show ();
+    }
 }
 
 void QQCommand::closeCodeWindow()
@@ -522,6 +535,89 @@ void QQCommand::closeCodeWindow()
         code_window->close ();
         code_window->deleteLater ();
     }
+}
+
+void QQCommand::updataCode()
+{
+    if(code_window){
+        QMetaObject::invokeMethod (code_window, "updateCode");//调用刷新验证码
+    }
+}
+
+FriendInfo *QQCommand::createFriendInfo(const QString uin)
+{
+    if(uin=="")
+        return NULL;
+    if(uin == userQQ())//如果这个好友就是自己的话
+        return this;
+    
+    QString name = "friend"+uin;
+    if(map_itemInfo.value (name, NULL)){
+        FriendInfo* info = qobject_cast<FriendInfo*>(map_itemInfo[name]);
+        return info;
+    }
+    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+    QQmlComponent component(engine, "./qml/QQItemInfo/FriendInfo.qml");
+    FriendInfo *info = qobject_cast<FriendInfo*>(component.create ());
+    info->setUserQQ (userQQ());
+    info->setUin (uin);
+    map_itemInfo[name] = info;
+    return info;
+}
+
+GroupInfo *QQCommand::createGroupInfo(const QString uin)
+{
+    if(uin=="")
+        return NULL;
+    QString name = "group"+uin;
+    if(map_itemInfo.value (name, NULL)){
+        GroupInfo* info = qobject_cast<GroupInfo*>(map_itemInfo[name]);
+        return info;
+    }
+    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+    QQmlComponent component(engine, "./qml/QQItemInfo/GroupInfo.qml");
+    GroupInfo *info = qobject_cast<GroupInfo*>(component.create ());
+    info->setUserQQ (userQQ());
+    info->setUin (uin);
+    map_itemInfo[name] = info;
+    return info;
+}
+
+DiscuInfo *QQCommand::createDiscuInfo(const QString uin)
+{
+    if(uin=="")
+        return NULL;
+    QString name = "discu"+uin;
+    if(map_itemInfo.value (name, NULL)){
+        DiscuInfo* info = qobject_cast<DiscuInfo*>(map_itemInfo[name]);
+        return info;
+    }
+    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+    QQmlComponent component(engine, "./qml/QQItemInfo/DiscuInfo.qml");
+    DiscuInfo *info = qobject_cast<DiscuInfo*>(component.create ());
+    info->setUserQQ (userQQ());
+    info->setUin (uin);
+    map_itemInfo[name] = info;
+    return info;
+}
+
+RecentInfo *QQCommand::createRecentInfo(QQItemType type, const QString uin)
+{
+    RecentInfo *info = NULL;
+    switch (type) {
+    case QQItemInfo::Friend:
+        info = new RecentInfo(createFriendInfo (uin));
+        break;
+    case QQItemInfo::Group:
+        info = new RecentInfo(createGroupInfo (uin));
+        break;
+    case QQItemInfo::Discu:
+        info = new RecentInfo(createDiscuInfo (uin));
+        break;
+    default:
+        break;
+    }
+    return info;
 }
 
 /*void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)
@@ -699,9 +795,7 @@ QString QQItemInfo::nick() const
 
 QString QQItemInfo::alias() const
 {
-    if(isCanUseSetting())
-        return mysettings->value (typeString+"_"+uin()+"alias", "").toString ();
-    return "";
+    return m_alias;
 }
 
 
@@ -763,8 +857,8 @@ void QQItemInfo::setNick(QString arg)
 
 void QQItemInfo::setAlias(QString arg)
 {
-    if (isCanUseSetting()&&alias() != arg) {
-        mysettings->setValue (typeString+"_"+uin()+"alias", arg);
+    if(m_alias!=arg){
+        m_alias = arg;
         emit aliasChanged();
     }
 }
@@ -853,8 +947,73 @@ DiscuInfo::DiscuInfo(QQuickItem *parent):
 }
 
 
-RecentInfo::RecentInfo(QQuickItem *parent):
-    QQItemInfo(Recent, parent)
+RecentInfo::RecentInfo(FriendInfo *info, QQuickItem *parent):
+    QObject(parent)
 {
-    
+    setInfoData (info);
+    setInfoToFriend (info);
+}
+
+RecentInfo::RecentInfo(GroupInfo *info, QQuickItem *parent):
+    QObject(parent)
+{
+    setInfoData (info);
+    setInfoToGroup (info);
+}
+
+RecentInfo::RecentInfo(DiscuInfo *info, QQuickItem *parent):
+    QObject(parent)
+{
+    setInfoData (info);
+    setInfoToDiscu (info);
+}
+
+QQuickItem *RecentInfo::infoData() const
+{
+    return m_infoData;
+}
+
+FriendInfo *RecentInfo::infoToFriend() const
+{
+    return m_infoToFriend;
+}
+
+GroupInfo *RecentInfo::infoToGroup() const
+{
+    return m_infoToGroup;
+}
+
+DiscuInfo *RecentInfo::infoToDiscu() const
+{
+    return m_infoToDiscu;
+}
+
+void RecentInfo::setInfoToFriend(FriendInfo *arg)
+{
+    if (m_infoToFriend != arg) {
+        m_infoToFriend = arg;
+        emit infoToFriendChanged(arg);
+    }
+}
+
+void RecentInfo::setInfoToGroup(GroupInfo *arg)
+{
+    if (m_infoToGroup != arg) {
+        m_infoToGroup = arg;
+        emit infoToGroupChanged(arg);
+    }
+}
+
+void RecentInfo::setInfoToDiscu(DiscuInfo *arg)
+{
+    if (m_infoToDiscu != arg) {
+        m_infoToDiscu = arg;
+        emit infoToDiscuChanged(arg);
+    }
+}
+
+void RecentInfo::setInfoData(QQuickItem *info)
+{
+    m_infoData = info;
+    emit infoDataChanged ();
 }

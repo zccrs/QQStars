@@ -4,6 +4,11 @@ import QQItemInfo 1.0
 GroupInfo{
     userQQ: myqq.userQQ
     property string code
+    onCodeChanged: {
+        if(code!="")
+            myqq.getFriendQQ(code, getQQFinished)//获得真实qq
+    }
+
     function getQQFinished(error, data){//获取真实群号后调用的函数
         if(error){
             myqq.getFriendQQ(code, getQQFinished)
@@ -13,9 +18,9 @@ GroupInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
-            account = account
-            if( avatar40=="qrc:/images/avatar.png" )//如果头像不存在
-                myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/40", "group_"+uin, "40", getAvatarFinished)//下载头像
+            
+            if(avatar40=="qrc:/images/avatar.png")
+                getAvatar(40)
         }
     }
     function getAvatarFinished( path ,name){
@@ -26,8 +31,8 @@ GroupInfo{
         if(account!=""){
             if( avatar40=="qrc:/images/avatar.png" )//如果头像不存在
                 myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+uin, String(size), getAvatarFinished)//下载头像
-        }else{
-            myqq.getFriendQQ(code, getQQFinished)
+        }else if(code!=""){
+            myqq.getFriendQQ(code, getQQFinished)//获得真实qq
         }
     }
 
