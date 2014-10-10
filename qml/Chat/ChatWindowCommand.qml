@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import utility 1.0
+import QQItemInfo 1.0
 
 Item{
     visible: false
@@ -23,9 +24,20 @@ Item{
                 }
             }
         }
-        var str = senderType==QQ.Friend?"FriendChatWindow.qml":(senderType==QQ.Group?"GroupChatWindow.qml":"")
+        var str
+        switch(senderType){
+            case FriendInfo.Friend:
+                str="FriendChatWindow.qml"
+                break
+            case FriendInfo.Group:
+                str = "GroupChatWindow.qml"
+                break
+            case FriendInfo.Discu:
+                str = "DiscuChatWindow.qml"
+                break
+            default:return
+        }
         
-        console.log(str)
         var component = Qt.createComponent(str);
         if (component.status == Component.Ready){
             console.log("将要创建窗口")

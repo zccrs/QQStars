@@ -12,6 +12,7 @@ FriendInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
+            console.log(nick+"的真实qq号是："+account+","+uin+","+alias)
             getAvatar(40)
         }
     }

@@ -6,13 +6,13 @@ Component{
         id: root
         width: parent.width
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
-
+        property var myinfo: myqq.createFriendInfo(uin)
         MyImage{
             id: avatar
             x:mode=="left"?0:root.width-width
             width:40
             maskSource: "qrc:/images/bit.bmp"
-            source: myqq.value(uin+"avatar-40", "qrc:/images/avatar.png")
+            source: myinfo.avatar40
             onLoadError: {
                 avatar.source = "qrc:/images/avatar.png"
             }
@@ -21,7 +21,7 @@ Component{
             id: nick
             x: mode=="left"?avatar.x+avatar.width+5:avatar.x-implicitWidth-5
             anchors.top: avatar.top
-            text: myqq.value(uin+"alias", myqq.value(uin+"alias", myqq.value(uin+"nick", uin)))
+            text: myqq.aliasOrNick
         }
 
         BorderImage {
@@ -50,6 +50,11 @@ Component{
 
                 wrapMode: TextEdit.Wrap
                 text: message
+                onTextChanged: {
+                    if(text[text.length-1]=="\n"){
+                        text = text.substr(0, text.length-1)
+                    }
+                }
             }
         }
     }

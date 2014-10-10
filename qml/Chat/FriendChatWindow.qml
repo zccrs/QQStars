@@ -4,11 +4,10 @@ import "../QQItemInfo"
 
 ChatWindow{
     id: root
-    windowIcon: myinfo.avatar40//myqq.value(myuin+"avatar-40", "qrc:/images/avatar.png")
-    FriendInfo{
-        id: myinfo
-        userQQ: myqq.userQQ
-        uin: myuin
+    property var myinfo: myqq.createFriendInfo(myuin)
+    windowIcon: myinfo.avatar40
+    Component.onCompleted: {
+        console.log(myinfo.nick+"的uin是"+myuin)
     }
 
     function sendMessageFinished(error, data){

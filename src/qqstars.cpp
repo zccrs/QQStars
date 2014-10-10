@@ -548,8 +548,8 @@ FriendInfo *QQCommand::createFriendInfo(const QString uin)
 {
     if(uin=="")
         return NULL;
-    if(uin == userQQ())//如果这个好友就是自己的话
-        return this;
+    //if(uin == userQQ())//如果这个好友就是自己的话
+        //return this;
     
     QString name = "friend"+uin;
     if(map_itemInfo.value (name, NULL)){

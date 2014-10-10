@@ -188,7 +188,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(myinfo.uin, QQ.Friend)
+                    chat_command.addChat(myinfo.uin, FriendInfo.Friend)
                 }
             }
         }
