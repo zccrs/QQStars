@@ -37,6 +37,28 @@ QQCommand::QQCommand(QQuickItem *parent) :
     loadApi ();//加载api的js文件
 }
 
+bool QQCommand::rememberPassword() const
+{
+    if(isCanUseSetting())
+        return mysettings->value ("rememberPassword", false).toBool ();
+    return false;
+}
+
+bool QQCommand::autoLogin() const
+{
+    if(isCanUseSetting())
+        return mysettings->value ("autoLogin", false).toBool ();
+    return false;
+}
+
+QString QQCommand::codeText() const
+{
+    if(code_window){
+        return code_window->property ("code").toString ();
+    }
+    return "";
+}
+
 void QQCommand::setStatusToString()
 {
     switch(userStatus ())
@@ -464,19 +486,39 @@ void QQCommand::setUserPassword(QString arg)
 
 void QQCommand::showWarningInfo(QString message)
 {
-    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/MyMessageBox.qml");
+    QQmlComponent component(new QQmlEngine, "./qml/Utility/MyMessageBox.qml");
     QObject *obj = component.create ();
-    //if(obj)
-        //obj->setProperty ("text", QVariant(message));
-    //else
-        //qDebug()<<"创建MyMessageBox.qml失败";
-    emit error (message);
+    if(obj)
+        obj->setProperty ("text", QVariant(message));
+    else
+        qDebug()<<"创建MyMessageBox.qml失败";
 }
 
 void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue callbackFun)
 {
     QString path = QDir::homePath ()+"/webqq/"+userQQ ()+"/"+uin;
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
+}
+
+void QQCommand::showCodeWindow(const QVariant callbackFun, const QString code_uin)
+{
+    QQmlComponent component(Utility::createUtilityClass ()->qmlEngine (), "./qml/Utility/CodeInput.qml");
+    QObject *obj = component.create ();
+    if(obj){
+        code_window = qobject_cast<MyWindow*>(obj);
+        obj->setProperty ("backFun", callbackFun);
+        QString url = "https://ssl.captcha.qq.com/getimage?aid=1003903&r=0.9101365606766194&uin="+userQQ()+"&cap_cd="+code_uin;
+        obj->setProperty ("source", url);
+    }else
+        qDebug()<<"创建CodeInput.qml失败";
+}
+
+void QQCommand::closeCodeWindow()
+{
+    if(code_window){
+        code_window->close ();
+        code_window->deleteLater ();
+    }
 }
 
 /*void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)

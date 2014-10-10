@@ -7,6 +7,7 @@
 #include <QTimer>
 #include "mymessagebox.h"
 #include "mynetworkaccessmanagerfactory.h"
+#include "mywindow.h"
 
 class QQItemInfo:public QQuickItem
 {
@@ -126,6 +127,7 @@ class QQCommand : public FriendInfo
     Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
     Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)//是否记住密码
     Q_PROPERTY(bool autoLogin READ autoLogin WRITE setAutoLogin NOTIFY autoLoginChanged)//是否自动登录
+    Q_PROPERTY(QString codeText READ codeText CONSTANT)
     
     Q_ENUMS(QQStatus)
     Q_ENUMS(LoginStatus)
@@ -199,19 +201,9 @@ public:
         return m_windowScale;
     }
     
-    bool rememberPassword() const
-    {
-        if(isCanUseSetting())
-            return mysettings->value ("rememberPassword", false).toBool ();
-        return false;
-    }
-    
-    bool autoLogin() const
-    {
-        if(isCanUseSetting())
-            return mysettings->value ("autoLogin", false).toBool ();
-        return false;
-    }
+    bool rememberPassword() const;
+    bool autoLogin() const;
+    QString codeText() const;
     
 private slots:
     void setStatusToString();
@@ -233,6 +225,8 @@ private:
     QString m_userQQ;
     QString m_userPassword;
 
+    QPointer<MyWindow> code_window;
+    
     QJSEngine jsEngine;
     void loadApi();
     
@@ -250,6 +244,8 @@ private:
     
     QString doubleToString( QJsonObject &obj, QString name );//将obj中类型为double的数据转化为QString类型
     double m_windowScale;
+    QString m_codeText;
+    
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
@@ -273,7 +269,8 @@ public slots:
     void setUserPassword(QString arg);
     void showWarningInfo(QString message);
     void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );
-    
+    void showCodeWindow(const QVariant callbackFun, const QString code_uin);
+    void closeCodeWindow();
     //void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
     //QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
     //void removeValue( const QString & key, const QString & userQQ="" );

@@ -53,7 +53,6 @@ MyWindow {
                 button_ok.clicked()
             }
             onClicked: {
-                console.log("fdsafds")
                 root.close()
             }
         }

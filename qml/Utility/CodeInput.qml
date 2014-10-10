@@ -18,25 +18,16 @@ MyWindow{
     width: root_page.width
     height: root_page.height
     
-    property string str: ""
+    property string code: code_input.text
     property var backFun//验证码获取成功后调用此函数
-    property string source
+    property alias source: code_image.source
     
     function updateCode(){
-        code_image.source = source
+        var temp = source
+        source = ""
+        source = temp
         code_input.text = ""
     }
-
-    Connections{
-        target: myqq
-        onUpdateCode:{
-            updateCode()//刷新验证码
-        }
-        onInputCodeClose:{
-            root_window.close()
-        }
-    }
-
     SvgView {
         id:root_page
         width: 300*myqq.windowScale
@@ -89,7 +80,7 @@ MyWindow{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top :text_code.top
             anchors.topMargin: root_page.height/12
-            source: root_window.source
+
             MouseArea{
                 anchors.fill: parent
                 onClicked: {

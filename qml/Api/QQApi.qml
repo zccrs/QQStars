@@ -12,7 +12,6 @@ QQ{
     property var friendListData//储存好友列表
     property string list_hash//获取好友列表时需要的hash
     property string ptwebqq//登录后返回的cookie
-    property string mycode//临时保存验证码
     
     windowScale: {
         var dosktopWidth = Screen.desktopAvailableWidth
@@ -80,7 +79,7 @@ QQ{
             if( temp[1]=="0" ){
                 login(temp[3])//不需要验证码，直接登录
             }else{
-                showInputCodePage(login, temp[3])//调用输入验证码，login为验证码获取成功后的回调函数
+                showCodeWindow(login, temp[3])//调用输入验证码，login为验证码获取成功后的回调函数
             }
         }
     }
