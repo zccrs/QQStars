@@ -52,7 +52,7 @@ public:
 
     static bool error;
     static int ref;
-#if(QT_VERSION<0x050000)
+#if(QT_VERSION<0x050000)//雨后星辰
     static QAbstractEventDispatcher::EventFilter prevEventFilter;
     static bool eventFilter(void* message);
 #else

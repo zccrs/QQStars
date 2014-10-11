@@ -30,7 +30,7 @@
 bool QxtGlobalShortcutPrivate::error = false;
 int QxtGlobalShortcutPrivate::ref = 0;
 
-#if(QT_VERSION<0x050000)
+#if(QT_VERSION<0x050000)//雨后星辰
 QAbstractEventDispatcher::EventFilter QxtGlobalShortcutPrivate::prevEventFilter = 0;
 #endif
 
@@ -39,7 +39,7 @@ QHash<QPair<quint32, quint32>, QxtGlobalShortcut*> QxtGlobalShortcutPrivate::sho
 QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate() : enabled(true), key(Qt::Key(0)), mods(Qt::NoModifier)
 {
     if (!ref++){
-#if(QT_VERSION<0x050000)
+#if(QT_VERSION<0x050000)//雨后星辰
         prevEventFilter = QAbstractEventDispatcher::instance()->setEventFilter(eventFilter);
 #else
         QAbstractEventDispatcher::instance ()->installNativeEventFilter (this);
@@ -50,7 +50,7 @@ QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate() : enabled(true), key(Qt::Ke
 QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
 {
     if (!--ref){
-#if(QT_VERSION<0x050000)
+#if(QT_VERSION<0x050000)//雨后星辰
         QAbstractEventDispatcher::instance()->setEventFilter(prevEventFilter);
 #else
         QAbstractEventDispatcher::instance ()->removeNativeEventFilter (this);
