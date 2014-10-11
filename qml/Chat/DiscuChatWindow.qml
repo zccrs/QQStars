@@ -3,7 +3,7 @@ import utility 1.0
 
 ChatWindow{
     id: root
-    property var myinfo: myqq.createGroupInfo(myuin)
+    property var myinfo: myqq.createDiscuInfo(myuin)
     windowIcon: myinfo.avatar40
     
     onSendClicked: {
@@ -19,7 +19,6 @@ ChatWindow{
     }
     onNewMessage:{
         if(uin==myuin){
-            console.log(messageData)
             var temp = JSON.parse(messageData)
             var message=""
             for(var i=0; i<temp.content.length; ++i){
@@ -37,7 +36,7 @@ ChatWindow{
                 }
             }
             var data = {
-                "uin":temp.send_uin,//是群里边的谁发送过来的
+                "uin":temp.send_uin,//是讨论组里边的谁发送过来的
                 "send_uin":"",
                 "mytype": myinfo.mytype,
                 "mode": "left",

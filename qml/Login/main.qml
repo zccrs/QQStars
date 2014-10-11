@@ -7,6 +7,7 @@ import QtQuick.Dialogs 1.2
 import mywindow 1.0
 import utility 1.0
 //import Qt.labs.settings 1.0
+import QQItemInfo 1.0
 import "../Utility"
 import "../MainPanel"
 import "LoginPanel"
@@ -25,7 +26,7 @@ MyWindow{
     noNotifyIcon: true//隐藏任务栏图标
     windowGlow: false//不开启阴影
     color: "transparent"
-
+    
     Connections{
         target: myqq
         onError:{

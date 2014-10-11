@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import QQItemInfo 1.0
 
 Component{
     Item{
@@ -7,10 +8,26 @@ Component{
         width: parent.width
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
         property var myinfo: myqq.createFriendInfo(uin)
+        property string sendUin: send_uin
+        property var sendMessage: {
+            if(sendUin=="")
+                return
+            switch(mytype){
+                case QQItemInfo.Friend:
+                    return myqq.sendFriendMessage
+                case QQItemInfo.Group:
+                    return myqq.sendGroupMessage
+                case QQItemInfo.Discu:
+                    return myqq.sendDiscuMessage
+                default:{
+                    return
+                }
+            }
+        }
+
         Component.onCompleted: {
-            console.log(uin)
-            if(mode == "right"){//如果为right代表是要发送消息
-                myqq.sendGroupMessage(sendMessageFinished, uin, message)//发送消息
+            if(send_uin!=""&&sendMessage){//如果为right代表是要发送消息
+                sendMessage(sendMessageFinished, send_uin, message)//发送消息
             }
         }
         function sendMessageFinished(error, data){//如果这个Item发送信息，此函数用来接收发送结果

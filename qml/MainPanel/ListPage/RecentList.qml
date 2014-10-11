@@ -5,9 +5,9 @@ import "../../QQItemInfo"
 import "../../Utility"
 
 Item{
+    id: root
     clip:true
-    width: parent.width
-    height: parent.height
+    
     Component.onCompleted: {
         myqq.getRecentList(getRecentListFinished) //获取最近联系人
     }
@@ -29,7 +29,26 @@ Item{
         mymodel.append({"obj_info": info})
     }
     
-
+    MyScrollView{
+        anchors.fill: parent
+        Item{
+            height: list.contentHeight+10
+            width: root.width
+            implicitHeight: height
+            implicitWidth: width
+            
+            ListView{
+               id: list
+               anchors.fill: parent
+               interactive: false
+               model: ListModel{
+                   id:mymodel
+               }
+               spacing :10
+               delegate: component
+            }
+        }
+    }
     Component{
         id: component
         Item{
@@ -65,23 +84,12 @@ Item{
                 font.pointSize: 14
                 text: myinfo.aliasOrNick
             }
-        }
-    }
-    MyScrollView{
-        anchors.fill: parent
-        Item{
-            implicitHeight: list.contentHeight+10
-            implicitWidth: parent.width
-            
-            ListView{
-               id: list
-               anchors.fill: parent
-               interactive: false
-               model: ListModel{
-                   id:mymodel
-               }
-               spacing :10
-               delegate: component
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    //console.log("双击了最近联系人")
+                    chat_command.addChat(myinfo.uin, myinfo.mytype)
+                }
             }
         }
     }

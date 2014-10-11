@@ -24,12 +24,11 @@ Item{
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
             for( var i=0; i<marknames.length;++i ) {
-                myqq.saveAlias(FriendInfo.Friend, marknames[i].uin, marknames[i].markname)//储存备注信息
+                myqq.saveAlias(QQItemInfo.Friend, marknames[i].uin, marknames[i].markname)//储存备注信息
             }
             var categories = data.result.categories//分组信息
             for(i=0; i<categories.length;++i){
                 addModel(categories[i].name, categories[i].index, data.result)//增加分组
-                //console.log("增加了分组："+categories[i].name)
             }
         }
     }
@@ -186,7 +185,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(myinfo.uin, FriendInfo.Friend)
+                    chat_command.addChat(myinfo.uin, QQItemInfo.Friend)
                 }
             }
         }

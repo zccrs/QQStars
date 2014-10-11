@@ -19,6 +19,11 @@ MyMessageBox::MyMessageBox(QWidget *parent) :
     //label->setBackgroundRole ();
 }
 
+QUrl MyMessageBox::styleSource() const
+{
+    return m_styleSource;
+}
+
 void MyMessageBox::mousePressEvent(QMouseEvent *event)
 {
     if(event->button () == Qt::LeftButton){

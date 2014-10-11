@@ -31,7 +31,7 @@ NetworkAccessManager *MyHttpRequest::getNetworkAccessManager()
 
 void MyHttpRequest::finished(QNetworkReply *reply)
 {
-    Data temp = queue_data.dequeue ();
+    Data temp = queue_replyData.dequeue ();
     
     ReplyType type=temp.replyType;
     bool isError = !(reply->error () == QNetworkReply::NoError);
@@ -69,7 +69,7 @@ void MyHttpRequest::send(QJSValue callbackFun, QUrl url, QByteArray data, bool h
         Data temp;
         temp.callbackFun = callbackFun;
         temp.replyType = CallbackFun;
-        queue_data<<temp;
+        queue_replyData<<temp;
         if(status ()==Idle){
             send();
         }
@@ -114,8 +114,8 @@ void MyHttpRequest::send(QObject *caller, QByteArray slotName, QUrl url, QByteAr
         temp.caller = caller;
         temp.slotName = slotName;
         temp.replyType = ConnectSlot;
-        queue_data<<temp;
-        //qDebug()<<queue_data.count ()<<queue_requestData.count ()<<QThread::currentThread ();
+        queue_replyData<<temp;
+        //qDebug()<<queue_replyData.count ()<<queue_requestData.count ()<<QThread::currentThread ();
         if(status ()==Idle){
             send();
             //QTimer::singleShot (10, this, SLOT(send()));//不然可能会堵塞ui线程
@@ -132,7 +132,7 @@ void MyHttpRequest::abort()
 
 void MyHttpRequest::send()
 {
-    //qDebug()<<queue_data.count ()<<queue_requestData.count ()<<QThread::currentThread ();
+    //qDebug()<<queue_replyData.count ()<<queue_requestData.count ()<<QThread::currentThread ();
     if( queue_requestData.count ()>0){
         setStatus (Busy);
         requestData temp = queue_requestData.dequeue ();

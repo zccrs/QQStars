@@ -34,11 +34,13 @@ signals:
     void iconChanged();
     void shortcutChanged(QString arg);
 };
+
 class MenuSeparator : public QObject
 {
 public:
     explicit MenuSeparator(QObject *parent=0);
 };
+
 class SystemTrayIcon;
 class MyMenu : public QQuickItem
 {
@@ -55,26 +57,10 @@ protected:
 public:
     explicit MyMenu(QQuickItem *parent = 0);
     
-    QUrl styleSource() const
-    {
-        return m_styleSource;
-    }
-    
-    int width() const
-    {
-        return menu->width ();
-    }
-    
-    int height() const
-    {
-        return menu->height ();
-    }
-    
-    QString styleSheet() const
-    {
-        return menu->styleSheet ();
-    }
-    
+    QUrl styleSource() const;
+    int width() const;
+    int height() const;
+    QString styleSheet() const;
 public slots:
     void clear();
     void addSeparator ();
@@ -84,33 +70,9 @@ public slots:
     void setStyleSource(QUrl arg);
     
     void popup();
-    void setWidth(int arg)
-    {
-        int m_width = menu->width ();
-        if (m_width != arg) {
-            menu->setFixedWidth (arg);
-            emit widthChanged(arg);
-        }
-    }
-    
-    void setHeight(int arg)
-    {
-        int m_height = menu->height ();
-        if (m_height != arg) {
-            menu->setFixedHeight (arg);
-            emit heightChanged(arg);
-        }
-    }
-    
-    void setStyleSheet(QString arg)
-    {
-        QString m_styleSheet = menu->styleSheet ();
-        if (m_styleSheet != arg) {
-            menu->setStyleSheet (arg);
-            emit styleSheetChanged(arg);
-        }
-    }
-    
+    void setWidth(int arg);
+    void setHeight(int arg);
+    void setStyleSheet(QString arg);
 signals:
     void styleSourceChanged(QUrl arg);
     void widthChanged(int arg);
@@ -144,18 +106,11 @@ public:
         MiddleClick
     };
     
-    QString toolTip() const
-    {
-        return m_toolTip;
-    }
-    
+    QString toolTip() const;
 private slots:
     void onActivated( QSystemTrayIcon::ActivationReason reason );
     void onVisibleChanged();
-MyMenu* menu() const
-{
-    return m_menu;
-}
+    MyMenu* menu() const;
 
 signals:
     void windowIconChanged();
@@ -166,22 +121,8 @@ signals:
 public slots:
     void setWindowIcon(QUrl icon);
     void showMessage(const QString & title, const QString & message, QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information, int millisecondsTimeoutHint = 10000);
-void setMenu(MyMenu* arg)
-{
-    if (m_menu != arg) {
-        m_menu = arg;
-        systempTray.setContextMenu (m_menu->menu);
-        emit menuChanged(arg);
-    }
-}
-void setToolTip(QString arg)
-{
-    if (m_toolTip != arg) {
-        m_toolTip = arg;
-        systempTray.setToolTip (arg);
-        emit toolTipChanged(arg);
-    }
-}
+    void setMenu(MyMenu* arg);
+    void setToolTip(QString arg);
 };
 
 #endif // SYSTEMTRAYICON_H

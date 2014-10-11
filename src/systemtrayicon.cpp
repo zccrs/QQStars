@@ -24,9 +24,19 @@ void SystemTrayIcon::onVisibleChanged()
     systempTray.setVisible (isVisible ());
 }
 
+MyMenu *SystemTrayIcon::menu() const
+{
+    return m_menu;
+}
+
 QUrl SystemTrayIcon::windowIcon() const
 {
     return m_windowIcon;
+}
+
+QString SystemTrayIcon::toolTip() const
+{
+    return m_toolTip;
 }
 void SystemTrayIcon::setWindowIcon(QUrl icon)
 {
@@ -43,6 +53,24 @@ void SystemTrayIcon::setWindowIcon(QUrl icon)
 void SystemTrayIcon::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int millisecondsTimeoutHint)
 {
     systempTray.showMessage (title, message, icon, millisecondsTimeoutHint);
+}
+
+void SystemTrayIcon::setMenu(MyMenu *arg)
+{
+    if (m_menu != arg) {
+        m_menu = arg;
+        systempTray.setContextMenu (m_menu->menu);
+        emit menuChanged(arg);
+    }
+}
+
+void SystemTrayIcon::setToolTip(QString arg)
+{
+    if (m_toolTip != arg) {
+        m_toolTip = arg;
+        systempTray.setToolTip (arg);
+        emit toolTipChanged(arg);
+    }
 }
 
 MyMenuItem::MyMenuItem(QObject *parent) : 
@@ -111,6 +139,26 @@ MyMenu::MyMenu(QQuickItem *parent) :
     setVisible (false);
 }
 
+QUrl MyMenu::styleSource() const
+{
+    return m_styleSource;
+}
+
+int MyMenu::width() const
+{
+    return menu->width ();
+}
+
+int MyMenu::height() const
+{
+    return menu->height ();
+}
+
+QString MyMenu::styleSheet() const
+{
+    return menu->styleSheet ();
+}
+
 void MyMenu::clear()
 {
     menu->clear ();
@@ -152,6 +200,33 @@ void MyMenu::popup()
     QPoint pos = Utility::createUtilityClass ()->mouseDesktopPos();
     menu->move (pos);
     menu->show ();
+}
+
+void MyMenu::setWidth(int arg)
+{
+    int m_width = menu->width ();
+    if (m_width != arg) {
+        menu->setFixedWidth (arg);
+        emit widthChanged(arg);
+    }
+}
+
+void MyMenu::setHeight(int arg)
+{
+    int m_height = menu->height ();
+    if (m_height != arg) {
+        menu->setFixedHeight (arg);
+        emit heightChanged(arg);
+    }
+}
+
+void MyMenu::setStyleSheet(QString arg)
+{
+    QString m_styleSheet = menu->styleSheet ();
+    if (m_styleSheet != arg) {
+        menu->setStyleSheet (arg);
+        emit styleSheetChanged(arg);
+    }
 }
 
 

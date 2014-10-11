@@ -16,6 +16,8 @@ Item{
     }
     function addChat( uin , senderType){
         console.log("新建聊天")
+        //console.log("senderType为其他类型："+senderType)
+        
         for(var i=0;i<chat_window.chatWindow.length;++i){
             if(chat_window.chatWindow[i]){
                 if( chat_window.chatWindow[i].myuin==uin ){
@@ -26,16 +28,19 @@ Item{
         }
         var str
         switch(senderType){
-            case FriendInfo.Friend:
+            case QQItemInfo.Friend:
                 str="FriendChatWindow.qml"
                 break
-            case FriendInfo.Group:
+            case QQItemInfo.Group:
                 str = "GroupChatWindow.qml"
                 break
-            case FriendInfo.Discu:
+            case QQItemInfo.Discu:
                 str = "DiscuChatWindow.qml"
                 break
-            default:return
+            default:{
+                console.log("senderType为其他类型："+senderType)
+                return
+            }
         }
         
         var component = Qt.createComponent(str);

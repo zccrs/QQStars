@@ -44,7 +44,7 @@ protected:
         QByteArray data;
     };
 
-    QQueue<Data> queue_data;
+    QQueue<Data> queue_replyData;
     QQueue<requestData> queue_requestData;
     
     void send(QObject *caller, QByteArray slotName, QUrl url, QByteArray data="", bool highRequest=false );//highRequest记录是否为高级的网络请求

@@ -12,6 +12,16 @@ MySvgView::MySvgView(QQuickItem *parent) :
     connect (this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
 }
 
+QUrl MySvgView::source() const
+{
+    return m_source;
+}
+
+QSize MySvgView::defaultSize() const
+{
+    return m_defaultSize;
+}
+
 void MySvgView::setDefaultSize(QSize arg)
 {
     if(arg!=m_defaultSize){

@@ -21,7 +21,7 @@ Item{
             var i=0;
             
             for( i=0; i<groupmarknames.length;++i ) {
-                myqq.saveAlias(GroupInfo.Group, groupmarknames[i].uin, groupmarknames[i].markname)//储存备注信息
+                myqq.saveAlias(QQItemInfo.Group, groupmarknames[i].uin, groupmarknames[i].markname)//储存备注信息
             }
 
             var list_info = data.result.gnamelist
@@ -87,7 +87,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(item_root.myinfo.uin, GroupInfo.Discu)
+                    chat_command.addChat(item_root.myinfo.uin, QQItemInfo.Group)
                 }
             }
         }

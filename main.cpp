@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<FriendInfo>("QQItemInfo", 1,0, "FriendInfo");
     qmlRegisterType<GroupInfo>("QQItemInfo", 1,0, "GroupInfo");
     qmlRegisterType<DiscuInfo>("QQItemInfo", 1,0, "DiscuInfo");
+    qmlRegisterType<QQItemInfoPrivate>("QQItemInfo", 1,0, "QQItemInfo");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");

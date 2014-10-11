@@ -9,6 +9,17 @@
 #include "mynetworkaccessmanagerfactory.h"
 #include "mywindow.h"
 
+class QQItemInfoPrivate:public QQuickItem
+{
+    Q_OBJECT
+    Q_ENUMS(QQItemType)
+public:
+    enum QQItemType{
+        Friend,//好友
+        Group,//群
+        Discu,//讨论组
+    };
+};
 class QQItemInfo:public QQuickItem
 {
     Q_OBJECT
@@ -20,31 +31,25 @@ class QQItemInfo:public QQuickItem
     Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
     Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
     Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
+    Q_PROPERTY(QQItemInfoPrivate::QQItemType mytype READ mytype NOTIFY mytypeChanged CONSTANT)
 
     friend class FriendInfo;
     friend class GroupInfo;
     friend class DiscuInfo;
     friend class RecentInfo;
-protected:
-    enum QQItemType{
-        Friend,//好友
-        Group,//群
-        Discu,//讨论组
-        Recent//最近联系人
-    };
 private:
-    explicit QQItemInfo(QQItemType type, QQuickItem *parent=0);
+    explicit QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent=0);
     void initSettings();
+    
 protected:
     QString m_uin;
     QPointer<QSettings> mysettings;
     QString m_aliasOrNick;
     QString m_userQQ;
     QString m_alias;
-    QQItemType mytype;
     QString typeString;
     bool isCanUseSetting() const;
-    
+    QQItemInfoPrivate::QQItemType m_mytype;
 public:
     QString uin() const;
     QString nick() const;
@@ -56,8 +61,9 @@ public:
     QString aliasOrNick();
     QString userQQ() const;
     QString typeToString();
+    QQItemInfoPrivate::QQItemType mytype() const;
+    static const QString typeToString(QQItemInfoPrivate::QQItemType type);
     
-    static const QString typeToString(QQItemType type);
 private slots:
     void updataAliasOrNick();
 public slots:
@@ -80,13 +86,13 @@ signals:
     void uinChanged();
     
     void settingsChanged();
+    void mytypeChanged(QQItemInfoPrivate::QQItemType arg);
 };
 
 class FriendInfo:public  QQItemInfo
 {
     Q_OBJECT
     Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY qQSignatureChanged)//个性签名
-    Q_ENUMS(QQItemType)
 public:
     explicit FriendInfo(QQuickItem *parent=0);
     QString QQSignature();
@@ -99,7 +105,6 @@ signals:
 class GroupInfo:public  QQItemInfo
 {
     Q_OBJECT
-    Q_ENUMS(QQItemType)
 public:
     explicit GroupInfo(QQuickItem *parent=0);
 };
@@ -107,7 +112,6 @@ public:
 class DiscuInfo:public  QQItemInfo
 {
     Q_OBJECT
-    Q_ENUMS(QQItemType)
 public:
     explicit DiscuInfo(QQuickItem *parent=0);
 };
@@ -161,7 +165,6 @@ class QQCommand : public FriendInfo
     Q_ENUMS(LoginStatus)
     Q_ENUMS(SenderType)
     Q_ENUMS(MessageType)
-    Q_ENUMS(QQItemType)
 public:
     explicit QQCommand(QQuickItem *parent = 0);
     enum LoginStatus{
@@ -205,30 +208,11 @@ public:
         GroupLeave//群T人的消息
     };
     
-    QString userStatusToString() const
-    {
-        return m_userStatusToString;
-    }
-    LoginStatus loginStatus() const
-    {
-        return m_loginStatus;
-    }
-    
-    QString userQQ()
-    {
-        return m_userQQ;
-    }
-    
-    QString userPassword() const
-    {
-        return m_userPassword;
-    }
-    
-    double windowScale() const
-    {
-        return m_windowScale;
-    }
-    
+    QString userStatusToString() const;
+    LoginStatus loginStatus() const;
+    QString userQQ() const;
+    QString userPassword() const;
+    double windowScale() const;
     bool rememberPassword() const;
     bool autoLogin() const;
     QString codeText() const;
@@ -300,13 +284,11 @@ public slots:
     void showCodeWindow(const QJSValue callbackFun, const QString code_uin);
     void closeCodeWindow();
     void updataCode();//刷新验证码的显示
-    //void setValue(const QString & key, const QVariant & value, const QString & userQQ="");
-    //QVariant value(const QString & key, const QVariant & defaultValue = QVariant(), const QString & userQQ="") const;
-    //void removeValue( const QString & key, const QString & userQQ="" );
+    
     FriendInfo* createFriendInfo(const QString uin);
     GroupInfo* createGroupInfo(const QString uin);
     DiscuInfo* createDiscuInfo(const QString uin);
-    RecentInfo* createRecentInfo(QQItemInfo::QQItemType type, const QString uin);
+    RecentInfo* createRecentInfo(QQItemInfoPrivate::QQItemType type, const QString uin);
     void saveAlias(int type, QString uin, QString alias);//储存备注名称
     void updataApi(const QString content);
     QString getHash();

@@ -14,6 +14,11 @@ ThreadDownloadImage::~ThreadDownloadImage()
 {
 }
 
+ThreadDownloadImage::RequestStatus ThreadDownloadImage::status() const
+{
+    return m_status;
+}
+
 void ThreadDownloadImage::downloadFinish(QNetworkReply *replys)
 {
     if(replys->error() == QNetworkReply::NoError)

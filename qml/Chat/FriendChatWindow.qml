@@ -6,9 +6,15 @@ ChatWindow{
     id: root
     property var myinfo: myqq.createFriendInfo(myuin)
     windowIcon: myinfo.avatar40
-
+   
     onSendClicked: {
-        var data = {"uin":myqq.userQQ, "mode": "right", "message": inputBox.text}
+        var data = {
+            "uin":myqq.userQQ,
+            "send_uin":myuin,
+            "mytype": myinfo.mytype,
+            "mode": "right",
+            "message": inputBox.text
+        }
         listModel.append(data)
         inputBox.text = ""
     }
@@ -52,8 +58,13 @@ ChatWindow{
                     message+="取消视频通话"
                 }
             }
-            //console.log(message)
-            var data = {"uin":uin, "mode": "left", "message": message}
+            var data = {
+                "uin":uin,
+                "send_uin":"",
+                "mytype": myinfo.mytype,
+                "mode": "left",
+                "message": message
+            }
             listModel.append(data)
         }
     }

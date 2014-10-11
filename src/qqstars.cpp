@@ -37,6 +37,31 @@ QQCommand::QQCommand(QQuickItem *parent) :
     loadApi ();//加载api的js文件
 }
 
+QString QQCommand::userStatusToString() const
+{
+    return m_userStatusToString;
+}
+
+QQCommand::LoginStatus QQCommand::loginStatus() const
+{
+    return m_loginStatus;
+}
+
+QString QQCommand::userPassword() const
+{
+    return m_userPassword;
+}
+
+double QQCommand::windowScale() const
+{
+    return m_windowScale;
+}
+
+QString QQCommand::userQQ() const
+{
+    return m_userQQ;
+}
+
 bool QQCommand::rememberPassword() const
 {
     if(isCanUseSetting())
@@ -336,7 +361,6 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
 void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType type)
 {
     //qDebug()<<"是群消息";
-    
     QString from_uin = doubleToString (obj, "from_uin");;
     QString group_code = doubleToString (obj, "group_code");
     QString msg_id = doubleToString (obj, "msg_id");
@@ -349,7 +373,7 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString temp = analysisMessage (obj);
-        temp.insert (1, "\"send_uin\":"+send_uin+",");
+        temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
         emit messageArrive (Group, from_uin, temp);
         break;
     }
@@ -362,7 +386,6 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
 void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType type)
 {
     //qDebug()<<"是讨论组消息";
-    
     QString from_uin = doubleToString (obj, "from_uin");;
     QString did = doubleToString (obj, "did");
     QString msg_id = doubleToString (obj, "msg_id");
@@ -375,7 +398,7 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString temp = analysisMessage (obj);
-        temp.insert (1, "\"send_uin\":"+send_uin+",");
+        temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
         emit messageArrive (Discu, did, temp);
         break;
     }
@@ -401,16 +424,16 @@ void QQCommand::disposeSystemMessage(QJsonObject &obj)
     if(type == "verify_required"){//好友验证信息
         QString account = doubleToString (obj, "account");
         QString from_uin = doubleToString (obj, "from_uin");
-        emit messageArrive (SystemMessage, from_uin, "{\"type\":"+QString::number (FriendVerify)+",\"account\":"+account+"}");
+        emit messageArrive (SystemMessage, from_uin, "{\"type\":"+QString::number (FriendVerify)+",\"account\"\":"+account+"\"}");
     }else if(type == "group_admin_op"){//管理员变动信息
         QString from_uin = doubleToString (obj, "from_uin");
         QString uin = doubleToString (obj, "uin");
         QString uin_flag = doubleToString (obj, "uin_flag");
-        emit messageArrive (SystemMessage, from_uin, "{\"type\":"+QString::number (GroupAdmin)+",\"uin\":"+uin+",\"flag\":"+uin_flag+"}");
+        emit messageArrive (SystemMessage, from_uin, "{\"type\":"+QString::number (GroupAdmin)+",\"uin\":\""+uin+"\",\"flag\":\""+uin_flag+"\"}");
     }else if(type == "group_leave"){//群成员变动信息
         QString from_uin = doubleToString (obj, "from_uin");
         QString old_member = doubleToString (obj, "old_member");
-        emit messageArrive (SystemMessage, from_uin, "{\"type\":"+QString::number (GroupLeave)+",\"old_member\":"+old_member+"}");
+        emit messageArrive (SystemMessage, from_uin, "{\"type\":"+QString::number (GroupLeave)+",\"old_member\":\""+old_member+"\"}");
     }else{//其他系统消息
         qDebug()<<"其他系统消息:"<<type;
     }
@@ -609,17 +632,17 @@ DiscuInfo *QQCommand::createDiscuInfo(const QString uin)
     return info;
 }
 
-RecentInfo *QQCommand::createRecentInfo(QQItemType type, const QString uin)
+RecentInfo *QQCommand::createRecentInfo(QQItemInfoPrivate::QQItemType type, const QString uin)
 {
     RecentInfo *info = NULL;
     switch (type) {
-    case QQItemInfo::Friend:
+    case QQItemInfoPrivate::Friend:
         info = new RecentInfo(createFriendInfo (uin));
         break;
-    case QQItemInfo::Group:
+    case QQItemInfoPrivate::Group:
         info = new RecentInfo(createGroupInfo (uin));
         break;
-    case QQItemInfo::Discu:
+    case QQItemInfoPrivate::Discu:
         info = new RecentInfo(createDiscuInfo (uin));
         break;
     default:
@@ -630,27 +653,9 @@ RecentInfo *QQCommand::createRecentInfo(QQItemType type, const QString uin)
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)
 {
-    QString name = QQItemInfo::typeToString ((QQItemInfo::QQItemType)type)+uin;
+    QString name = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)type)+uin;
     map_alias[name] = alias;
 }
-
-/*void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)
-{
-    QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
-    mysettings.setValue (key, value);
-}
-
-QVariant QQCommand::value(const QString &key, const QVariant &defaultValue, const QString & userQQ ) const
-{
-    QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
-    return mysettings.value (key, defaultValue);
-}
-
-void QQCommand::removeValue(const QString &key, const QString & userQQ )
-{
-    QSettings mysettings(QDir::homePath ()+"/webqq/"+(userQQ==""?m_userQQ:userQQ)+"/.config.ini", QSettings::IniFormat);
-    mysettings.remove (key);
-}*/
 
 void QQCommand::updataApi(const QString content)
 {
@@ -745,8 +750,8 @@ void QQCommand::saveUserPassword()
 }
 
 
-QQItemInfo::QQItemInfo(QQItemType type, QQuickItem *parent):
-    QQuickItem(parent), typeString(type)
+QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
+    QQuickItem(parent), m_mytype (type)
 {
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::accountChanged);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::nickChanged);
@@ -756,19 +761,7 @@ QQItemInfo::QQItemInfo(QQItemType type, QQuickItem *parent):
     connect (this, &QQItemInfo::nickChanged, this, &QQItemInfo::updataAliasOrNick);
     connect (this, &QQItemInfo::aliasChanged, this, &QQItemInfo::updataAliasOrNick);
     
-    switch (type) {
-    case Friend:
-        typeString = "friend";
-        break;
-    case Group:
-        typeString = "group";
-    case Discu:
-        typeString = "discu";
-    case Recent:
-        typeString = "recent";
-    default:
-        break;
-    }
+    typeString = typeToString (type);
     mysettings = new QSettings(QDir::homePath ()+"/webqq/"+m_userQQ+"/"+typeString+"_"+m_uin+"/.config.ini", QSettings::IniFormat);
 }
 
@@ -845,21 +838,24 @@ QString QQItemInfo::typeToString()
     return typeString;
 }
 
-const QString QQItemInfo::typeToString(QQItemInfo::QQItemType type)
+const QString QQItemInfo::typeToString(QQItemInfoPrivate::QQItemType type)
 {
     switch (type) {
-    case Friend:
+    case QQItemInfoPrivate::Friend:
         return "friend";
         break;
-    case Group:
+    case QQItemInfoPrivate::Group:
         return "group";
-    case Discu:
+    case QQItemInfoPrivate::Discu:
         return "discu";
-    case Recent:
-        return "recent";
     default:
         return "";
     }
+}
+
+QQItemInfoPrivate::QQItemType QQItemInfo::mytype() const
+{
+    return m_mytype;
 }
 
 QString QQItemInfo::account() const
@@ -939,7 +935,7 @@ void QQItemInfo::clearSettings()
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):
-    QQItemInfo(Friend, parent)
+    QQItemInfo(QQItemInfoPrivate::Friend, parent)
 {
     connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::qQSignatureChanged);
 }
@@ -961,14 +957,14 @@ void FriendInfo::setQQSignature(QString arg)
 
 
 GroupInfo::GroupInfo(QQuickItem *parent):
-    QQItemInfo(Group, parent)
+    QQItemInfo(QQItemInfoPrivate::Group, parent)
 {
     
 }
 
 
 DiscuInfo::DiscuInfo(QQuickItem *parent):
-    QQItemInfo(Discu, parent)
+    QQItemInfo(QQItemInfoPrivate::Discu, parent)
 {
     
 }

@@ -30,14 +30,8 @@ class MyWindowShortcut : public QObject
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
 public:
     explicit MyWindowShortcut(MyWindowShortcutList* parent = 0);
-    QString shortcut() const
-    {
-        return m_shortcut;
-    }
-    bool enabled() const
-    {
-        return m_enabled;
-    }
+    QString shortcut() const;
+    bool enabled() const;
 public slots:
     void setShortcut(QString arg);
     void setEnabled(bool arg);
@@ -87,60 +81,17 @@ public:
         BerthTop//停靠在上边
     };
     
-    bool noNotifyIcon() const
-    {
-        return m_noNotifyIcon;
-    }
-    
-    int width() const
-    {
-        return m_width;
-    }
-    
-    int height() const
-    {
-        return m_height;
-    }
-    
-    int actualWidth() const
-    {
-        return QQuickWindow::width ();
-    }
-    
-    int actualHeight() const
-    {
-        return QQuickWindow::height ();
-    }
-    bool windowActive() const
-    {
-        return m_windowActive;
-    }
-    
-    MyWindowShortcutList* shortcuts() const
-    {
-        return m_shortcuts;
-    }
-    
-    int x() const
-    {
-        return QQuickWindow::x ()+contentItem ()->x ();
-    }
-    
-    int y() const
-    {
-        return QQuickWindow::y ()+contentItem ()->y ();
-    }
-    
-    int actualX() const
-    {
-        return QQuickWindow::x ();
-    }
-    
-    int actualY() const
-    {
-        return QQuickWindow::y ();
-    }
-    
+    bool noNotifyIcon() const;
+    int width() const;
+    int height() const;
+    int actualWidth() const;
+    int actualHeight() const;
+    bool windowActive() const;
+    MyWindowShortcutList* shortcuts() const;
+    int x() const;
+    int y() const;
+    int actualX() const;
+    int actualY() const;
 private:
     QUrl m_windowIcon;
     QUrl windowIcon();
@@ -206,22 +157,10 @@ public slots:
     void setActualHeight(int arg);
     void setShortcuts(MyWindowShortcutList* arg);
     
-    void setX(int arg)
-    {
-        QQuickWindow::setX (arg-contentItem ()->x ());
-    }
-    void setY(int arg)
-    {
-        QQuickWindow::setY (arg-contentItem ()->y ());
-    }
-    void setActualX(int arg)
-    {
-        QQuickWindow::setX (arg);
-    }
-    void setActualY(int arg)
-    {
-        QQuickWindow::setY (arg);
-    }
+    void setX(int arg);
+    void setY(int arg);
+    void setActualX(int arg);
+    void setActualY(int arg);
 };
 
 #endif // MYWINDOW_H

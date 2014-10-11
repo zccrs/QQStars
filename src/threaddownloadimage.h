@@ -22,10 +22,7 @@ public:
         Idle,//初始状态
         Busy//请求中
     };
-    RequestStatus status() const
-    {
-        return m_status;
-    }
+    RequestStatus status() const;
     
 private:
     NetworkAccessManager imageManager;

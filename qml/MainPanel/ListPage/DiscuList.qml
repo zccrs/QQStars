@@ -19,7 +19,6 @@ Item{
             var list_info = data.result.dnamelist
             for( var i=0; i< list_info.length;++i ) {
                 mymodel.append({"obj_info": list_info[i]})
-                //console.log("增加讨论组")
             }
         }
     }
@@ -75,7 +74,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(item_root.myinfo.uin, DiscuInfo.Discu)
+                    chat_command.addChat(item_root.myinfo.uin, QQItemInfo.Discu)
                 }
             }
         }

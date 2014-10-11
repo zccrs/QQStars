@@ -11,6 +11,21 @@ MyImage::MyImage(QQuickItem *parent) :
     connect (this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
 }
 
+QUrl MyImage::source() const
+{
+    return m_source;
+}
+
+QUrl MyImage::maskSource() const
+{
+    return m_maskSource;
+}
+
+bool MyImage::cache() const
+{
+    return m_cache;
+}
+
 void MyImage::onWidthChanged()
 {
     setImplicitHeight (pixmap.size ().height ()*(width ()/pixmap.size ().width ()));
@@ -62,5 +77,13 @@ void MyImage::setMaskSource(QUrl arg)
             str = str.mid (3, str.count ()-3);
         bitmap.load (str);
         emit maskSourceChanged(arg);
+    }
+}
+
+void MyImage::setCache(bool arg)
+{
+    if (m_cache != arg) {
+        m_cache = arg;
+        emit cacheChanged(arg);
     }
 }

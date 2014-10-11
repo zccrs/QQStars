@@ -40,6 +40,61 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     m_shortcuts = NULL;
 }
 
+bool MyWindow::noNotifyIcon() const
+{
+    return m_noNotifyIcon;
+}
+
+int MyWindow::width() const
+{
+    return m_width;
+}
+
+int MyWindow::height() const
+{
+    return m_height;
+}
+
+int MyWindow::actualWidth() const
+{
+    return QQuickWindow::width ();
+}
+
+int MyWindow::actualHeight() const
+{
+    return QQuickWindow::height ();
+}
+
+bool MyWindow::windowActive() const
+{
+    return m_windowActive;
+}
+
+MyWindowShortcutList *MyWindow::shortcuts() const
+{
+    return m_shortcuts;
+}
+
+int MyWindow::x() const
+{
+    return QQuickWindow::x ()+contentItem ()->x ();
+}
+
+int MyWindow::y() const
+{
+    return QQuickWindow::y ()+contentItem ()->y ();
+}
+
+int MyWindow::actualX() const
+{
+    return QQuickWindow::x ();
+}
+
+int MyWindow::actualY() const
+{
+    return QQuickWindow::y ();
+}
+
 bool MyWindow::topHint() const
 {
     return m_topHint;
@@ -276,6 +331,26 @@ void MyWindow::setShortcuts(MyWindowShortcutList *arg)
     }
 }
 
+void MyWindow::setX(int arg)
+{
+    QQuickWindow::setX (arg-contentItem ()->x ());
+}
+
+void MyWindow::setY(int arg)
+{
+    QQuickWindow::setY (arg-contentItem ()->y ());
+}
+
+void MyWindow::setActualX(int arg)
+{
+    QQuickWindow::setX (arg);
+}
+
+void MyWindow::setActualY(int arg)
+{
+    QQuickWindow::setY (arg);
+}
+
 
 MyWindowShortcut::MyWindowShortcut(MyWindowShortcutList* parent):
     QObject(parent)
@@ -283,6 +358,16 @@ MyWindowShortcut::MyWindowShortcut(MyWindowShortcutList* parent):
     setObjectName ("MyWindowShortcut");
     shortcutMapId = -1;
     m_enabled = true;
+}
+
+QString MyWindowShortcut::shortcut() const
+{
+    return m_shortcut;
+}
+
+bool MyWindowShortcut::enabled() const
+{
+    return m_enabled;
 }
 
 void MyWindowShortcut::setShortcut(QString arg)

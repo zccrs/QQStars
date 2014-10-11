@@ -16,15 +16,8 @@ class MySvgView : public QQuickPaintedItem
     void setDefaultSize( QSize arg );
 public:
     explicit MySvgView(QQuickItem *parent = 0);
-    QUrl source() const
-    {
-        return m_source;
-    }
-
-    QSize defaultSize() const
-    {
-        return m_defaultSize;
-    }
+    QUrl source() const;
+    QSize defaultSize() const;
 
 private slots:
     void onWidthChanged();

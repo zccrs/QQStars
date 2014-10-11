@@ -12,10 +12,7 @@ class MyMessageBox : public QMessageBox
     
 public:
     explicit MyMessageBox(QWidget *parent = 0);
-    QUrl styleSource() const
-    {
-        return m_styleSource;
-    }
+    QUrl styleSource() const;
     
 private:
      void mousePressEvent(QMouseEvent * event);
