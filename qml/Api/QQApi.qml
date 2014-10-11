@@ -58,11 +58,11 @@ QQ{
             if( code ) {//开始第一次登陆GET
                 var p = encryptionPassword(uin, code)
                 var url1 = "https://ssl.ptlogin2.qq.com/login?u="+myqq.userQQ+"&p="+p+"&verifycode="+code+"&webqq_type=10&remember_uin=1&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=5-42-29419&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10087&login_sig=0RH3iE1ODTjmJJtKJ5MtDyoG*Q*pwgh2ABgmvw0E0zjdJpjPBbS*H9aZ4WRwLSFk&pt_uistyle=5"
-                utility.socketSend(login1Finished, url1)
+                utility.httpGet(login1Finished, url1)
             }else{//先检测qq号是否需要输入验证码
                 utility.socketAbort()//取消以前的网络请求
                 var url2 = "https://ssl.ptlogin2.qq.com/check?uin="+myqq.userQQ+"&appid=1003903&r=0.08757076971232891"
-                utility.socketSend(testQQFinished, url2)
+                utility.httpGet(testQQFinished, url2)
             }
         }
     }
@@ -93,7 +93,7 @@ QQ{
             if( list[1]==0 ){
                 closeCodeWindow()//关闭输入验证码的窗口
                 var url = list[5]//先get一下返回数据中的url，来获取必要的Cookie
-                utility.socketSend(login2, url)//此地址GET完成后调用二次登录
+                utility.httpGet(login2, url)//此地址GET完成后调用二次登录
             }else{
                 myqq.showWarningInfo("登录失败："+list[9])
                 myqq.error(list[9])
@@ -108,7 +108,7 @@ QQ{
             list_hash = getHash()//储存hash
             var data = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
             data = encodeURI(data)
-            utility.socketSend(login2Finished, url, data)
+            utility.httpPost(login2Finished, url, data)
         }
     }
     
@@ -132,7 +132,7 @@ QQ{
     
     function getUserData(uin, backFun) {//获取用户资料，登录完成后的操作
         var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+uin+"&verifysession=&code=&vfwebqq="+loginReData.vfwebqq+"&t=1407324674215"
-        utility.socketSend(backFun, url)
+        utility.httpGet(backFun, url)
     }
     
     function getDataFinished(error, data) {//获取用户资料成功后
@@ -157,7 +157,7 @@ QQ{
             //var url = "http://cgi.web2.qq.com/keycgi/qqweb/newuac/get.do"
             //var data = 'r={"appid":50,"itemlist":["width","height","defaultMode"]}&uin='+myqq.userQQ
             //data = encodeURI(data)
-            //utility.socketSend(getPanelSizeFinished, url, data)
+            //utility.httpPost(getPanelSizeFinished, url, data)
             getPanelSizeFinished(false, "")
         }
     }
@@ -190,37 +190,37 @@ QQ{
     }
     function getQQSignature(uin, backFun){//获取好友个性签名 backFun为签名获取成功后调用
         var url = "http://s.web2.qq.com/api/get_single_long_nick2?tuin="+uin+"&vfwebqq="+loginReData.vfwebqq
-        utility.socketSend(backFun, url)
+        utility.httpGet(backFun, url)
     }
     function getFriendList(backFun) {//获取好友列表
         var url = "http://s.web2.qq.com/api/get_user_friends2"
         var data = 'r={"h":"hello","hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
         data = encodeURI(data)
-        utility.httpPost(backFun, url, data, Socket.High)
+        utility.httpPost(backFun, url, data, true)
     }
     
     function getGroupList(backFun) {//获取群列表
         var url = "http://s.web2.qq.com/api/get_group_name_list_mask2"
         var data = 'r={"hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
         data = encodeURI(data)
-        utility.httpPost(backFun, url, data, Socket.High)
+        utility.httpPost(backFun, url, data, true)
     }
     
     function getRecentList(backFun) {//获取最近联系人
         var url = "http://d.web2.qq.com/channel/get_recent_list2"
         var data = 'r={"vfwebqq":"'+loginReData.vfwebqq+'","clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
-        utility.httpPost(backFun, url, data, Socket.High)
+        utility.httpPost(backFun, url, data, true)
     }
     
     function getDiscusList(backFun) {//讨论组列表
         var url = "http://s.web2.qq.com/api/get_discus_list?clientid="+clientid+"&psessionid="+loginReData.psessionid+"&vfwebqq="+loginReData.vfwebqq
-        utility.httpGet(backFun, url, Socket.High)
+        utility.httpGet(backFun, url, true)
     }
     
     function getFriendQQ( tuin, backFun ) {//获得好友真实的qq
         var url = "http://s.web2.qq.com/api/get_friend_uin2?tuin="+tuin+"&verifysession=&type=1&code=&vfwebqq="+loginReData.vfwebqq
-        utility.socketSend(backFun, url)
+        utility.httpGet(backFun, url)
     }
     
     function getAvatarFinished( path, name ){//获得自己头像完成
@@ -230,13 +230,13 @@ QQ{
     
     function getFriendInfo( tuin,backFun ) {//获取好友资料
         var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+tuin+"&verifysession=&code=&vfwebqq="+loginReData.vfwebqq
-        utility.socketSend(backFun, url)
+        utility.httpGet(backFun, url)
     }
     
     function editUserStatus(){
         if( loginStatus == QQ.LoginFinished ) {
             var url = "http://d.web2.qq.com/channel/change_status2?newstatus="+myqq.userStatusToString+"&clientid="+clientid+"&psessionid="+loginReData.psessionid
-            utility.socketSend(editUserStatusFinished, url)
+            utility.httpGet(editUserStatusFinished, url)
         }
     }
     function editUserStatusFinished(error, data){
@@ -254,24 +254,24 @@ QQ{
     }
     
     function sendMessage(backFun, uin, message){
-        if(message[message.length-1]=="\n"){
+        while(message[message.length-1]=="\n"){
             message = message.substr(0, message.length-1)
         }
 
         var url = "http://d.web2.qq.com/channel/send_buddy_msg2"
         var data = 'r={"to":'+uin+',"face":549,"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":45070001,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
-        utility.socketSend(backFun, url, data, Socket.High)
+        utility.httpPost(backFun, url, data, true)
     }
     
     function sendGroupMessage(backFun, uin, message){
-        if(message[message.length-1]=="\n"){
+        while(message[message.length-1]=="\n"){
             message = message.substr(0, message.length-1)
         }
 
         var url = "http://d.web2.qq.com/channel/send_qun_msg2"
         var data = 'r={"group_uin":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
-        utility.socketSend(backFun, url, data, Socket.High)
+        utility.httpPost(backFun, url, data, true)
     }
 }

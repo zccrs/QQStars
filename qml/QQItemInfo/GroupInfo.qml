@@ -8,6 +8,10 @@ GroupInfo{
         if(code!="")
             myqq.getFriendQQ(code, getQQFinished)//获得真实qq
     }
+    onAccountChanged: {
+        if(account==""&&code!="")
+            myqq.getFriendQQ(code, getQQFinished)//获得真实qq
+    }
 
     function getQQFinished(error, data){//获取真实群号后调用的函数
         if(error){
@@ -18,9 +22,7 @@ GroupInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
-            
-            if(avatar40=="qrc:/images/avatar.png")
-                getAvatar(40)
+            getAvatar(40)
         }
     }
     function getAvatarFinished( path ,name){
@@ -29,15 +31,8 @@ GroupInfo{
     }
     function getAvatar(size){
         if(account!=""){
-            if( avatar40=="qrc:/images/avatar.png" )//如果头像不存在
-                myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+uin, String(size), getAvatarFinished)//下载头像
-        }else if(code!=""){
-            myqq.getFriendQQ(code, getQQFinished)//获得真实qq
+            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+uin, String(size), getAvatarFinished)//下载头像
         }
-    }
-
-    onAccountChanged:{
-        getAvatar(40)
     }
     onAvatar40Changed: {
         if(avatar40=="qrc:/images/avatar.png")

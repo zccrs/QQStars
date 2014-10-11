@@ -10,7 +10,6 @@ ChatWindow{
         //console.log(data)
     }
     onSendClicked: {
-        myqq.sendGroupMessage(sendMessageFinished, myuin, inputBox.text)//发送消息
         var data = {"uin":String(myqq.userQQ), "mode": "right", "message": inputBox.text}
         listModel.append(data)
         inputBox.text = ""

@@ -20,7 +20,7 @@ MyWindow{
     property QtObject control: null
     property int mynumber
     property string myuin
-    property var type
+    property int type
     property var closeFun//窗口关闭的时候调用此函数
     signal sendClicked//点击发送按钮好调用此函数
     property alias menuBar: menu_bar
@@ -40,12 +40,14 @@ MyWindow{
             shortcut: "Ctrl+Return"
             onTrigger: {
                 input.text+="\n"
+                input.cursorPosition = input.text.length//设置光标位置
             }
         }
         MyShortcut{
             shortcut: "Ctrl+Enter"
             onTrigger: {
                 input.text+="\n"
+                input.cursorPosition = input.text.length//设置光标位置
             }
         }
         MyShortcut{

@@ -50,6 +50,7 @@ Item{
                 id: avatar
                 x:10
                 width:40
+                cache: false
                 maskSource: "qrc:/images/bit.bmp"
                 source: myinfo.avatar40//myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
                 onLoadError: {

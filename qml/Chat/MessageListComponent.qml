@@ -7,6 +7,27 @@ Component{
         width: parent.width
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
         property var myinfo: myqq.createFriendInfo(uin)
+        Component.onCompleted: {
+            console.log(uin)
+            if(mode == "right"){//如果为right代表是要发送消息
+                myqq.sendGroupMessage(sendMessageFinished, uin, message)//发送消息
+            }
+        }
+        function sendMessageFinished(error, data){//如果这个Item发送信息，此函数用来接收发送结果
+            //console.log(data)
+            if(!error){//如果没有出错
+                data = JSON.parse(data)
+                if(data.retcode==0&&data.result=="ok"){
+                    console.log("发送成功")
+                }else{
+                    console.log("发送失败")
+                    mytext.text+=":发送失败"
+                }
+            }else{
+                console.log("发送失败")
+                mytext.text+=":发送失败"
+            }
+        }
         MyImage{
             id: avatar
             x:mode=="left"?0:root.width-width

@@ -559,9 +559,12 @@ FriendInfo *QQCommand::createFriendInfo(const QString uin)
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     QQmlComponent component(engine, "./qml/QQItemInfo/FriendInfo.qml");
     FriendInfo *info = qobject_cast<FriendInfo*>(component.create ());
-    info->setUserQQ (userQQ());
-    info->setUin (uin);
-    map_itemInfo[name] = info;
+    if(info!=NULL){
+        info->setUserQQ (userQQ());
+        info->setUin (uin);
+        info->setAlias (map_alias[name]);//设置备注名
+        map_itemInfo[name] = info;
+    }
     return info;
 }
 
@@ -577,9 +580,12 @@ GroupInfo *QQCommand::createGroupInfo(const QString uin)
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     QQmlComponent component(engine, "./qml/QQItemInfo/GroupInfo.qml");
     GroupInfo *info = qobject_cast<GroupInfo*>(component.create ());
-    info->setUserQQ (userQQ());
-    info->setUin (uin);
-    map_itemInfo[name] = info;
+    if(info!=NULL){
+        info->setUserQQ (userQQ());
+        info->setUin (uin);
+        info->setAlias (map_alias[name]);//设置备注名
+        map_itemInfo[name] = info;
+    }
     return info;
 }
 
@@ -595,9 +601,11 @@ DiscuInfo *QQCommand::createDiscuInfo(const QString uin)
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     QQmlComponent component(engine, "./qml/QQItemInfo/DiscuInfo.qml");
     DiscuInfo *info = qobject_cast<DiscuInfo*>(component.create ());
-    info->setUserQQ (userQQ());
-    info->setUin (uin);
-    map_itemInfo[name] = info;
+    if(info!=NULL){
+        info->setUserQQ (userQQ());
+        info->setUin (uin);
+        map_itemInfo[name] = info;
+    }
     return info;
 }
 
@@ -618,6 +626,12 @@ RecentInfo *QQCommand::createRecentInfo(QQItemType type, const QString uin)
         break;
     }
     return info;
+}
+
+void QQCommand::saveAlias(int type, QString uin, QString alias)
+{
+    QString name = QQItemInfo::typeToString ((QQItemInfo::QQItemType)type)+uin;
+    map_alias[name] = alias;
 }
 
 /*void QQCommand::setValue(const QString &key, const QVariant &value, const QString & userQQ)
@@ -831,6 +845,23 @@ QString QQItemInfo::typeToString()
     return typeString;
 }
 
+const QString QQItemInfo::typeToString(QQItemInfo::QQItemType type)
+{
+    switch (type) {
+    case Friend:
+        return "friend";
+        break;
+    case Group:
+        return "group";
+    case Discu:
+        return "discu";
+    case Recent:
+        return "recent";
+    default:
+        return "";
+    }
+}
+
 QString QQItemInfo::account() const
 {
     if(isCanUseSetting())
@@ -873,18 +904,14 @@ void QQItemInfo::setAccount(QString arg)
 
 void QQItemInfo::setAvatar40(QString arg)
 {
-    if (isCanUseSetting()&&avatar40() != arg) {
-        mysettings->setValue (typeString+"_"+uin()+"avatar-40", arg);
-        emit avatar40Changed();
-    }
+    mysettings->setValue (typeString+"_"+uin()+"avatar-40", arg);
+    emit avatar40Changed();
 }
 
 void QQItemInfo::setAvatar240(QString arg)
 {
-    if (isCanUseSetting()&&avatar240() != arg) {
-        mysettings->setValue (typeString+"_"+uin()+"avatar-240", arg);
-        emit avatar240Changed();
-    }
+    mysettings->setValue (typeString+"_"+uin()+"avatar-240", arg);
+    emit avatar240Changed();
 }
 
 void QQItemInfo::updataAliasOrNick()

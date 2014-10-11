@@ -21,9 +21,7 @@ Item{
             var i=0;
             
             for( i=0; i<groupmarknames.length;++i ) {
-                var newObject = myqq.createGroupInfo(groupmarknames[i].uin)
-                if(newObject!=null)
-                    newObject.alias = groupmarknames[i].markname
+                myqq.saveAlias(GroupInfo.Group, groupmarknames[i].uin, groupmarknames[i].markname)//储存备注信息
             }
 
             var list_info = data.result.gnamelist
@@ -72,6 +70,7 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
+                cache: false
                 source: myinfo.avatar40
                 onLoadError: {
                     item_root.myinfo.avatar40 = "qrc:/images/avatar.png"

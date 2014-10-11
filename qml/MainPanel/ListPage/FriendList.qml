@@ -23,11 +23,8 @@ Item{
         data = JSON.parse(data)
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
-            
             for( var i=0; i<marknames.length;++i ) {
-                var newObject = myqq.createFriendInfo(marknames[i].uin)
-                if(newObject!=null)
-                    newObject.alias = marknames[i].markname//储存备注信息
+                myqq.saveAlias(FriendInfo.Friend, marknames[i].uin, marknames[i].markname)//储存备注信息
             }
             var categories = data.result.categories//分组信息
             for(i=0; i<categories.length;++i){
@@ -165,7 +162,8 @@ Item{
                 x:10
                 width:40
                 maskSource: "qrc:/images/bit.bmp"
-                source: myinfo.avatar40//myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                cache: false
+                source: myinfo.avatar40
                 onLoadError: {
                     myinfo.avatar40 = "qrc:/images/avatar.png"
                 }

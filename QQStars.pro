@@ -16,8 +16,8 @@ SOURCES += main.cpp \
     src/threaddownloadimage.cpp \
     src/mysvgview.cpp \ 
     src/myimage.cpp \
-    src/mysocket.cpp \
-    src/mymessagebox.cpp
+    src/mymessagebox.cpp \
+    src/myhttprequest.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc \
@@ -48,8 +48,8 @@ HEADERS += \
     src/threaddownloadimage.h \
     src/mysvgview.h \ 
     src/myimage.h \
-    src/mysocket.h \
-    src/mymessagebox.h
+    src/mymessagebox.h \
+    src/myhttprequest.h
 
 OTHER_FILES += \
     qml/Utility/CodeInput.qml \

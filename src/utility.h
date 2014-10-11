@@ -6,7 +6,7 @@
 #include <QByteArray>
 #include "mynetworkaccessmanagerfactory.h"
 #include "threaddownloadimage.h"
-#include "mysocket.h"
+#include "myhttprequest.h"
 #include <QTimer>
 #include <QPoint>
 #include <QSettings>
@@ -39,7 +39,7 @@ private:
     QPoint old_pos;
     QPointer<QSettings> mysettings;
     
-    MySocket *socket;
+    MyHttpRequest *http_request;
     ThreadDownloadImage *download_image;
 
     char numToStr(int num);//将数字按一定的规律换算成字母
@@ -66,11 +66,10 @@ public slots:
     
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
-    void socketSend(QJSValue callbackFun, QUrl url, QByteArray data="", int priority=0);
-    void httpGet(QObject *caller, QByteArray slotName, QUrl url, int priority=0);
-    void httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, int priority=0);
-    void httpGet(QJSValue callbackFun, QUrl url, int priority=0 );
-    void httpPost(QJSValue callbackFun, QUrl url, QByteArray data="", int priority=0 );
+    void httpGet(QObject *caller, QByteArray slotName, QUrl url, bool highRequest=false);
+    void httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, bool highRequest=false);
+    void httpGet(QJSValue callbackFun, QUrl url, bool highRequest=false );
+    void httpPost(QJSValue callbackFun, QUrl url, QByteArray data="", bool highRequest=false );
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     

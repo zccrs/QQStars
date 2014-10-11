@@ -56,6 +56,8 @@ public:
     QString aliasOrNick();
     QString userQQ() const;
     QString typeToString();
+    
+    static const QString typeToString(QQItemType type);
 private slots:
     void updataAliasOrNick();
 public slots:
@@ -273,6 +275,7 @@ private:
     QString m_codeText;
     QPointer<MyWindow> warning_info_window;
     QMap<QString, QQItemInfo*> map_itemInfo;
+    QMap<QString, QString> map_alias;
 signals:
     void userStatusChanged();
     void userStatusToStringChanged();
@@ -304,7 +307,7 @@ public slots:
     GroupInfo* createGroupInfo(const QString uin);
     DiscuInfo* createDiscuInfo(const QString uin);
     RecentInfo* createRecentInfo(QQItemInfo::QQItemType type, const QString uin);
-    
+    void saveAlias(int type, QString uin, QString alias);//储存备注名称
     void updataApi(const QString content);
     QString getHash();
     QString encryptionPassword(const QString &uin, const QString &code);

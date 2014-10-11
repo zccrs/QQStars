@@ -16,7 +16,7 @@ Utility::Utility(QObject *parent) :
 {
     qmlRegisterType<UtilityPrivate>("utility", 1, 0, "Utility");
 
-    socket = new MySocket(this);
+    http_request = new MyHttpRequest(this);
     download_image = new ThreadDownloadImage(this);
     old_pos = QPoint(-1,-1);
 }
@@ -180,34 +180,29 @@ void Utility::downloadImage(QJSValue callbackFun, QUrl url, QString savePath, QS
     download_image->getImage (callbackFun, url, savePath, saveName);
 }
 
-void Utility::socketSend(QJSValue callbackFun, QUrl url, QByteArray data, int priority)
+void Utility::httpGet(QObject *caller, QByteArray slotName, QUrl url, bool highRequest)
 {
-    socket->send (callbackFun, url, data, (MySocket::Priority)priority);
+    http_request->get (caller, slotName, url, highRequest);
 }
 
-void Utility::httpGet(QObject *caller, QByteArray slotName, QUrl url, int priority)
+void Utility::httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, bool highRequest)
 {
-    socket->get (caller, slotName, url, (MySocket::Priority)priority);
+    http_request->post (caller, slotName, url, data, highRequest);
 }
 
-void Utility::httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, int priority)
+void Utility::httpGet(QJSValue callbackFun, QUrl url, bool highRequest)
 {
-    socket->post (caller, slotName, url, data, (MySocket::Priority)priority);
+    http_request->get (callbackFun, url, highRequest);
 }
 
-void Utility::httpGet(QJSValue callbackFun, QUrl url, int priority)
+void Utility::httpPost(QJSValue callbackFun, QUrl url, QByteArray data, bool highRequest)
 {
-    socket->get (callbackFun, url, (MySocket::Priority)priority);
-}
-
-void Utility::httpPost(QJSValue callbackFun, QUrl url, QByteArray data, int priority)
-{
-    socket->post (callbackFun, url, data, (MySocket::Priority)priority);
+    http_request->post (callbackFun, url, data, highRequest);
 }
 
 void Utility::socketAbort()
 {
-    socket->abort ();
+    http_request->abort ();
 }
 
 void Utility::setApplicationProxy(int type, QString location, QString port, QString username, QString password)

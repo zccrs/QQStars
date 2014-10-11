@@ -6,15 +6,8 @@ ChatWindow{
     id: root
     property var myinfo: myqq.createFriendInfo(myuin)
     windowIcon: myinfo.avatar40
-    Component.onCompleted: {
-        console.log(myinfo.nick+"的uin是"+myuin)
-    }
 
-    function sendMessageFinished(error, data){
-        console.log(data)
-    }
     onSendClicked: {
-        myqq.sendMessage(sendMessageFinished, myuin, inputBox.text)//发送消息
         var data = {"uin":myqq.userQQ, "mode": "right", "message": inputBox.text}
         listModel.append(data)
         inputBox.text = ""
