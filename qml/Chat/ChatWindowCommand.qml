@@ -9,6 +9,11 @@ MyWindow{
     minHeight: 500
     minWidth: 600+left_bar.width
     visible: true
+    onVisibleChanged: {
+        if(visible)
+            root.showFront()//显示到最屏幕最前端
+    }
+
     noBorder: true//无边框的
     removable: true//可移动的
     fixedSize: false//固定大小的
@@ -17,12 +22,16 @@ MyWindow{
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
     windowGlowItem.color: "black"//"#f07000"
-    property var currentShowPage//记录当前显示中的聊天页面
+    property ChatWindow currentShowPage//记录当前显示中的聊天页面
     
     function setCurrentShowPage(page){
-        if(currentShowPage){
-            currentShowPage.visible = false//先将旧的page设置为隐藏
+        //console.log(page+","+currentShowPage)
+        if(currentShowPage!==page){//判断是否page就是当前活动页面
+            page.visible = true
+            if(currentShowPage)
+                currentShowPage.visible = false//先将旧的page设置为隐藏
             currentShowPage = page//
+            //console.log(page+","+currentShowPage)
         }
     }
 
@@ -36,6 +45,9 @@ MyWindow{
     Connections{
         target: myqq
         onAddChatPage:{
+            setCurrentShowPage(item)//设置当前显示的页面为item
+        }
+        onActiveChatPageChanged:{//如果活跃的Page改变为item
             setCurrentShowPage(item)//设置当前显示的页面为item
         }
     }

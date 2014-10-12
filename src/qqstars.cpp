@@ -194,6 +194,15 @@ void QQCommand::initUserPassword()
     }
 }
 
+void QQCommand::onChatMainWindowClose()//如果主聊天窗口关闭，那就销毁所有已经建立的聊天页面
+{
+    foreach (QQuickItem *item, map_chatPage) {
+        if(item!=NULL){
+            item->deleteLater ();//销毁此页面
+        }
+    }
+}
+
 QQCommand::QQStatus QQCommand::userStatus()
 {
     if(isCanUseSetting())
@@ -311,7 +320,7 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
     {
     case GeneralMessage:{
         QString data = disposeMessage (obj);//先处理基本消息
-        emit newFriendMessage (from_uin, data);
+        emit newMessage (from_uin, from_uin, data);
         //emit messageArrive (Friend, from_uin, data);
         break;
     }
@@ -359,7 +368,7 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString data = disposeMessage (obj);
-        emit newGroupOrDiscuMessage (from_uin, send_uin, data);//发送信号
+        emit newMessage (from_uin, send_uin, data);//发送信号
         //temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
         //emit messageArrive (Group, from_uin, temp);
         break;
@@ -385,7 +394,7 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString data = disposeMessage (obj);
-        emit newGroupOrDiscuMessage (from_uin, send_uin, data);//发送信号
+        emit newMessage (from_uin, send_uin, data);//发送信号
         //temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
         //emit messageArrive (Discu, did, temp);
         break;
@@ -650,31 +659,50 @@ DiscuInfo *QQCommand::createDiscuInfo(const QString uin)
 
 void QQCommand::addChatWindow(QString uin, int senderType)
 {
+    if(uin=="")
+        return;
+    QString typeStr = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);//获取此类型的字符串表达形式
+    if(typeStr.size ()>0)
+        typeStr.replace (0, 1, typeStr[0].toUpper ());//将首字母的小写转化为大写
+    else 
+        return;//如果类型不合法就返回
+    
+    if(map_chatPage.contains(typeStr+uin)){//如果已经存在
+        emit activeChatPageChanged (map_chatPage[typeStr+uin]);//活跃的聊天Page改变为temp
+        mainChatWindowCommand->show ();//显示出聊天窗口
+        return;//如果已经处在此Page就返回
+    }
+    
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     if(mainChatWindowCommand.isNull ()){
         QQmlComponent component(engine, "./qml/Chat/ChatWindowCommand.qml");
         mainChatWindowCommand = qobject_cast<QQuickWindow*>(component.create ());
         if(mainChatWindowCommand){
-            mainChatWindowCommand_item = mainChatWindowCommand->contentItem ()->findChild<QQuickItem*>("ChatWindowCommandItem");
-            //将聊天页面的父对象储存起来
+            foreach (QQuickItem *item, mainChatWindowCommand->contentItem ()->childItems ()) {
+                if(item->objectName () == "ChatWindowCommandItem"){
+                    mainChatWindowCommand_item = item;//将聊天页面的父对象储存起来
+                    break;
+                }
+            }
         }else{
+            qDebug()<<"创建ChatWindowCommand.qml出错";
             return;//如果出错就返回
         }
     }
-    QString temp = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);
-    if(temp.size ()>0)
-        temp.replace (0, 1, temp[0].toUpper ());//将首字母的小写转化为大写
-    else 
-        return;//
-    QString qmlName = "./qml/Chat/"+temp+"ChatWindow.qml";
+
+    QString qmlName = "./qml/Chat/"+typeStr+"ChatWindow.qml";
     QQmlComponent component(engine, qmlName);
     QQuickItem *item = qobject_cast<QQuickItem*>(component.create ());//新建聊天页面
     if(item){
         item->setParentItem (mainChatWindowCommand_item);//设置聊天页面的父对象
         item->setProperty ("myuin", uin);//设置他的uin
         item->setProperty ("type", senderType);//设置他的类型
+        map_chatPage[typeStr+uin] = item;//储存聊天页面
         emit addChatPage (item);//发送信号告知qml
+    }else{
+        qDebug()<<"创建"+qmlName+"出错";
     }
+    mainChatWindowCommand->show ();//显示出聊天窗口
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)

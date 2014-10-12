@@ -51,10 +51,6 @@ MyWindow{
         }
     }
     
-    ChatWindowCommand{
-        id: chat_command
-    }
-    
     Connections{
         target: myqq
         onMessageArrive:{

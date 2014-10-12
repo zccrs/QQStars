@@ -218,10 +218,11 @@ public:
     QString codeText() const;
     
 private slots:
-    void setStatusToString();
-    void beginPoll2();
-    void poll2Finished(QNetworkReply *replys);
-    void initUserPassword();
+    void setStatusToString();//根据当前qq状态设置statusToString
+    void beginPoll2();//启动心跳包
+    void poll2Finished(QNetworkReply *replys);//qq心跳包获取完成时调用
+    void initUserPassword();//初始化用户密码(从QSettings中)
+    void onChatMainWindowClose();//接收主聊天窗口关闭的信号
 private:
     QQStatus qq_status;
     QQStatus userStatus();
@@ -243,6 +244,7 @@ private:
     QMap<QString, QString> map_alias;//储存备注名
     QPointer<QQuickWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
     QQuickItem* mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
+    QMap<QString, QQuickItem*> map_chatPage;//储存备已经打开的聊天页面
     
     struct FontStyle{
         int size;//字体大小
@@ -282,12 +284,12 @@ signals:
     void rememberPasswordChanged();
     void autoLoginChanged();
 
-    void friendInputNotify(QString uin);//好友正在输入的信号
-    void newFriendMessage(QString fromUin, QString data);//新聊天消息信号
-    void newGroupOrDiscuMessage(QString fromUin, QString senderUin, QString data);//新的群或者讨论组消息
+    void friendInputNotify(QString fromUin);//好友正在输入的信号
+    void newMessage(QString fromUin, QString senderUin, QString message);//新的聊天消息信号
     void shakeWindow(QString fromUin);//窗口抖动信号
     void friendStatusChanged(QString fromUin, QString newStatus);//好友状态改变的信号
     void addChatPage(QQuickItem* item);//增加聊天页面的信号
+    void activeChatPageChanged(QQuickItem* item);//将item这个page变为活跃的page
 public slots:
     void setRememberPassword(bool arg);
     void setAutoLogin(bool arg);

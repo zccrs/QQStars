@@ -10,8 +10,6 @@ Component{
         property var myinfo: myqq.createFriendInfo(uin)
         property string sendUin: send_uin
         property var sendMessage: {
-            if(sendUin=="")
-                return
             switch(mytype){
                 case QQItemInfo.Friend:
                     return myqq.sendFriendMessage

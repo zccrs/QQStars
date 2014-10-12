@@ -87,7 +87,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    chat_command.addChat(item_root.myinfo.uin, QQItemInfo.Group)
+                    myqq.addChatWindow(item_root.myinfo.uin, QQItemInfo.Group)
                 }
             }
         }

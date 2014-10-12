@@ -4,70 +4,25 @@ import "../QQItemInfo"
 
 ChatWindow{
     id: root
-    property var myinfo: myqq.createFriendInfo(myuin)
-    windowIcon: myinfo.avatar40
+    myinfo: myqq.createFriendInfo(myuin)
+    //windowIcon: myinfo.avatar40
    
-    onSendClicked: {
-        var data = {
-            "uin":myqq.userQQ,
-            "send_uin":myuin,
-            "mytype": myinfo.mytype,
-            "mode": "right",
-            "message": inputBox.text
+    Connections{
+        target: myqq
+        onShakeWindow:{
+            if(fromUin==myuin){
+                console.log("窗口震动消息")
+                root.windowShake()
+            }
         }
-        listModel.append(data)
-        inputBox.text = ""
-    }
-    onNewMessage:{
-        if(uin==myuin){
-            var temp = JSON.parse(messageData)
-            var message=""
-            for(var i=0; i<temp.content.length; ++i){
-                var content = temp.content[i]
-                var type = content.type
-                if(type == QQ.Text){
-                    console.log(content.text)
-                    message+=content.text+" "
-                }else if(type == QQ.Image){
-                    console.log("图片消息")
-                    message+="此处为图片"
-                }else if(type == QQ.ShakeWindow){
-                    console.log("窗口震动消息")
-                    root.windowShake()
-                    message+="窗口震动消息 "
-                }else if(type == QQ.InputNotify){
-                    console.log("正在输入消息")
-                    show_text.text = myinfo.aliasOrNick+"正在输入"
-                    return
-                }else if(type == QQ.Face){
-                    console.log("表情消息："+content.face_code)
-                    message+="表情("+content.face_code+")"
-                }else if(type == QQ.FileMessage){
-                    if( content.flag==1 ){
-                        console.log("请求发送文件："+content.name)
-                        message+="请求发送文件："+content.name
-                    }else{
-                        console.log("取消发送文件")
-                        message+="取消发送文件"
-                    }
-                }else if(type == QQ.AvRequest){
-                    console.log("请求开视频")
-                    message+="请求视频通话"
-                }else if(type == QQ.AvRefuse){
-                    console.log("取消视频通话")
-                    message+="取消视频通话"
-                }
+        onFriendInputNotify:{
+            if(fromUin==myuin){
+                console.log("正在输入消息")
+                show_text.text = myinfo.aliasOrNick+"正在输入"
             }
-            var data = {
-                "uin":uin,
-                "send_uin":"",
-                "mytype": myinfo.mytype,
-                "mode": "left",
-                "message": message
-            }
-            listModel.append(data)
         }
     }
+    
     Timer{
         id: timer_show_text
         interval: 2000

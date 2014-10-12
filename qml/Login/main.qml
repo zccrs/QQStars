@@ -120,7 +120,8 @@ MyWindow{
              }
          }
     }
-    MyShortcut{
-        target: main
-    }
+    //FriendChatWindow{
+      //  height: 500
+        //width: 600
+    //}
 }
