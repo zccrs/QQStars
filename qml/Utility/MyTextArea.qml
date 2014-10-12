@@ -5,6 +5,7 @@ import QtQuick.Controls.Styles 1.2
 TextArea{
     id: root
     backgroundVisible : false
+    textFormat :TextEdit.RichText
     style: TextAreaStyle {
             id: scroll_style
             textColor: "black"

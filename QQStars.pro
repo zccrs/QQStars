@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     src/mysvgview.cpp \ 
     src/myimage.cpp \
     src/mymessagebox.cpp \
-    src/myhttprequest.cpp
+    src/myhttprequest.cpp \
+    src/myshortcut.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc \
@@ -49,7 +50,8 @@ HEADERS += \
     src/mysvgview.h \ 
     src/myimage.h \
     src/mymessagebox.h \
-    src/myhttprequest.h
+    src/myhttprequest.h \
+    src/myshortcut.h
 
 OTHER_FILES += \
     qml/Utility/CodeInput.qml \

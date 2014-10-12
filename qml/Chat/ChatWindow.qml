@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import utility 1.0
 import "../"
 import "../Utility"
 
@@ -16,7 +17,6 @@ MyWindow{
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
     windowGlowItem.color: "black"//"#f07000"
-    
     property QtObject control: null
     property int mynumber
     property string myuin
@@ -35,32 +35,32 @@ MyWindow{
         }
     }
     
-    shortcuts: MyShortcutList{
-        MyShortcut{
-            shortcut: "Ctrl+Return"
-            onTrigger: {
-                input.text+="\n"
-                input.cursorPosition = input.text.length//设置光标位置
-            }
+    MyShortcut{
+        target: root
+        shortcut: "Ctrl+Return"
+        onTrigger: {
+            input.insert(input.cursorPosition, "<br>")
         }
-        MyShortcut{
-            shortcut: "Ctrl+Enter"
-            onTrigger: {
-                input.text+="\n"
-                input.cursorPosition = input.text.length//设置光标位置
-            }
+    }
+    MyShortcut{
+        target: root
+        shortcut: "Ctrl+Enter"
+        onTrigger: {
+            input.insert(input.cursorPosition, "<br>")
         }
-        MyShortcut{
-            shortcut: "Return"
-            onTrigger: {
-                button_send.clicked()
-            }
+    }
+    MyShortcut{
+        target: root
+        shortcut: "Return"
+        onTrigger: {
+            button_send.clicked()
         }
-        MyShortcut{
-            shortcut: "Enter"
-            onTrigger: {
-                button_send.clicked()
-            }
+    }
+    MyShortcut{
+        target: root
+        shortcut: "Enter"
+        onTrigger: {
+            button_send.clicked()
         }
     }
 

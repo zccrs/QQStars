@@ -9,45 +9,6 @@
 //#include <private/qshortcutmap_p.h>
 #include <QQueue>
 
-class MyWindowShortcut;
-class MyWindowShortcutList : public QQuickItem
-{
-    Q_OBJECT
-public:
-    explicit MyWindowShortcutList(QQuickItem *parent = 0);
-    void componentComplete();
-    QList<MyWindowShortcut*>& list();
-signals:
-    
-private:
-    QList<MyWindowShortcut*> mylist;
-};
-
-class MyWindowShortcut : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(QString shortcut READ shortcut WRITE setShortcut NOTIFY shortcutChanged)
-    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
-public:
-    explicit MyWindowShortcut(MyWindowShortcutList* parent = 0);
-    QString shortcut() const;
-    bool enabled() const;
-public slots:
-    void setShortcut(QString arg);
-    void setEnabled(bool arg);
-    void onKeyPressed(QQueue<int>& list);
-signals:
-    void shortcutChanged(QString arg);
-    void trigger();
-    void enabledChanged(bool arg);
-    void shortcutError(QString arg);
-private:
-     QString m_shortcut;
-     int shortcutMapId;
-     QQueue<int> key_list;
-     bool m_enabled;
-};
-
 class MyWindow : public QQuickWindow
 {
     Q_OBJECT
@@ -67,9 +28,7 @@ class MyWindow : public QQuickWindow
     Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(int actualX READ actualX WRITE setActualX NOTIFY actualXChanged)
     Q_PROPERTY(int actualY READ actualY WRITE setActualY NOTIFY actualYChanged)
-    Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged CONSTANT FINAL)//窗口是否获得焦点，是否为活跃窗口
-    Q_PROPERTY(MyWindowShortcutList* shortcuts READ shortcuts WRITE setShortcuts NOTIFY shortcutsChanged)
-
+    Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged FINAL)//窗口是否获得焦点，是否为活跃窗口
     Q_ENUMS(Status)
 public:
     explicit MyWindow(QQuickWindow *parent = 0);
@@ -87,7 +46,6 @@ public:
     int actualWidth() const;
     int actualHeight() const;
     bool windowActive() const;
-    MyWindowShortcutList* shortcuts() const;
     int x() const;
     int y() const;
     int actualX() const;
@@ -105,15 +63,10 @@ private:
     qreal m_height;
     bool m_windowActive;
     void setWindowActive(bool arg);
-    MyWindowShortcutList *m_shortcuts;
 
-    QQueue<int> queue_key;
-    void onKeyPressed();
 protected:
     void focusInEvent(QFocusEvent * ev);
     void focusOutEvent(QFocusEvent * ev);
-    void keyPressEvent(QKeyEvent * ev);
-    void keyReleaseEvent(QKeyEvent * ev);
 private slots:
     void onActualXChanged();
     void onActualYChanged();
@@ -129,8 +82,7 @@ signals:
     void actualWidthChanged(int arg);
     void actualHeightChanged(int arg);
     void windowActiveChanged(bool arg);
-    void shortcutsChanged(MyWindowShortcutList* arg);
-    
+   
     void xChanged();
     void yChanged();
     void actualXChanged(int arg);
@@ -155,7 +107,6 @@ public slots:
     void setHeight(int arg);
     void setActualWidth(int arg);
     void setActualHeight(int arg);
-    void setShortcuts(MyWindowShortcutList* arg);
     
     void setX(int arg);
     void setY(int arg);

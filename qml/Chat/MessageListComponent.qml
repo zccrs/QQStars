@@ -77,6 +77,7 @@ Component{
                 id: mytext
                 anchors.centerIn: parent
                 readOnly: true
+                textFormat :TextEdit.RichText//支持富文本
                 selectByMouse :true
                 selectByKeyboard :true
                 onWidthChanged: {

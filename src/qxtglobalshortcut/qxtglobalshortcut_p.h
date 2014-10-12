@@ -29,7 +29,7 @@
 #include <QAbstractEventDispatcher>
 #include <QKeySequence>
 #include <QHash>
-#if(QT_VERSION>=0x050000)
+#if(QT_VERSION>=0x050000)//雨后星辰
 #include <QAbstractNativeEventFilter>
 #endif
 

@@ -11,6 +11,7 @@ import QQItemInfo 1.0
 import "../Utility"
 import "../MainPanel"
 import "LoginPanel"
+import "../Chat"
 
 MyWindow{
     id:main

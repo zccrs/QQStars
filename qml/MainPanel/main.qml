@@ -4,6 +4,7 @@ import QtQuick.Window 2.1
 import utility 1.0
 import "../Utility"
 import "../Chat"
+import Qt.labs.settings 1.0
 
 MyWindow{
     id:main
@@ -66,73 +67,10 @@ MyWindow{
             var type
             var showMessage=""
             if(senderType == QQ.Friend){//如果是好友消息
-                /*for(i=0; i<temp.content.length; ++i){
-                    content = temp.content[i]
-                    type = content.type
-                    if(type == QQ.Text){
-                        console.log(content.text)
-                        showMessage+=content.text+" "
-                    }else if(type == QQ.Image){
-                        console.log("图片消息")
-                        showMessage+="此处为图片 "
-                    }else if(type == QQ.ShakeWindow){
-                        console.log("窗口震动消息")
-                        showMessage+="窗口抖动消息"
-                    }else if(type == QQ.InputNotify){
-                        console.log("正在输入消息")
-                        showMessage+=myqq.value(uin+"nick", uin)+"正在输入"
-                    }else if(type == QQ.Face){
-                        console.log("表情消息："+content.face_code)
-                        showMessage+="表情("+content.face_code+")"
-                    }else if(type == QQ.FileMessage){
-                        if( content.flag==1 ){
-                            console.log("请求发送文件："+content.name)
-                            showMessage+="请求发送文件："+content.name
-                        }else{
-                            console.log("取消发送文件")
-                            showMessage+="取消发送文件"
-                        }
-                    }else if(type == QQ.AvRequest){
-                        console.log("请求开视频")
-                        showMessage+="请求视频通话"
-                    }else if(type == QQ.AvRefuse){
-                        console.log("取消视频通话")
-                        showMessage+="取消视频通话"
-                    }
-                }*/
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Group){//如果是群消息
-                /*for(i=0; i<temp.content.length; ++i){
-                    content = temp.content[i]
-                    type = content.type
-                    if(type == QQ.Text){
-                        console.log(content.text)
-                        //showMessage+=content.text+" "
-                    }else if(type == QQ.Image){
-                        console.log("图片消息")
-                        //showMessage+="此处为图片 "
-                    }else if(type == QQ.Face){
-                        console.log("表情消息："+content.face_code)
-                        //showMessage+="表情("+content.face_code+")"
-                    }
-                }*/
-                //console.log("收到了群消息："+uin+","+jsonData)
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.Discu){//如果是讨论组消息
-                /*for(i=0; i<temp.content.length; ++i){
-                    content = temp.content[i]
-                    type = content.type
-                    if(type == QQ.Text){
-                        console.log(content.text)
-                        //showMessage+=content.text+" "
-                    }else if(type == QQ.Image){
-                        console.log("图片消息")
-                        //showMessage+="此处为图片 "
-                    }else if(type == QQ.Face){
-                        console.log("表情消息："+content.face_code)
-                        //showMessage+="表情("+content.face_code+")"
-                    }
-                }*/
                 chat_command.addMessage(uin, jsonData)//显示消息
             }else if(senderType == QQ.SystemMessage){//如果是系统消息
                 content = temp

@@ -141,8 +141,7 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                             if( poll_type=="message" ){
                                 disposeFriendMessage (obj);//解析好友的普通消息
                             }else if( poll_type=="input_notify" ){
-                                disposeFriendMessage (obj, InputNotify);
-                                //disposeInputNotify (obj);//解析好友正在输入的消息
+                                disposeFriendMessage (obj, InputNotify);//解析好友正在输入的消息
                             }else if( poll_type=="buddies_status_change" ){
                                 disposeFriendStatusChanged(obj);//好友状态改变信息
                             }else if( poll_type=="group_message" ){
@@ -152,25 +151,22 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                             }else if( poll_type=="file_message" ){
                                 //qDebug()<<"发送文件消息";
                                 disposeFriendMessage (obj, FileMessage);
-                                //disposeFileMessage(obj);//解析文件传输的消息
                             }else if( poll_type=="av_request" ){
                                 //qDebug()<<"视频聊天消息";
                                 disposeFriendMessage (obj, AvRequest);
-                                //disposeAvMessage(obj, true);
                             }else if( poll_type=="av_refuse" ){
                                 //qDebug()<<"取消开视频";
                                 disposeFriendMessage (obj, AvRefuse);
-                                //disposeAvMessage(obj, false);
                             }else if( poll_type=="shake_message" ){
                                 //qDebug()<<"窗口抖动消息";
                                 disposeFriendMessage (obj, ShakeWindow);//解析窗口抖动消息
-                                //disposeShakeMessage(obj);
                             }else if( poll_type=="system_message" ){
                                 disposeSystemMessage (obj);//解析系统消息
                             }else if( poll_type=="sys_g_msg" ){
                                 disposeSystemMessage (obj);//解析系统消息
                             }else if(poll_type == "sess_message"){
-                                disposeStrangerMessage (obj);//解析陌生人的消息
+                                //disposeStrangerMessage (obj);//解析陌生人的消息
+                                disposeFriendMessage (obj);//解析好友的普通消息
                             }else{
                                 qDebug()<<"其他消息"<<poll_type;
                             }
@@ -224,11 +220,11 @@ void QQCommand::loadApi()
     jsEngine.evaluate(contents, fileName);
 }
 
-QString QQCommand::analysisMessage(QJsonObject &obj)
+QString QQCommand::disposeMessage(QJsonObject &obj)
 {
-    QString result="{";
-    QString data="\"content\":[";
-    
+    QString result;//="{";
+    //QString data="\"content\":[";
+    FontStyle font_style;
     QJsonArray content = obj["content"].toArray ();
     QJsonValue temp2 = content[0];
     if(temp2.isArray ()){
@@ -236,22 +232,15 @@ QString QQCommand::analysisMessage(QJsonObject &obj)
         foreach (QJsonValue temp3, font) {
             if(temp3.isObject ()){
                 obj = temp3.toObject ();
-                /*int size = obj["size"].toInt ();
-                QString color = obj["color"].toString ();
+                font_style.size = obj["size"].toInt ();
+                font_style.color = obj["color"].toString ();
                 QJsonArray style = obj["style"].toArray ();
-                bool bold = (bool)style[0].toInt ();//加黑
-                bool italic = (bool)style[1].toInt ();//斜体
-                bool underline = (bool)style[2].toInt ();//下划线
-                QString name = obj["name"].toString ();*/
-                
-                QJsonDocument font_doc(obj);
-                result.append ("\"font\":"+font_doc.toJson ());
-                /*qDebug()<<"所使用字体是："+name;
-                qDebug()<<"字体大小是："+size;
-                qDebug()<<"字体颜色是："+color;
-                qDebug()<<"黑体："<<bold;
-                qDebug()<<"斜体："<<italic;
-                qDebug()<<"下划线："<<underline;*/
+                font_style.bold = (bool)style[0].toInt ();//加黑
+                font_style.italic = (bool)style[1].toInt ();//斜体
+                font_style.underline = (bool)style[2].toInt ();//下划线
+                font_style.family = obj["name"].toString ();
+                //QJsonDocument font_doc(obj);
+                //result.append ("\"font\":"+font_doc.toJson ());
             }
         }
     }
@@ -260,58 +249,52 @@ QString QQCommand::analysisMessage(QJsonObject &obj)
         if(temp2.isArray ()){
             QJsonArray array = temp2.toArray ();
             QString array_name = array[0].toString ();
-            if(array_name=="cface"){
+            if(array_name=="cface"){//为图片消息
                 foreach (QJsonValue temp3, array) {
                     if(temp3.isObject ()){
                         obj = temp3.toObject ();
-                        QString file_id = doubleToString (obj, "file_id");
-                        QString key = obj["key"].toString ();
-                        QString name = obj["name"].toString ();
-                        QString server = obj["server"].toString ();
+                        //QString file_id = doubleToString (obj, "file_id");
+                        //QString key = obj["key"].toString ();
+                        //QString name = obj["name"].toString ();
+                        //QString server = obj["server"].toString ();
                         //qDebug()<<"收到了文件"<<"file_id:"+file_id<<"key:"+key<<"name:"+name<<"server:"+server;
-                        data.append (QString("{")+"\"type\":"+QString::number (Image)+",\"file_id\":\""+file_id+"\",\"name\":\""+name+"\",\"key\":\""+key+"\",\"server\":\""+server+"\"},");
+                        //data.append (QString("{")+"\"type\":"+QString::number (Image)+",\"file_id\":\""+file_id+"\",\"name\":\""+name+"\",\"key\":\""+key+"\",\"server\":\""+server+"\"},");
                     }
                 }
-            }else if(array_name=="offpic"){
+            }else if(array_name=="offpic"){//为图片消息
                 foreach (QJsonValue temp3, array) {
                     if(temp3.isObject ()){
                         obj = temp3.toObject ();
-                        QString file_path = obj["file_path"].toString ();
+                        //QString file_path = obj["file_path"].toString ();
                         //qDebug()<<"收到了文件"<<"file_path:"+file_path;
-                        data.append (QString("{")+"\"type\":"+QString::number (Image)+",\"file_path\":\""+file_path+"\"},");
+                        //data.append (QString("{")+"\"type\":"+QString::number (Image)+",\"file_path\":\""+file_path+"\"},");
                     }
                 }
-            }else if(array_name=="face"){
+            }else if(array_name=="face"){//为表情消息
                 //qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
-                data.append (QString("{")+"\"type\":"+QString::number (Face)+",\"face_code\":"+QString::number (array[1].toInt ())+"},");
+                //data.append (QString("{")+"\"type\":"+QString::number (Face)+",\"face_code\":"+QString::number (array[1].toInt ())+"},");
             }else{
                 qDebug()<<"其他类型的数据："<<array_name;
             }
-        }else if(temp2.isString ()&&temp2.toString ()!=""){
+        }else if(temp2.isString ()&&temp2.toString ()!=""){//否则为纯文本消息
+            result.append (textToHtml (font_style, temp2.toString ()));//添加纯文本消息
             //qDebug()<<"消息内容是："+temp2.toString ();
-            data.append (QString("{")+"\"type\":"+QString::number (Text)+",\"text\":\""+temp2.toString ()+"\"},");
+            //data.append (QString("{")+"\"type\":"+QString::number (Text)+",\"text\":\""+temp2.toString ()+"\"},");
         }
     }
-    result.append (","+data.mid (0,data.size ()-1)+"]}");
+    //result.append (","+data.mid (0,data.size ()-1)+"]}");
     return result;
 }
-
-/*void QQCommand::disposeInputNotify(QJsonObject &obj)
-{
-    QString from_uin = doubleToString (obj, "from_uin");
-    //qDebug()<<"是输入状态的消息";
-    //qDebug()<<getValue (from_uin+"nick", from_uin).toString ()+"正在输入";
-    emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (InputNotify)+"}]}");
-}*/
 
 void QQCommand::disposeFriendStatusChanged(QJsonObject &obj)
 {
     QString uin = doubleToString (obj, "uin");
     QString status = obj["status"].toString ();
-    int client_type = obj["client_type"].toInt ();
-    //qDebug()<<"是好友状态改变的信息"<<getValue (uin+"nick", uin).toString ()<<"状态改变为"<<status<<"客户端类型:"<<client_type;
+    //int client_type = obj["client_type"].toInt ();
     
-    emit messageArrive (SystemMessage, uin, "{\"type\":"+QString::number (FriendStatusChanged)+",\"status\":\""+status+"\"}");
+    emit friendStatusChanged (uin, status);
+    //qDebug()<<"是好友状态改变的信息"<<getValue (uin+"nick", uin).toString ()<<"状态改变为"<<status<<"客户端类型:"<<client_type;
+    //emit messageArrive (SystemMessage, uin, "{\"type\":"+QString::number (FriendStatusChanged)+",\"status\":\""+status+"\"}");
 }
 
 void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType type)
@@ -327,31 +310,34 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
     switch (type) 
     {
     case GeneralMessage:{
-        QString data = analysisMessage (obj);
-        emit messageArrive (Friend, from_uin, data);
+        QString data = disposeMessage (obj);//先处理基本消息
+        emit newFriendMessage (from_uin, data);
+        //emit messageArrive (Friend, from_uin, data);
         break;
     }
     case InputNotify:
-        emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (InputNotify)+"}]}");
+        emit friendInputNotify (from_uin);//发送好友正在输入的信号
+        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (InputNotify)+"}]}");
         break;
     case FileMessage:{
-        QString mode = obj["mode"].toString ();
+        /*QString mode = obj["mode"].toString ();
         if( mode=="recv" ){
             QString file_name = obj["name"].toString ();
             emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (FileMessage)+",\"flag\":1,\"name\":\""+file_name+"\"}]}");
         }else{
             emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (FileMessage)+",\"flag\":0}]}");
-        }
+        }*/
         break;
     }
     case AvRequest:
-        emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (AvRequest)+"}]}");
+        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (AvRequest)+"}]}");
         break;
     case AvRefuse:
-        emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (AvRefuse)+"}]}");
+        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (AvRefuse)+"}]}");
         break;
     case ShakeWindow:
-        emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (ShakeWindow)+"}]}");
+        emit shakeWindow (from_uin);
+        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (ShakeWindow)+"}]}");
         break;
     default:
         break;
@@ -372,9 +358,10 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
 
     switch (type) {
     case GeneralMessage:{
-        QString temp = analysisMessage (obj);
-        temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
-        emit messageArrive (Group, from_uin, temp);
+        QString data = disposeMessage (obj);
+        emit newGroupOrDiscuMessage (from_uin, send_uin, data);//发送信号
+        //temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
+        //emit messageArrive (Group, from_uin, temp);
         break;
     }
     default:
@@ -397,9 +384,10 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     
     switch (type) {
     case GeneralMessage:{
-        QString temp = analysisMessage (obj);
-        temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
-        emit messageArrive (Discu, did, temp);
+        QString data = disposeMessage (obj);
+        emit newGroupOrDiscuMessage (from_uin, send_uin, data);//发送信号
+        //temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
+        //emit messageArrive (Discu, did, temp);
         break;
     }
     default:
@@ -409,12 +397,12 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
 
 void QQCommand::disposeStrangerMessage(QJsonObject &obj, QQCommand::MessageType type)
 {
-    QString from_uin = doubleToString (obj, "from_uin");
+    /*QString from_uin = doubleToString (obj, "from_uin");
     QString msg_id = doubleToString (obj, "msg_id");
     QString msg_id2 = doubleToString (obj, "msg_id2");
     QString msg_type = doubleToString (obj, "msg_type");
     QString reply_ip = doubleToString (obj, "reply_ip");
-    QString to_uin = doubleToString (obj, "to_uin");
+    QString to_uin = doubleToString (obj, "to_uin");*/
     
 }
 
@@ -471,6 +459,36 @@ QString QQCommand::doubleToString(QJsonObject &obj, QString name)
             return QString::number ((quint64)obj[name].toDouble ());
     }
     return name;
+}
+
+QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
+{
+    data.replace("&","&amp;");     
+    data.replace(">","&gt;");
+    data.replace("<","&lt;");
+    data.replace("\"","&quot;");
+    data.replace("\'","&#39;");
+    data.replace(" ","&nbsp;");
+    data.replace("\n","<br>");
+    data.replace("\r","<br>");
+    //上面这几行代码的顺序不能乱，否则会造成多次替换
+    
+    QString result="<font> size=\""+QString::number (style.size)+"\" color=\"#"+style.color+"\" face=\""+style.family+"\">";
+    if(style.bold)
+        result.append ("<b>");
+    if(style.underline)
+        result.append ("<u>");
+    if(style.italic)
+        result.append ("<i>");
+    result.append (data);
+    if(style.italic)
+        result.append ("</i>");
+    if(style.underline)
+        result.append ("</u>");
+    if(style.bold)
+        result.append ("</b>");
+    result.append ("</font>");
+    return result;
 }
 
 void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)
@@ -649,6 +667,11 @@ RecentInfo *QQCommand::createRecentInfo(QQItemInfoPrivate::QQItemType type, cons
         break;
     }
     return info;
+}
+
+void QQCommand::addChatWindow(QString windowUin, QString senderType)
+{
+    
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)

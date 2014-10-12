@@ -44,7 +44,6 @@ public:
 
     QKeySequence shortcut() const;
     bool setShortcut(const QKeySequence& shortcut);
-
     bool isEnabled() const;
 
 public Q_SLOTS:

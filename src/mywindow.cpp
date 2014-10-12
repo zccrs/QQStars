@@ -37,7 +37,6 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     old_topHint=false;
     m_noNotifyIcon = false;
     m_windowActive = false;
-    m_shortcuts = NULL;
 }
 
 bool MyWindow::noNotifyIcon() const
@@ -68,11 +67,6 @@ int MyWindow::actualHeight() const
 bool MyWindow::windowActive() const
 {
     return m_windowActive;
-}
-
-MyWindowShortcutList *MyWindow::shortcuts() const
-{
-    return m_shortcuts;
 }
 
 int MyWindow::x() const
@@ -125,15 +119,6 @@ void MyWindow::setWindowActive(bool arg)
     }
 }
 
-void MyWindow::onKeyPressed()
-{
-    if(m_shortcuts&&queue_key.count ()>0){
-        foreach (MyWindowShortcut *shortcut, m_shortcuts->list ()) {
-            shortcut->onKeyPressed (queue_key);
-        }
-    }
-}
-
 void MyWindow::focusInEvent(QFocusEvent *ev)
 {
     QQuickWindow::focusInEvent(ev);
@@ -144,20 +129,6 @@ void MyWindow::focusOutEvent(QFocusEvent *ev)
 {
     QQuickWindow::focusOutEvent (ev);
     setWindowActive (false);
-}
-
-void MyWindow::keyPressEvent(QKeyEvent *ev)
-{
-    QQuickWindow::keyPressEvent (ev);
-    queue_key.append (ev->key ());
-    //qDebug()<<ev->key ();
-    onKeyPressed ();
-}
-
-void MyWindow::keyReleaseEvent(QKeyEvent *ev)
-{
-    QQuickWindow::keyReleaseEvent (ev);
-    queue_key.removeOne (ev->key());
 }
 
 void MyWindow::onActualXChanged()
@@ -323,14 +294,6 @@ void MyWindow::setActualHeight(int arg)
     QQuickWindow::setHeight (arg);
 }
 
-void MyWindow::setShortcuts(MyWindowShortcutList *arg)
-{
-    if (m_shortcuts != arg) {
-        m_shortcuts = arg;
-        emit shortcutsChanged(arg);
-    }
-}
-
 void MyWindow::setX(int arg)
 {
     QQuickWindow::setX (arg-contentItem ()->x ());
@@ -351,91 +314,3 @@ void MyWindow::setActualY(int arg)
     QQuickWindow::setY (arg);
 }
 
-
-MyWindowShortcut::MyWindowShortcut(MyWindowShortcutList* parent):
-    QObject(parent)
-{
-    setObjectName ("MyWindowShortcut");
-    shortcutMapId = -1;
-    m_enabled = true;
-}
-
-QString MyWindowShortcut::shortcut() const
-{
-    return m_shortcut;
-}
-
-bool MyWindowShortcut::enabled() const
-{
-    return m_enabled;
-}
-
-void MyWindowShortcut::setShortcut(QString arg)
-{
-    if (m_shortcut != arg) {
-        m_shortcut = arg;
-        key_list.clear ();
-        QStringList list = arg.split ("+");
-        foreach (QString key, list) {
-            if(key!=""){
-                if(QString::compare (key, "Ctrl", Qt::CaseInsensitive)==0){
-                    key_list.append (Qt::Key_Control);
-                }else if(QString::compare (key, "Shift", Qt::CaseInsensitive)==0){
-                    key_list.append (Qt::Key_Shift);
-                }else if(QString::compare (key, "Alt", Qt::CaseInsensitive)==0){
-                    key_list.append (Qt::Key_Alt);
-                }else if(QString::compare (key, "Meta", Qt::CaseInsensitive)==0){
-                    key_list.append (Qt::Key_Meta);
-                }else{
-                    QKeySequence sequence=QKeySequence::fromString (key);
-                    if(sequence!=Qt::Key_unknown){
-                        key_list.append (sequence[0]);
-                    }else{
-                        emit shortcutError ("存在位置按键");
-                        break;
-                    }
-                }
-            }else{
-                emit shortcutError ("不可有空按键");
-                break;
-            }
-            qDebug()<<key<<key_list.last ();
-        }
-        emit shortcutChanged(arg);
-    }
-}
-
-void MyWindowShortcut::setEnabled(bool arg)
-{
-    if (m_enabled != arg) {
-        m_enabled = arg;
-        emit enabledChanged(arg);
-    }
-}
-
-void MyWindowShortcut::onKeyPressed(QQueue<int> &list)
-{
-    //qDebug()<<key_list<<list;
-    if(list==key_list&&enabled())
-        emit trigger ();
-}
-
-MyWindowShortcutList::MyWindowShortcutList(QQuickItem *parent):
-    QQuickItem(parent)
-{
-}
-
-void MyWindowShortcutList::componentComplete()
-{
-    foreach (QObject* temp, children ()) {
-        if(temp->objectName ()=="MyWindowShortcut"){
-            MyWindowShortcut* shortcut = qobject_cast<MyWindowShortcut*>(temp);
-            mylist.append (shortcut);
-        }
-    }
-}
-
-QList<MyWindowShortcut *> &MyWindowShortcutList::list()
-{
-    return mylist;
-}

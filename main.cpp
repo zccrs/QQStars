@@ -11,12 +11,14 @@
 #include "myimage.h"
 #include "threaddownloadimage.h"
 #include "mysvgview.h"
-#include <QDirModel>
+#include "myshortcut.h"
+//#include <QDirModel>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    
+
+    //app.setAutoSipEnabled (true);
     app.setApplicationName ("QQStars");
     app.setApplicationVersion ("1.0.0");
     app.setOrganizationName ("雨后星辰");
@@ -30,13 +32,12 @@ int main(int argc, char *argv[])
     engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
     
     qmlRegisterType<MyWindow>("mywindow", 1,0, "MyQuickWindow");
-    qmlRegisterType<MyWindowShortcut>("mywindow", 1, 0, "MyShortcut");
-    qmlRegisterType<MyWindowShortcutList>("mywindow", 1, 0, "MyShortcutList");
     qmlRegisterType<SystemTrayIcon>("mywindow", 1,0, "MySystemTrayIcon");
     qmlRegisterType<MyMenu>("mywindow", 1,0, "MyMenu");
     qmlRegisterType<MenuSeparator>("mywindow", 1,0, "MenuSeparator");
     qmlRegisterType<MyMenuItem>("mywindow", 1,0, "MyMenuItem");
     qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
+    qmlRegisterType<MyShortcut>("utility", 1,0, "MyShortcut");
     qmlRegisterType<FriendInfo>("QQItemInfo", 1,0, "FriendInfo");
     qmlRegisterType<GroupInfo>("QQItemInfo", 1,0, "GroupInfo");
     qmlRegisterType<DiscuInfo>("QQItemInfo", 1,0, "DiscuInfo");

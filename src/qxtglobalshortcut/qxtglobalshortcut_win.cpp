@@ -24,7 +24,7 @@
  ****************************************************************************/
 #include "qxtglobalshortcut_p.h"
 #include <qt_windows.h>
-#include <QtDebug>
+#include <QDebug>
 
 #if(QT_VERSION<0x050000)
 bool QxtGlobalShortcutPrivate::eventFilter(void* message)
@@ -41,7 +41,6 @@ bool QxtGlobalShortcutPrivate::eventFilter(void* message)
 #else
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &, void *message, long *)
 {
-    //qDebug()<<"事件类型是："+eventType;
     MSG* msg = static_cast<MSG*>(message);
     if (msg->message == WM_HOTKEY)
     {
