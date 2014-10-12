@@ -698,11 +698,33 @@ void QQCommand::addChatWindow(QString uin, int senderType)
         item->setProperty ("myuin", uin);//设置他的uin
         item->setProperty ("type", senderType);//设置他的类型
         map_chatPage[typeStr+uin] = item;//储存聊天页面
+        //qDebug()<<"新增了Page"<<item;
         emit addChatPage (item);//发送信号告知qml
     }else{
         qDebug()<<"创建"+qmlName+"出错";
     }
     mainChatWindowCommand->show ();//显示出聊天窗口
+}
+
+int QQCommand::removeChatPage(QString uin, int senderType)
+{
+    QString typeStr = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);//获取此类型的字符串表达形式
+    if(typeStr.size ()>0)
+        typeStr.replace (0, 1, typeStr[0].toUpper ());//将首字母的小写转化为大写
+    else 
+        return -1;//如果类型不合法就返回
+    QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
+    //qDebug()<<item;
+    if(map_chatPage.count ()>0){
+        emit activeChatPageChanged (map_chatPage.value (map_chatPage.keys ()[0], NULL));
+    }
+    
+    if(item!=NULL)
+        item->deleteLater ();//销毁此对象
+    else{
+        qDebug()<<typeStr+uin<<"page已经为NULL";
+    }
+    return map_chatPage.remove (typeStr+uin);//移除已有的Page
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)

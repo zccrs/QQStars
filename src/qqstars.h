@@ -317,5 +317,6 @@ public slots:
     DiscuInfo* createDiscuInfo(const QString uin);//创建一个储存讨论组信息的对象
     
     void addChatWindow(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口
+    int removeChatPage(QString uin, int senderType/*QQItemType类型*/);//移除已有的聊天Page
 };
 #endif // QQCommand_H
