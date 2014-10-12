@@ -589,9 +589,7 @@ FriendInfo *QQCommand::createFriendInfo(const QString uin)
 {
     if(uin=="")
         return NULL;
-    //if(uin == userQQ())//如果这个好友就是自己的话
-        //return this;
-    
+
     QString name = "friend"+uin;
     if(map_itemInfo.value (name, NULL)){
         FriendInfo* info = qobject_cast<FriendInfo*>(map_itemInfo[name]);
@@ -650,28 +648,33 @@ DiscuInfo *QQCommand::createDiscuInfo(const QString uin)
     return info;
 }
 
-RecentInfo *QQCommand::createRecentInfo(QQItemInfoPrivate::QQItemType type, const QString uin)
+void QQCommand::addChatWindow(QString uin, int senderType)
 {
-    RecentInfo *info = NULL;
-    switch (type) {
-    case QQItemInfoPrivate::Friend:
-        info = new RecentInfo(createFriendInfo (uin));
-        break;
-    case QQItemInfoPrivate::Group:
-        info = new RecentInfo(createGroupInfo (uin));
-        break;
-    case QQItemInfoPrivate::Discu:
-        info = new RecentInfo(createDiscuInfo (uin));
-        break;
-    default:
-        break;
+    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+    if(mainChatWindowCommand.isNull ()){
+        QQmlComponent component(engine, "./qml/Chat/ChatWindowCommand.qml");
+        mainChatWindowCommand = qobject_cast<QQuickWindow*>(component.create ());
+        if(mainChatWindowCommand){
+            mainChatWindowCommand_item = mainChatWindowCommand->contentItem ()->findChild<QQuickItem*>("ChatWindowCommandItem");
+            //将聊天页面的父对象储存起来
+        }else{
+            return;//如果出错就返回
+        }
     }
-    return info;
-}
-
-void QQCommand::addChatWindow(QString windowUin, QString senderType)
-{
-    
+    QString temp = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);
+    if(temp.size ()>0)
+        temp.replace (0, 1, temp[0].toUpper ());//将首字母的小写转化为大写
+    else 
+        return;//
+    QString qmlName = "./qml/Chat/"+temp+"ChatWindow.qml";
+    QQmlComponent component(engine, qmlName);
+    QQuickItem *item = qobject_cast<QQuickItem*>(component.create ());//新建聊天页面
+    if(item){
+        item->setParentItem (mainChatWindowCommand_item);//设置聊天页面的父对象
+        item->setProperty ("myuin", uin);//设置他的uin
+        item->setProperty ("type", senderType);//设置他的类型
+        emit addChatPage (item);//发送信号告知qml
+    }
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)

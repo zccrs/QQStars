@@ -120,4 +120,7 @@ MyWindow{
              }
          }
     }
+    MyShortcut{
+        target: main
+    }
 }

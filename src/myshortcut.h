@@ -17,17 +17,17 @@ class MyShortcut : public QObject
     Q_PROPERTY(Type shortcutType READ shortcutType WRITE setShortcutType NOTIFY shortcutTypeChanged)
     Q_ENUMS(Type)
 public:
-    explicit MyShortcut(QObject *parent = 0);
-    QString shortcut() const;
-    bool isEnabled() const;
-    bool filterOut() const;
-    QObject* target() const;
-    
     enum Type{
         LocalShortcut,//局部热键
         AppGlobalShortcut,//整个程序的热键
         SystemGlobalShortcut//系统全局热键
     };
+    explicit MyShortcut(Type type = LocalShortcut, QObject *parent = 0);
+    explicit MyShortcut(QString shortcut, Type type = LocalShortcut, QObject *parent = 0);
+    QString shortcut() const;
+    bool isEnabled() const;
+    bool filterOut() const;
+    QObject* target() const;
     
     Type shortcutType() const;
 public slots:
@@ -36,6 +36,7 @@ public slots:
     void setFilterOut(bool arg);
     void setTarget(QObject* arg);
     void setShortcutType(Type arg);
+    
 signals:
     void shortcutChanged(QString arg);
     void trigger();

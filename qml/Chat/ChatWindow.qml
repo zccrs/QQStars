@@ -1,35 +1,22 @@
 import QtQuick 2.2
-import mywindow 1.0
 import utility 1.0
+import mywindow 1.0
 import "../"
 import "../Utility"
 
-MyWindow{
+Item{
     id: root
-    minHeight: 500
-    minWidth: 600
-    visible: true
-    noBorder: true//无边框的
-    removable: true//可移动的
-    fixedSize: false//固定大小的
-    dockableWindow: false//可停靠的
-    topHint: false//窗口保持在最前端
-    noNotifyIcon:false//隐藏任务栏图标
-    color: "transparent"
-    windowGlowItem.color: "black"//"#f07000"
-    property QtObject control: null
-    property int mynumber
     property string myuin
     property int type
-    property var closeFun//窗口关闭的时候调用此函数
     signal sendClicked//点击发送按钮好调用此函数
     property alias menuBar: menu_bar
     property alias rightBar: right_bar
     property alias inputBox: input
     property alias listModel: mymodel
-    signal newMessage(var uin, var messageData)
+    anchors.fill: parent
+    
     Connections{
-        target: control
+        target: myqq
         onNewMessage:{
             root.newMessage(uin, messageData)
         }
@@ -75,37 +62,6 @@ MyWindow{
             anchors.leftMargin: 10
             anchors.right: parent.right
             anchors.top: parent.top
-        }
-        
-        SvgView{
-            id:image_quit_icon
-            width: defaultSize.width*myqq.windowScale
-            source: "qrc:/images/button-quit.svg"
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.margins: 10
-            MouseArea{
-                anchors.fill: parent
-                onClicked: {
-                    root.close()
-                    if(root.closeFun)
-                        root.closeFun(root.mynumber)
-                    root.destroy()
-                }
-            }
-        }
-        SvgView{
-            id:image_minimize_icon
-            width: defaultSize.width*myqq.windowScale
-            source: "qrc:/images/button-minimize.svg"
-            anchors.top: image_quit_icon.top
-            anchors.left: image_quit_icon.right
-            MouseArea{
-                anchors.fill: parent
-                onClicked: {
-                    root.showMinimized()
-                }
-            }
         }
         
         Item{

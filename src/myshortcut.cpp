@@ -5,13 +5,22 @@
 #include <QDebug>
 #include <QAbstractEventDispatcher>
 
-MyShortcut::MyShortcut(QObject *parent) :
+MyShortcut::MyShortcut(MyShortcut::Type type, QObject *parent):
     QObject(parent)
 {
     m_shortcut = "";
     m_enabled = true;
     m_filterOut = true;
-    m_shortcutType = LocalShortcut;
+    m_shortcutType = type;
+}
+
+MyShortcut::MyShortcut(QString shortcut, MyShortcut::Type type, QObject *parent):
+    QObject(parent)
+{
+    m_shortcut = shortcut;
+    m_enabled = true;
+    m_filterOut = true;
+    m_shortcutType = type;
 }
 
 QString MyShortcut::shortcut() const
@@ -88,6 +97,10 @@ void MyShortcut::setEnabled(bool arg)
             else
                 obj->removeEventFilter (this);//移除过滤器
         }
+        if(shortcutType ()==SystemGlobalShortcut){//如果是全局的
+            if(global_shortcut)
+                global_shortcut->setEnabled (arg);
+        }
         emit enabledChanged(arg);
     }
 }
@@ -147,7 +160,7 @@ void MyShortcut::setObj(QObject *arg)
     if(obj!=arg){
         if(isEnabled()&&arg){
             arg->installEventFilter (this);//为他安装事件过滤器
-            qDebug()<<"安装了过滤器";
+            //qDebug()<<"安装了过滤器";
         }
         if(obj)
             obj->removeEventFilter (this);//移除原来的过滤器
