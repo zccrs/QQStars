@@ -7,7 +7,6 @@ import "../Utility"
 MyWindow{
     id: root
     minimumHeight: 500
-    minimumWidth: left_bar.minWidth+item_chatPage.minWidth
     fixedLeftBorder: true//固定左边边框(不能从左边拉动改变窗口大小)
     fixedRightBorder: true//固定右边边框(不能从右边拉动改变窗口大小)
     width: chatPageWidth+left_bar.width
@@ -51,11 +50,15 @@ MyWindow{
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: left_bar.right
-        width: chatPageWidth
-        property int minWidth: 400
+        width: Math.max(chatPageWidth, minWidth)
+        property int minWidth: 600
         property int maxWidth: 9999999
+        onWidthChanged: {
+            console.log(width)
+        }
+
         function setPageWidth(arg){
-            if(arg<=maximumWidth&&arg>=minWidth){
+            if(arg<=maxWidth&&arg>=minWidth){
                 chatPageWidth = arg
             }
         }
@@ -65,7 +68,7 @@ MyWindow{
             cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            height: root.height-4
+            height: root.height
             width: 2
             property real pressedX: 0
             property real pressedY: 0
@@ -85,6 +88,7 @@ MyWindow{
             left_bar.addItem(item)//增加左栏
         }
         onActiveChatPageChanged:{//如果活跃的Page改变为item
+            console.log(item)
             setCurrentShowPage(item)//设置当前显示的页面为item
         }
     }
@@ -130,7 +134,7 @@ MyWindow{
         }
 
         function openBar(){
-            if(!animation_width.running){
+            if(!animation_width.running&&(!isOpen)){
                 isOpen = true
                 animation_width.to = defaultWidth
                 animation_width.start()//启动动画
@@ -138,7 +142,7 @@ MyWindow{
         }
         
         function hideBar(){
-            if(!animation_width.running){
+            if(!animation_width.running&&isOpen){
                 isOpen = false
                 animation_width.to = 0
                 animation_width.start()//启动动画
@@ -148,6 +152,9 @@ MyWindow{
         function setBarDefaultWidth(arg){//设置默认的width
             if(arg<=maxWidth&&arg>=minWidth){
                 defaultWidth = arg
+                return true
+            }else{
+                return false
             }
         }
 
@@ -195,9 +202,9 @@ MyWindow{
                    model: ListModel{
                        id:mymodel
                        onCountChanged: {
-                           if(count == 1)//如果没有了Item就让左栏的width为0
+                           if(count <= 1){//如果没有了Item就让左栏的width为0
                                left_bar.hideBar()//隐藏此栏
-                           else if(count==2){
+                           }else if(count==2){
                                left_bar.openBar()//打开此栏
                            }
                        }
@@ -246,7 +253,13 @@ MyWindow{
                     id: avatar
                     x:10
                     width:35
-                    source: my.myinfo.avatar40
+                    source: {
+                        if(my!==null)
+                            return my.myinfo.avatar40
+                        else
+                            return ""
+                    }
+
                     maskSource: "qrc:/images/bit.bmp"
                 }
                 Text{
@@ -255,7 +268,12 @@ MyWindow{
                     anchors.left: avatar.right
                     anchors.leftMargin: 10
                     //font.pointSize: 14
-                    text: my.myinfo.aliasOrNick
+                    text: {
+                        if(my!=null)
+                            return my.myinfo.aliasOrNick
+                        else
+                            return ""
+                    }
                 }
                 Rectangle{
                     width: image_clost_page.width+16
@@ -289,7 +307,7 @@ MyWindow{
             cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            height: root.height-4
+            height: root.height
             width: 2
             property real pressedX: 0
             property real pressedY: 0
@@ -298,8 +316,9 @@ MyWindow{
             }
             onPositionChanged: {
                 var num_temp = pressedX-mouseX
-                left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)
-                root.x += mouseX-pressedX//设置窗口位置
+                if(left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)){//如果窗口大小设置成功
+                    root.x += mouseX-pressedX//设置窗口位置
+                }
             }
         }
         MouseArea{//接收窗口页面的鼠标事件
@@ -331,7 +350,8 @@ MyWindow{
         MouseArea{
             anchors.fill: parent
             onClicked: {
-                root.close()
+                root.close()//关闭窗口
+                mymodel.clear()//清除所有model
             }
         }
     }

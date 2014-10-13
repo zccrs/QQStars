@@ -7,7 +7,7 @@ MyQuickWindow{
     property bool removable: true//窗口可移动？
     property bool fixedSize: false//窗口是否固定大小？
     property bool fixedTopBorder: false//固定上边框，上边不可拉动
-    property bool fixedBottomBorder: fase//同上
+    property bool fixedBottomBorder: false//同上
     property bool fixedLeftBorder: false//同上
     property bool fixedRightBorder: false//同上
     property bool dockableWindow: false//窗口可停靠？

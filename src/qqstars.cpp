@@ -2,7 +2,7 @@
 #include "utility.h"
 #include <QJsonDocument>
 #include <QSettings>
-#include "aes.h"
+#include "mywindow.h"
 
 QQCommand::QQCommand(QQuickItem *parent) :
     FriendInfo(parent)
@@ -194,12 +194,15 @@ void QQCommand::initUserPassword()
     }
 }
 
-void QQCommand::onChatMainWindowClose()//如果主聊天窗口关闭，那就销毁所有已经建立的聊天页面
+void QQCommand::onChatMainWindowClose(bool arg)//如果主聊天窗口关闭，那就销毁所有已经建立的聊天页面
 {
-    foreach (QQuickItem *item, map_chatPage) {
-        if(item!=NULL){
-            item->deleteLater ();//销毁此页面
+    if(!arg){
+        foreach (QQuickItem *item, map_chatPage) {
+            if(item!=NULL){
+                item->deleteLater ();//销毁此页面
+            }
         }
+        map_chatPage.clear ();//清空所有对象
     }
 }
 
@@ -676,8 +679,10 @@ void QQCommand::addChatWindow(QString uin, int senderType)
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     if(mainChatWindowCommand.isNull ()){
         QQmlComponent component(engine, "./qml/Chat/ChatWindowCommand.qml");
-        mainChatWindowCommand = qobject_cast<QQuickWindow*>(component.create ());
+        mainChatWindowCommand = qobject_cast<MyWindow*>(component.create ());
         if(mainChatWindowCommand){
+            connect (mainChatWindowCommand.data (), &MyWindow::visibleChanged, this, &QQCommand::onChatMainWindowClose);
+            //链接信号和槽，为聊天主窗口关闭时销毁对象所用
             foreach (QQuickItem *item, mainChatWindowCommand->contentItem ()->childItems ()) {
                 if(item->objectName () == "ChatWindowCommandItem"){
                     mainChatWindowCommand_item = item;//将聊天页面的父对象储存起来
@@ -706,30 +711,32 @@ void QQCommand::addChatWindow(QString uin, int senderType)
     mainChatWindowCommand->show ();//显示出聊天窗口
 }
 
-int QQCommand::removeChatPage(QString uin, int senderType)
+void QQCommand::removeChatPage(QString uin, int senderType)
 {
     QString typeStr = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);//获取此类型的字符串表达形式
     if(typeStr.size ()>0)
         typeStr.replace (0, 1, typeStr[0].toUpper ());//将首字母的小写转化为大写
     else 
-        return -1;//如果类型不合法就返回
+        return;//如果类型不合法就返回
     QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
-    //qDebug()<<item;
-    foreach (QQuickItem *temp, map_chatPage) {//改变当前活跃页面为首先找到的第一个不为空的chatPage
-        if(temp){
-            qDebug()<<temp;
-            emit activeChatPageChanged (item);
-        }else{
-            map_chatPage.remove (map_chatPage.key (temp));//如果对象已经为空则移除此对象
-        }
-    }
-    
     if(item!=NULL){
         item->deleteLater ();//销毁此对象
+        map_chatPage.remove (typeStr+uin);//如果对象已经为空则移除此对象
     }else{
         qDebug()<<typeStr+uin<<"page已经为NULL";
     }
-    return map_chatPage.remove (typeStr+uin);//移除已有的Page
+    //qDebug()<<item;
+    foreach (QQuickItem *temp, map_chatPage) {//改变当前活跃页面为首先找到的第一个不为空的chatPage
+        if(temp){
+            //qDebug()<<temp;
+            emit activeChatPageChanged (temp);
+            break;
+        }else{
+            QString key = map_chatPage.key (temp);
+            map_chatPage.remove (key);//如果对象已经为空则移除此对象
+            qDebug()<<key+"为NULL，已被销毁";
+        }
+    }
 }
 
 QVariant QQCommand::value(const QString &key, const QVariant &defaultValue) const

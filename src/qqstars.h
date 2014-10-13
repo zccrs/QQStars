@@ -222,7 +222,7 @@ private slots:
     void beginPoll2();//启动心跳包
     void poll2Finished(QNetworkReply *replys);//qq心跳包获取完成时调用
     void initUserPassword();//初始化用户密码(从QSettings中)
-    void onChatMainWindowClose();//接收主聊天窗口关闭的信号
+    void onChatMainWindowClose(bool arg);//接收主聊天窗口关闭的信号
 private:
     QQStatus qq_status;
     QQStatus userStatus();
@@ -242,7 +242,7 @@ private:
     QPointer<MyWindow> warning_info_window;//储存指向警告窗口的指针
     QMap<QString, QQItemInfo*> map_itemInfo;//储存每个好友或群讨论组Info
     QMap<QString, QString> map_alias;//储存备注名
-    QPointer<QQuickWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
+    QPointer<MyWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
     QQuickItem* mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
     QMap<QString, QQuickItem*> map_chatPage;//储存备已经打开的聊天页面
     
@@ -317,7 +317,7 @@ public slots:
     DiscuInfo* createDiscuInfo(const QString uin);//创建一个储存讨论组信息的对象
     
     void addChatWindow(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口
-    int removeChatPage(QString uin, int senderType/*QQItemType类型*/);//移除已有的聊天Page
+    void removeChatPage(QString uin, int senderType/*QQItemType类型*/);//移除已有的聊天Page
     
     QVariant value(const QString & key, const QVariant & defaultValue = QVariant()) const;//返回储存在QSettings里边的value;
     void setValue(const QString & key, const QVariant & value);

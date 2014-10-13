@@ -28,8 +28,8 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     m_windowActive = false;
     m_minimumWidth = 0;
     m_minimumHeight = 0;
-    m_maximumWidth = QQuickWindow::maximumWidth ();
-    m_maximumHeight = QQuickWindow::maximumHeight ();
+    m_maximumWidth = 9999999;
+    m_maximumHeight = 9999999;
     
     connect (this, &QQuickWindow::widthChanged, this, &MyWindow::actualWidthChanged);
     connect (this, &QQuickWindow::heightChanged, this, &MyWindow::actualHeightChanged);
