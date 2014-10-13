@@ -5,19 +5,23 @@ import QtQuick.Window 2.1
 MyQuickWindow{
     id: root
     property bool removable: true//窗口可移动？
-    property bool  fixedSize: true//窗口可改变大小？
+    property bool fixedSize: false//窗口是否固定大小？
+    property bool fixedTopBorder: false//固定上边框，上边不可拉动
+    property bool fixedBottomBorder: fase//同上
+    property bool fixedLeftBorder: false//同上
+    property bool fixedRightBorder: false//同上
     property bool dockableWindow: false//窗口可停靠？
     property bool windowGlow: true//开启窗口阴影？
     property alias windowGlowItem: glow//阴影Item
-    property int windowShakeInterval: animation_shake.duration*12///窗口抖动的时间
-    property bool centered: true
-    property int minWidth: 0
-    property int maxWidth: 999999//正无穷
-    property int minHeight: 0
-    property int maxHeight: 999999//正无穷
+    property int windowShakeInterval: animation_shake.duration*16///窗口抖动的时间
+    property bool centered: true//初次显示时是否居中
+    signal manulPullLeftBorder//如果用户在窗口左边拉动改变了窗口大小
+    signal manulPullRightBorder//同上
+    signal manulPullTopBorder//同上
+    signal manulPullBottomBorder//同上
     
-    width: Math.max(minWidth, 300)
-    height: Math.max(minHeight, 300)
+    width: 300
+    height: 300
     actualWidth: windowGlow?glow.actualWidth:width
     actualHeight: windowGlow?glow.actualHeight:height
     Component.onCompleted: {
@@ -71,7 +75,7 @@ MyQuickWindow{
                     animation_shake.property="y"
                     animation_shake.to=root.y+20
                     animation_shake.backFun=function(){
-                        root.windowShake()
+                        windowShake()//进行递归调用
                     }
                     animation_shake.start()
                 }
@@ -88,19 +92,6 @@ MyQuickWindow{
             }
             root.requestActivate()//让窗体显示到最前端
         }
-    }
-
-    function widthIsValidity( num ) {//判断width是否合法
-        if( num<=maxWidth&&num>=minWidth )
-            return true
-        else
-            return false
-    }
-    function heightIsValidity( num ) {//判断height是否合法
-        if( num<=maxHeight&&num>=minHeight )
-            return true
-        else
-            return false
     }
 
     function berthWindow(){
@@ -204,7 +195,9 @@ MyQuickWindow{
         visible: windowGlow&&root.windowActive
         x:0
         y:0
-        glowRadius: 20
+        glowRadius: 50
+        glowOpacity: 0.75
+        biasY: 20
         spread: 0.1
         color: "black"
         width: root.width
@@ -212,13 +205,15 @@ MyQuickWindow{
     }
     
     MyRectangularGlow{
-        id: glow_inactive
+        id: glow_inactive//当窗口处于非活跃状态时显示的阴影
         anchors.fill: glow
         glowRadius: glow.glowRadius/2
         spread: glow.spread
         color: glow.color
         glowOpacity: glow.glowOpacity
         cornerRadius: glow.cornerRadius
+        biasX: glow.biasX
+        biasY: glow.biasY
         cached: glow.cached
         visible: windowGlow&&(!root.windowActive)
     }
@@ -226,9 +221,9 @@ MyQuickWindow{
     MouseArea{
         id: mouse_main
         enabled: removable
-        //anchors.fill: parent
-        width: root.actualWidth
-        height: root.actualHeight
+        anchors.fill: parent
+        //width: root.actualWidth
+        //height: root.actualHeight
         property real pressedX: 0
         property real pressedY: 0
         hoverEnabled: dockableWindow
@@ -262,9 +257,10 @@ MyQuickWindow{
             }
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
-        cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
+    MouseArea{//接收窗口上部的鼠标事件，用于朝上拉动窗口来改变窗口的大小
+        id: mouse_top
+        enabled: !fixedSize&&!fixedTopBorder&&root.windowStatus==MyQuickWindow.StopCenter
+        cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor//鼠标样式
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         width: root.width-4
@@ -277,14 +273,14 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = pressedY-mouseY
-            if(heightIsValidity(root.height+num_temp)) {
-                root.height += num_temp
-                root.y += mouseY-pressedY
-            }
+            root.height += num_temp
+            root.y += mouseY-pressedY
+            manulPullTopBorder()//发送信号，说明用户手动向上拉动了窗口
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口下部的鼠标事件，用于朝下拉动窗口来改变窗口的大小
+        id: mouse_bottom
+        enabled: !fixedSize&&!fixedBottomBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
@@ -297,13 +293,13 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = mouseY-pressedY
-            if(heightIsValidity(root.height+num_temp)) {
-                root.height += num_temp
-            }
+            root.height += num_temp
+            manulPullBottomBorder()//发送信号，说明用户手动向下拉动了窗口
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口左部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
+        id: mouse_left
+        enabled: !fixedSize&&!fixedLeftBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
@@ -316,14 +312,14 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = pressedX-mouseX
-            if(widthIsValidity(root.width+num_temp)) {
-                root.width += num_temp
-                root.x += mouseX-pressedX
-            }
+            root.width += num_temp
+            root.x += mouseX-pressedX
+            manulPullLeftBorder()//发送信号，说明用户手动向左拉动了窗口
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口右部的鼠标事件，用于朝右拉动窗口来改变窗口的大小
+        id: mouse_right
+        enabled: !fixedSize&&!fixedRightBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
@@ -336,13 +332,12 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = mouseX-pressedX
-            if(widthIsValidity(root.width+num_temp)) {
-                root.width += num_temp
-            }
+            root.width += num_temp
+            manulPullRightBorder()//发送信号，说明用户手动向右拉动了窗口
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口左上部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
+        enabled: mouse_left.enabled&&mouse_top.enabled
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         height: 4
         width: 4
@@ -353,20 +348,22 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            var num_temp1 = pressedX-mouseX
-            var num_temp2 = pressedY-mouseY
-            if(widthIsValidity(root.width+num_temp1)) {
+            if(!fixedLeftBorder){//判断是否固定了左边框
+                var num_temp1 = pressedX-mouseX
                 root.width += num_temp1
                 root.x += mouseX-pressedX
+                manulPullLeftBorder()//发送信号，说明用户手动向左拉动了窗口
             }
-            if(heightIsValidity(root.height+num_temp2)) {
+            if(!fixedTopBorder){//判断是否固定了右边框
+                var num_temp2 = pressedY-mouseY
                 root.height += num_temp2
                 root.y += mouseY-pressedY
+                manulPullTopBorder()//发送信号，说明用户手动向上拉动了窗口
             }
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口右上部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
+        enabled: mouse_right.enabled&&mouse_top.enabled
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right
         height: 4
@@ -378,19 +375,22 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            var num_temp1 = mouseX-pressedX
-            var num_temp2 = pressedY-mouseY
-            if(widthIsValidity(root.width+num_temp1)) {
+            if(!fixedRightBorder){
+                var num_temp1 = mouseX-pressedX
                 root.width += num_temp1
+                manulPullRightBorder()//发送信号，说明用户手动向右拉动了窗口
             }
-            if(heightIsValidity(root.height+num_temp2)) {
+
+            if(!fixedRightBorder){
+                var num_temp2 = pressedY-mouseY
                 root.height += num_temp2 
                 root.y += mouseY-pressedY
+                manulPullTopBorder()//发送信号，说明用户手动向上拉动了窗口
             }
         }
     }
-    MouseArea{
-        enabled:!fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口左下部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
+        enabled:mouse_left.enabled&&mouse_bottom.enabled
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.left: parent.left
         anchors.bottom: parent.bottom
@@ -403,19 +403,21 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            var num_temp1 = pressedX-mouseX
-            var num_temp2 = mouseY-pressedY
-            if(widthIsValidity(root.width+num_temp1)) {
+            if(!fixedLeftBorder){
+                var num_temp1 = pressedX-mouseX
                 root.width += num_temp1
                 root.x += mouseX-pressedX
+                manulPullLeftBorder()//发送信号，说明用户手动向左拉动了窗口
             }
-            if(heightIsValidity(root.height+num_temp2)) {
+            if(!fixedBottomBorder){
+                var num_temp2 = mouseY-pressedY
                 root.height += num_temp2 
+                manulPullBottomBorder()//发送信号，说明用户手动向下拉动了窗口
             }
         }
     }
-    MouseArea{
-        enabled: !fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+    MouseArea{//接收窗口右下部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
+        enabled: mouse_right.enabled&&mouse_bottom.enabled
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right
         anchors.bottom: parent.bottom
@@ -428,13 +430,15 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            var num_temp1 = mouseX-pressedX
-            var num_temp2 = mouseY-pressedY
-            if(widthIsValidity(root.width+num_temp1)) {
+            if(!fixedRightBorder){
+                var num_temp1 = mouseX-pressedX
                 root.width += num_temp1
+                manulPullRightBorder()//发送信号，说明用户手动向右拉动了窗口
             }
-            if(heightIsValidity(root.height+num_temp2)) {
+            if(!fixedBottomBorder){
+                var num_temp2 = mouseY-pressedY
                 root.height += num_temp2 
+                manulPullBottomBorder()//发送信号，说明用户手动向下拉动了窗口
             }
         }
     }

@@ -715,16 +715,31 @@ int QQCommand::removeChatPage(QString uin, int senderType)
         return -1;//如果类型不合法就返回
     QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
     //qDebug()<<item;
-    if(map_chatPage.count ()>0){
-        emit activeChatPageChanged (map_chatPage.value (map_chatPage.keys ()[0], NULL));
+    foreach (QQuickItem *temp, map_chatPage) {//改变当前活跃页面为首先找到的第一个不为空的chatPage
+        if(temp){
+            qDebug()<<temp;
+            emit activeChatPageChanged (item);
+        }else{
+            map_chatPage.remove (map_chatPage.key (temp));//如果对象已经为空则移除此对象
+        }
     }
     
-    if(item!=NULL)
+    if(item!=NULL){
         item->deleteLater ();//销毁此对象
-    else{
+    }else{
         qDebug()<<typeStr+uin<<"page已经为NULL";
     }
     return map_chatPage.remove (typeStr+uin);//移除已有的Page
+}
+
+QVariant QQCommand::value(const QString &key, const QVariant &defaultValue) const
+{
+    return mysettings->value (key, defaultValue);
+}
+
+void QQCommand::setValue(const QString &key, const QVariant &value)
+{
+    mysettings->setValue (key, value);
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)

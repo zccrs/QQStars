@@ -318,5 +318,8 @@ public slots:
     
     void addChatWindow(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口
     int removeChatPage(QString uin, int senderType/*QQItemType类型*/);//移除已有的聊天Page
+    
+    QVariant value(const QString & key, const QVariant & defaultValue = QVariant()) const;//返回储存在QSettings里边的value;
+    void setValue(const QString & key, const QVariant & value);
 };
 #endif // QQCommand_H

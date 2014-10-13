@@ -18,6 +18,19 @@ bool test(QObject *, Qt::ShortcutContext)
 MyWindow::MyWindow(QQuickWindow *parent) :
     QQuickWindow(parent)
 {
+    setObjectName ("MyWindow");
+    
+    m_noBorder = false;
+    m_windowStatus = StopCenter;
+    m_topHint = false;
+    old_topHint=false;
+    m_noNotifyIcon = false;
+    m_windowActive = false;
+    m_minimumWidth = 0;
+    m_minimumHeight = 0;
+    m_maximumWidth = QQuickWindow::maximumWidth ();
+    m_maximumHeight = QQuickWindow::maximumHeight ();
+    
     connect (this, &QQuickWindow::widthChanged, this, &MyWindow::actualWidthChanged);
     connect (this, &QQuickWindow::heightChanged, this, &MyWindow::actualHeightChanged);
     connect (this, &QQuickWindow::xChanged, this, &MyWindow::actualXChanged);
@@ -27,16 +40,6 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     connect (contentItem (), &QQuickItem::xChanged, this, &MyWindow::xChanged);
     connect (contentItem (), &QQuickItem::yChanged, this, &MyWindow::yChanged);
     
-    setObjectName ("MyWindow");
-    setActualWidth (QQuickWindow::width ());
-    setActualHeight (QQuickWindow::height ());
-    
-    m_noBorder = false;
-    m_windowStatus = StopCenter;
-    m_topHint = false;
-    old_topHint=false;
-    m_noNotifyIcon = false;
-    m_windowActive = false;
 }
 
 bool MyWindow::noNotifyIcon() const
@@ -87,6 +90,26 @@ int MyWindow::actualX() const
 int MyWindow::actualY() const
 {
     return QQuickWindow::y ();
+}
+
+int MyWindow::minimumWidth() const
+{
+    return m_minimumWidth;
+}
+
+int MyWindow::minimumHeight() const
+{
+    return m_minimumHeight;
+}
+
+int MyWindow::maximumWidth() const
+{
+    return m_maximumWidth;
+}
+
+int MyWindow::maximumHeight() const
+{
+    return m_maximumHeight;
 }
 
 bool MyWindow::topHint() const
@@ -268,7 +291,7 @@ void MyWindow::setNoNotifyIcon(bool arg)
 
 void MyWindow::setWidth(int arg)
 {
-    if (m_width != arg) {
+    if (m_width != arg&&arg<=maximumWidth ()&&arg>=minimumWidth ()) {
         m_width = arg;
         contentItem ()->setWidth (arg);
         emit widthChanged(arg);
@@ -277,7 +300,7 @@ void MyWindow::setWidth(int arg)
 
 void MyWindow::setHeight(int arg)
 {
-    if (m_height != arg) {
+    if (m_height != arg&&arg<=maximumHeight ()&&arg>=minimumHeight ()) {
         m_height = arg;
         contentItem ()->setHeight (arg);
         emit heightChanged(arg);
@@ -312,5 +335,57 @@ void MyWindow::setActualX(int arg)
 void MyWindow::setActualY(int arg)
 {
     QQuickWindow::setY (arg);
+}
+
+void MyWindow::setMinimumWidth(int arg)
+{
+    if (m_minimumWidth != arg) {
+        m_minimumWidth = arg;
+        int temp = actualWidth ()-width();//算出真实宽和内容宽（不算阴影的宽）的差值
+        QQuickWindow::setMinimumWidth (temp+arg);//设置真实宽的限制
+        if(width()<arg){
+            setWidth (arg);
+        }
+        emit minimumWidthChanged(arg);
+    }
+}
+
+void MyWindow::setMinimumHeight(int arg)
+{
+    if (m_minimumHeight != arg) {
+        m_minimumHeight = arg;
+        int temp = actualHeight ()-height();
+        QQuickWindow::setMinimumHeight (temp+arg);//设置真实高的限制
+        if(height()<arg){
+            setHeight (arg);
+        }
+        emit minimumHeightChanged(arg);
+    }
+}
+
+void MyWindow::setMaximumWidth(int arg)
+{
+    if (m_maximumWidth != arg) {
+        m_maximumWidth = arg;
+        int temp = actualWidth ()-width();//算出真实宽和内容宽（不算阴影的宽）的差值
+        QQuickWindow::setMinimumWidth (temp+arg);//设置真实宽的限制
+        if(width()>arg){
+            setWidth (arg);
+        }
+        emit maximumWidthChanged(arg);
+    }
+}
+
+void MyWindow::setMaximumHeight(int arg)
+{
+    if (m_maximumHeight != arg) {
+        m_maximumHeight = arg;
+        int temp = actualHeight ()-height();
+        QQuickWindow::setMinimumHeight (temp+arg);//设置真实高的限制
+        if(height()>arg){
+            setHeight (arg);
+        }
+        emit maximumHeightChanged(arg);
+    }
 }
 

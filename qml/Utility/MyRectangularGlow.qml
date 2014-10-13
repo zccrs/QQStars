@@ -18,7 +18,6 @@ Item{
     }
     property real biasX: 0//阴影偏移量
     property real biasY: 0//阴影偏移量
-    
     property alias glowRadius: rootItem.glowRadius
     property alias spread: rootItem.spread
     property alias color: rootItem.color
@@ -26,6 +25,7 @@ Item{
     property alias cached: rootItem.cached
     property alias glowOpacity: rootItem.opacity
     property int actualX: 0//真实的X，算着阴影
+    
     onActualXChanged: {
         x = actualX+glowLeftWidth
     }

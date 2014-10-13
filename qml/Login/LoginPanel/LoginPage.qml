@@ -82,7 +82,7 @@ Item{
                     anchors.margins: -0.02*avatar_image.width
                     //sourceSize.width: width
                     //width: 5/16*avatar_image.width
-                    visible: myqq.loginStatus == QQ.Offline
+                    enabled: myqq.loginStatus == QQ.Offline
                     source: "qrc:/images/status-"+myqq.userStatusToString+"-1.svg"
                     MyMenu{
                         id: menu_userStatus

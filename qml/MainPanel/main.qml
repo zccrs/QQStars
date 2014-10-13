@@ -17,13 +17,13 @@ MyWindow{
     noNotifyIcon: true//隐藏任务栏图标
     color: "transparent"
     centered: false
-    minWidth: 220
-    minHeight: 400
-    maxWidth: 500
-    maxHeight: 700
+    minimumWidth: 220
+    minimumHeight: 400
+    maximumWidth: 500
+    maximumHeight: 700
     
-    width: Math.max(myqq.panelSize.width, minWidth)
-    height: Math.max(myqq.panelSize.height, minHeight)
+    width: Math.max(myqq.panelSize.width, minimumWidth)
+    height: Math.max(myqq.panelSize.height, minimumHeight)
 
     Component.onCompleted: {
         main.x = Screen.desktopAvailableWidth - main.actualWidth

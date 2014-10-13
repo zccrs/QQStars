@@ -24,11 +24,15 @@ class MyWindow : public QQuickWindow
     Q_PROPERTY(int height READ height WRITE setHeight NOTIFY heightChanged)//窗口的height（不包含边框的阴影）
     Q_PROPERTY(int actualWidth READ actualWidth WRITE setActualWidth NOTIFY actualWidthChanged)//真实的width，包含阴影
     Q_PROPERTY(int actualHeight READ actualHeight WRITE setActualHeight NOTIFY actualHeightChanged)//真实的height，包含阴影
-    Q_PROPERTY(int x READ x WRITE setX NOTIFY xChanged)
-    Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)
-    Q_PROPERTY(int actualX READ actualX WRITE setActualX NOTIFY actualXChanged)
-    Q_PROPERTY(int actualY READ actualY WRITE setActualY NOTIFY actualYChanged)
+    Q_PROPERTY(int x READ x WRITE setX NOTIFY xChanged)//窗口内容相对于桌面的绝对坐标（不包含阴影部分）
+    Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)//窗口内容相对于桌面的绝对坐标（不包含阴影部分）
+    Q_PROPERTY(int actualX READ actualX WRITE setActualX NOTIFY actualXChanged)//窗口相对于桌面的绝对坐标（包含阴影部分）
+    Q_PROPERTY(int actualY READ actualY WRITE setActualY NOTIFY actualYChanged)//窗口相对于桌面的绝对坐标（包含阴影部分）
     Q_PROPERTY(bool windowActive READ windowActive NOTIFY windowActiveChanged FINAL)//窗口是否获得焦点，是否为活跃窗口
+    Q_PROPERTY(int minimumWidth READ minimumWidth WRITE setMinimumWidth NOTIFY minimumWidthChanged)
+    Q_PROPERTY(int minimumHeight READ minimumHeight WRITE setMinimumHeight NOTIFY minimumHeightChanged)
+    Q_PROPERTY(int maximumWidth READ maximumWidth WRITE setMaximumWidth NOTIFY maximumWidthChanged)
+    Q_PROPERTY(int maximumHeight READ maximumHeight WRITE setMaximumHeight NOTIFY maximumHeightChanged)
     Q_ENUMS(Status)
 public:
     explicit MyWindow(QQuickWindow *parent = 0);
@@ -40,6 +44,7 @@ public:
         BerthTop//停靠在上边
     };
     
+    QUrl windowIcon();
     bool noNotifyIcon() const;
     int width() const;
     int height() const;
@@ -50,10 +55,19 @@ public:
     int y() const;
     int actualX() const;
     int actualY() const;
+    int minimumWidth() const;
+    int minimumHeight() const;
+    int maximumWidth() const;
+    int maximumHeight() const;
+    Status windowStatus();
+    bool noBorder();
+    int borderLeft();
+    int borderRight();
+    int borderTop();
+    
+    bool topHint() const;
 private:
     QUrl m_windowIcon;
-    QUrl windowIcon();
-    void setWindowIcon( QUrl icon );
     bool m_noBorder;
     Status m_windowStatus;
     bool m_topHint, old_topHint;
@@ -62,8 +76,12 @@ private:
     qreal m_width;
     qreal m_height;
     bool m_windowActive;
+    int m_minimumWidth;
+    int m_minimumHeight;
+    int m_maximumWidth;
+    int m_maximumHeight;
+    
     void setWindowActive(bool arg);
-
 protected:
     void focusInEvent(QFocusEvent * ev);
     void focusOutEvent(QFocusEvent * ev);
@@ -87,31 +105,29 @@ signals:
     void yChanged();
     void actualXChanged(int arg);
     void actualYChanged(int arg);
+    void minimumWidthChanged(int arg);
+    void minimumHeightChanged(int arg);
+    void maximumWidthChanged(int arg);
+    void maximumHeightChanged(int arg);
 
 public slots:
-    bool noBorder();
     void setNoBorder( bool isNoBroder );
-    
-    Status windowStatus();
+    void setWindowIcon( QUrl icon );
     void setWindowStatus( Status new_status );
-    
-    int borderLeft();
-    int borderRight();
-    int borderTop();
-    
-    bool topHint() const;
     void setTopHint(bool arg);
-    
     void setNoNotifyIcon(bool arg);
     void setWidth(int arg);
     void setHeight(int arg);
     void setActualWidth(int arg);
     void setActualHeight(int arg);
-    
     void setX(int arg);
     void setY(int arg);
     void setActualX(int arg);
     void setActualY(int arg);
+    void setMinimumWidth(int arg);
+    void setMinimumHeight(int arg);
+    void setMaximumWidth(int arg);
+    void setMaximumHeight(int arg);
 };
 
 #endif // MYWINDOW_H

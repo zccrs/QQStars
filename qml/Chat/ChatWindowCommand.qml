@@ -6,12 +6,21 @@ import "../Utility"
 
 MyWindow{
     id: root
-    minHeight: 500
-    minWidth: 600+left_bar.width
+    minimumHeight: 500
+    minimumWidth: left_bar.minWidth+item_chatPage.minWidth
+    fixedLeftBorder: true//固定左边边框(不能从左边拉动改变窗口大小)
+    fixedRightBorder: true//固定右边边框(不能从右边拉动改变窗口大小)
+    width: chatPageWidth+left_bar.width
     visible: true
     onVisibleChanged: {
         if(visible)
             root.showFront()//显示到最屏幕最前端
+    }
+    windowIcon: {
+        if(currentShowPage)
+            return currentShowPage.myinfo.avatar40
+        else
+            return "qrc:/images/avatar.png"
     }
 
     noBorder: true//无边框的
@@ -23,6 +32,7 @@ MyWindow{
     color: "transparent"
     windowGlowItem.color: "black"//"#f07000"
     property ChatWindow currentShowPage//记录当前显示中的聊天页面
+    property int chatPageWidth: myqq.value("chatPageWidth", 600)//获取聊天页面的width, 初始化为600，聊天也的width
     
     function setCurrentShowPage(page){
         //console.log(page+","+currentShowPage)
@@ -36,11 +46,37 @@ MyWindow{
     }
 
     Item{
+        id: item_chatPage
         objectName: "ChatWindowCommandItem"
         anchors.top: parent.top
-        anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: left_bar.right
+        width: chatPageWidth
+        property int minWidth: 400
+        property int maxWidth: 9999999
+        function setPageWidth(arg){
+            if(arg<=maximumWidth&&arg>=minWidth){
+                chatPageWidth = arg
+            }
+        }
+
+        MouseArea{//接收窗口页面的鼠标事件
+            enabled: !root.fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+            cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: root.height-4
+            width: 2
+            property real pressedX: 0
+            property real pressedY: 0
+            onPressed: {
+                pressedX = mouseX
+            }
+            onPositionChanged: {
+                var num_temp = mouseX-pressedX
+                item_chatPage.setPageWidth(item_chatPage.width+num_temp)
+            }
+        }
     }
     Connections{
         target: myqq
@@ -67,45 +103,51 @@ MyWindow{
         height: width
         visible: left_bar.width>0
     }
-    SvgView{
-        id:image_quit_icon
-        width: defaultSize.width*myqq.windowScale
-        source: "qrc:/images/button-quit.svg"
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.margins: 10
-        MouseArea{
-            anchors.fill: parent
-            onClicked: {
-                root.close()
-            }
-        }
-    }
-    SvgView{
-        id:image_minimize_icon
-        width: defaultSize.width*myqq.windowScale
-        source: "qrc:/images/button-minimize.svg"
-        anchors.top: image_quit_icon.top
-        anchors.left: image_quit_icon.right
-        MouseArea{
-            anchors.fill: parent
-            onClicked: {
-                root.showMinimized()
-            }
-        }
-    }
     
-    Rectangle{
+    Rectangle{//用来管理当前聊天窗口内聊天页面的左栏
         id:left_bar
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        color:"#ccc"
+        color:"#ddd"
         radius:10
+        property bool isOpen: false//记录此栏是否处于打开状态
+        property int maxWidth:200
+        property int minWidth:70
+        property int defaultWidth: myqq.value("chatWindowLeftBarWidth", 150)//获取上次储存的值
+        onDefaultWidthChanged: {
+            if(isOpen){//如果是打开状态
+                setBarWidth(defaultWidth)//如果默认宽度改变就设置此栏的当前width
+            }
+        }
         
-        Behavior on width{
-            NumberAnimation{
-                duration: 500
+        NumberAnimation{//动画控件
+            id: animation_width
+            target: left_bar
+            running: false
+            duration: 300
+            property: "width"
+        }
+
+        function openBar(){
+            if(!animation_width.running){
+                isOpen = true
+                animation_width.to = defaultWidth
+                animation_width.start()//启动动画
+            }
+        }
+        
+        function hideBar(){
+            if(!animation_width.running){
+                isOpen = false
+                animation_width.to = 0
+                animation_width.start()//启动动画
+            }
+        }
+        
+        function setBarDefaultWidth(arg){//设置默认的width
+            if(arg<=maxWidth&&arg>=minWidth){
+                defaultWidth = arg
             }
         }
 
@@ -114,6 +156,11 @@ MyWindow{
                 "obj_item": item
             }
             mymodel.append(data)//增加条目
+        }
+        function setBarWidth(arg){
+            if(arg<=maxWidth&&arg>=minWidth){
+                width = arg
+            }
         }
         
         Rectangle{
@@ -134,6 +181,7 @@ MyWindow{
 
         MyScrollView{
             anchors.fill: parent
+            anchors.topMargin: image_quit_icon.height+15
             Item{
                 height: list.contentHeight+10
                 width: left_bar.width
@@ -147,11 +195,10 @@ MyWindow{
                    model: ListModel{
                        id:mymodel
                        onCountChanged: {
-                           console.log(count)
                            if(count == 1)//如果没有了Item就让左栏的width为0
-                               left_bar.width = 0
+                               left_bar.hideBar()//隐藏此栏
                            else if(count==2){
-                               left_bar.width=150
+                               left_bar.openBar()//打开此栏
                            }
                        }
                    }
@@ -210,7 +257,15 @@ MyWindow{
                     //font.pointSize: 14
                     text: my.myinfo.aliasOrNick
                 }
-                
+                Rectangle{
+                    width: image_clost_page.width+16
+                    height: image_clost_page.height+10
+                    anchors.centerIn: image_clost_page
+                    color: "#eee"
+                    radius: 5
+                    opacity: 0.75
+                    visible: image_clost_page.visible&&root.currentShowPage!=my
+                }
                 SvgView{
                     id:image_clost_page
                     width: defaultSize.width*myqq.windowScale
@@ -222,12 +277,74 @@ MyWindow{
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            //setCurrentShowPage(list.children[0].my)//设置可见活跃为第一个
                             mymodel.remove(index)//移除自己
                             myqq.removeChatPage(my.myuin, my.type)//移除聊天页面
                         }
                     }
                 }
+            }
+        }
+        MouseArea{//接收窗口左部的鼠标事件
+            enabled: !root.fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+            cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            height: root.height-4
+            width: 2
+            property real pressedX: 0
+            property real pressedY: 0
+            onPressed: {
+                pressedX = mouseX
+            }
+            onPositionChanged: {
+                var num_temp = pressedX-mouseX
+                left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)
+                root.x += mouseX-pressedX//设置窗口位置
+            }
+        }
+        MouseArea{//接收窗口页面的鼠标事件
+            enabled: !root.fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+            cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: root.height
+            width: 2
+            property real pressedX: 0
+            property real pressedY: 0
+            onPressed: {
+                pressedX = mouseX
+            }
+            onPositionChanged: {
+                var num_temp = mouseX-pressedX
+                left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)
+            }
+        }
+    }
+    
+    SvgView{
+        id:image_quit_icon
+        width: defaultSize.width*myqq.windowScale
+        source: "qrc:/images/button-quit.svg"
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.margins: 10
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                root.close()
+            }
+        }
+    }
+    SvgView{
+        id:image_minimize_icon
+        width: defaultSize.width*myqq.windowScale
+        source: "qrc:/images/button-minimize.svg"
+        anchors.top: image_quit_icon.top
+        anchors.left: image_quit_icon.right
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                root.showMinimized()
             }
         }
     }
