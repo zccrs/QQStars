@@ -53,9 +53,6 @@ MyWindow{
         width: Math.max(chatPageWidth, minWidth)
         property int minWidth: 600
         property int maxWidth: 9999999
-        onWidthChanged: {
-            console.log(width)
-        }
 
         function setPageWidth(arg){
             if(arg<=maxWidth&&arg>=minWidth){
