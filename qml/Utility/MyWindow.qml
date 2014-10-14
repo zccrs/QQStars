@@ -20,10 +20,10 @@ MyQuickWindow{
     signal manulPullTopBorder//同上
     signal manulPullBottomBorder//同上
     
-    width: 300
-    height: 300
-    actualWidth: windowGlow?glow.actualWidth:width
-    actualHeight: windowGlow?glow.actualHeight:height
+    width: 500
+    height: 500
+    actualWidth: windowGlow?glow.actualWidth:width+2*mouse_left.width
+    actualHeight: windowGlow?glow.actualHeight:height+2*mouse_top.height
     Component.onCompleted: {
         if(centered){
             actualX = Screen.desktopAvailableWidth/2-actualWidth/2
@@ -32,8 +32,8 @@ MyQuickWindow{
     }
 
     contentItem{
-        x: windowGlow?glow.glowLeftWidth:0
-        y: windowGlow?glow.glowTopHeight:0
+        x: windowGlow?glow.glowLeftWidth:mouse_left.width
+        y: windowGlow?glow.glowTopHeight:mouse_top.height
     }
 
     Connections{
@@ -301,12 +301,12 @@ MyQuickWindow{
     }
     MouseArea{//接收窗口上部的鼠标事件，用于朝上拉动窗口来改变窗口的大小
         id: mouse_top
-        enabled: !fixedSize&&!fixedTopBorder&&root.windowStatus==MyQuickWindow.StopCenter
+        enabled: noBorder&&!fixedSize&&!fixedTopBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor//鼠标样式
-        anchors.top: parent.top
+        anchors.bottom: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
-        width: root.width-4
-        height: 2
+        width: root.width-6
+        height: 3
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -320,12 +320,12 @@ MyQuickWindow{
     }
     MouseArea{//接收窗口下部的鼠标事件，用于朝下拉动窗口来改变窗口的大小
         id: mouse_bottom
-        enabled: !fixedSize&&!fixedBottomBorder&&root.windowStatus==MyQuickWindow.StopCenter
+        enabled: noBorder&&!fixedSize&&!fixedBottomBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeVerCursor:Qt.ArrowCursor
-        anchors.bottom: parent.bottom
+        anchors.top: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        width: root.width-4
-        height: 2
+        width: root.width-6
+        height: 3
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -338,12 +338,12 @@ MyQuickWindow{
     }
     MouseArea{//接收窗口左部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
         id: mouse_left
-        enabled: !fixedSize&&!fixedLeftBorder&&root.windowStatus==MyQuickWindow.StopCenter
+        enabled: noBorder&&!fixedSize&&!fixedLeftBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
-        anchors.left: parent.left
+        anchors.right: parent.left
         anchors.verticalCenter: parent.verticalCenter
-        height: root.height-4
-        width: 2
+        height: root.height-6
+        width: 3
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -356,12 +356,12 @@ MyQuickWindow{
     }
     MouseArea{//接收窗口右部的鼠标事件，用于朝右拉动窗口来改变窗口的大小
         id: mouse_right
-        enabled: !fixedSize&&!fixedRightBorder&&root.windowStatus==MyQuickWindow.StopCenter
+        enabled: noBorder&&!fixedSize&&!fixedRightBorder&&root.windowStatus==MyQuickWindow.StopCenter
         cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
-        height: root.height-4
-        width: 2
+        height: root.height-6
+        width: 3
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -375,8 +375,8 @@ MyQuickWindow{
     MouseArea{//接收窗口左上部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
         enabled: mouse_left.enabled&&mouse_top.enabled
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
-        height: 4
-        width: 4
+        height: 5
+        width: 5
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -394,8 +394,8 @@ MyQuickWindow{
         enabled: mouse_right.enabled&&mouse_top.enabled
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right
-        height: 4
-        width: 4
+        height: 5
+        width: 5
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -403,7 +403,7 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            var num_temp1 = pressedX-mouseX
+            var num_temp1 = mouseX-pressedX
             setRightBorder(num_temp1)
             var num_temp2 = pressedY-mouseY
             setTopBorder(num_temp2)
@@ -414,8 +414,8 @@ MyQuickWindow{
         cursorShape :enabled?Qt.SizeBDiagCursor:Qt.ArrowCursor
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        height: 4
-        width: 4
+        height: 5
+        width: 5
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -425,7 +425,7 @@ MyQuickWindow{
         onPositionChanged: {
             var num_temp1 = pressedX-mouseX
             setLeftBorder(num_temp1)
-            var num_temp2 = pressedY-mouseY
+            var num_temp2 = mouseY-pressedY
             setBottomBorder(num_temp2)
         }
     }
@@ -434,8 +434,8 @@ MyQuickWindow{
         cursorShape :enabled?Qt.SizeFDiagCursor:Qt.ArrowCursor
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        height: 4
-        width: 4
+        height: 5
+        width: 5
         property real pressedX: 0
         property real pressedY: 0
         onPressed: {
@@ -443,9 +443,9 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            var num_temp1 = pressedX-mouseX
+            var num_temp1 = mouseX-pressedX
             setRightBorder(num_temp1)
-            var num_temp2 = pressedY-mouseY
+            var num_temp2 = mouseY-pressedY
             setBottomBorder(num_temp2)
         }
     }

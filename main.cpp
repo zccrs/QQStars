@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
    
-    QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
+    //QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
-    utility->initUtility (&mysettings, &engine);
+    utility->initUtility (new QSettings, &engine);
     
     QQmlComponent component0(&engine, "./qml/Api/QQApi.qml");
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
@@ -60,8 +60,12 @@ int main(int argc, char *argv[])
     systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题
 #endif
     engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
-    
     engine.load(QUrl(QStringLiteral("qml/Login/main.qml")));
+    //QWindow win;
+    //win.show ();
+    
+    //QWidget widget;
+    //widget.show ();
     
     return app.exec();
 }

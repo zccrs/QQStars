@@ -25,9 +25,9 @@ MyWindow{
     dockableWindow: false//可停靠的
     topHint: false//窗口保持在最前端
     noNotifyIcon: true//隐藏任务栏图标
-    windowGlow: false//不开启阴影
+    windowGlow: false//是否开启阴影
     color: "transparent"
-    
+
     Connections{
         target: myqq
         onError:{
