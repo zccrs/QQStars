@@ -5,14 +5,13 @@ import "../QQItemInfo"
 ChatWindow{
     id: root
     myinfo: myqq.createFriendInfo(myuin)
-    //windowIcon: myinfo.avatar40
    
     Connections{
         target: myqq
         onShakeWindow:{
             if(fromUin==myuin){
                 console.log("窗口震动消息")
-                root.windowShake()
+                myqq.shakeChatMainWindow(root)//抖动聊天窗口
             }
         }
         onFriendInputNotify:{
@@ -34,6 +33,8 @@ ChatWindow{
     Text{
         id: show_text
         parent: menuBar
+        anchors.right: parent.right
+        anchors.rightMargin: 10
         verticalAlignment: Text.AlignVCenter
         anchors.verticalCenter: parent.verticalCenter
         onTextChanged: {

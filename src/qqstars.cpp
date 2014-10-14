@@ -485,14 +485,14 @@ QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
     data.replace("\r","<br>");
     //上面这几行代码的顺序不能乱，否则会造成多次替换
     
-    QString result="<font> size=\""+QString::number (style.size)+"\" color=\"#"+style.color+"\" face=\""+style.family+"\">";
+    QString result="<font size=\""+QString::number (2)+"\" color=\"#"+style.color+"\" face=\""+style.family+"\">";
     if(style.bold)
         result.append ("<b>");
     if(style.underline)
         result.append ("<u>");
     if(style.italic)
         result.append ("<i>");
-    result.append (data);
+    result.append (data);//把文本包含进去
     if(style.italic)
         result.append ("</i>");
     if(style.underline)
@@ -500,6 +500,7 @@ QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
     if(style.bold)
         result.append ("</b>");
     result.append ("</font>");
+    qDebug()<<"收到的文本消息内容是："<<result;
     return result;
 }
 
@@ -747,6 +748,16 @@ QVariant QQCommand::value(const QString &key, const QVariant &defaultValue) cons
 void QQCommand::setValue(const QString &key, const QVariant &value)
 {
     mysettings->setValue (key, value);
+}
+
+void QQCommand::shakeChatMainWindow(QQuickItem *item)
+{
+    emit activeChatPageChanged (item);
+    if(QMetaObject::invokeMethod (mainChatWindowCommand, "windowShake")){
+        qDebug()<<"窗口抖动成功";
+    }else{
+        qDebug()<<"窗口抖动失败";
+    }
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)

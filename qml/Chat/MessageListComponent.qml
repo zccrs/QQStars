@@ -24,7 +24,8 @@ Component{
         }
 
         Component.onCompleted: {
-            if(send_uin!=""&&sendMessage){//如果为right代表是要发送消息
+            //console.log(message)//输出消息内容
+            if(send_uin!=""&&sendMessage&&mode=="right"){//如果为模式right代表是要发送消息
                 sendMessage(sendMessageFinished, send_uin, message)//发送消息
             }
         }
@@ -70,7 +71,7 @@ Component{
             width: mytext.width+30
             border.left: 20; border.top: 20
             border.right: 20; border.bottom: 20
-
+            
             TextEdit{
                 id: mytext
                 anchors.centerIn: parent

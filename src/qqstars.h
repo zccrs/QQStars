@@ -321,5 +321,6 @@ public slots:
     
     QVariant value(const QString & key, const QVariant & defaultValue = QVariant()) const;//返回储存在QSettings里边的value;
     void setValue(const QString & key, const QVariant & value);
+    void shakeChatMainWindow (QQuickItem *item);//抖动聊天窗口
 };
 #endif // QQCommand_H

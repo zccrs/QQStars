@@ -7,9 +7,14 @@ import "../Utility"
 MyWindow{
     id: root
     minimumHeight: 500
-    fixedLeftBorder: true//固定左边边框(不能从左边拉动改变窗口大小)
-    fixedRightBorder: true//固定右边边框(不能从右边拉动改变窗口大小)
-    width: chatPageWidth+left_bar.width
+    minimumWidth: item_chatPage.minWidth+left_bar.width//设置最小宽度
+    //fixedLeftBorder: true//固定左边边框(不能从左边拉动改变窗口大小)
+    //fixedRightBorder: true//固定右边边框(不能从右边拉动改变窗口大小)
+    setLeftBorder: function(arg){
+        if(left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
+            root.mySetLeftBorder(arg)//设置窗口位置
+        }
+    }
     visible: true
     onVisibleChanged: {
         if(visible)
@@ -50,31 +55,15 @@ MyWindow{
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: left_bar.right
-        width: Math.max(chatPageWidth, minWidth)
-        property int minWidth: 600
-        property int maxWidth: 9999999
+        anchors.right: parent.right
+        property int minWidth: 500
 
         function setPageWidth(arg){
             if(arg<=maxWidth&&arg>=minWidth){
                 chatPageWidth = arg
-            }
-        }
-
-        MouseArea{//接收窗口页面的鼠标事件
-            enabled: !root.fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
-            cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            height: root.height
-            width: 2
-            property real pressedX: 0
-            property real pressedY: 0
-            onPressed: {
-                pressedX = mouseX
-            }
-            onPositionChanged: {
-                var num_temp = mouseX-pressedX
-                item_chatPage.setPageWidth(item_chatPage.width+num_temp)
+                return true
+            }else{
+                return false
             }
         }
     }
@@ -299,27 +288,7 @@ MyWindow{
                 }
             }
         }
-        MouseArea{//接收窗口左部的鼠标事件
-            enabled: !root.fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
-            cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-            height: root.height
-            width: 2
-            property real pressedX: 0
-            property real pressedY: 0
-            onPressed: {
-                pressedX = mouseX
-            }
-            onPositionChanged: {
-                var num_temp = pressedX-mouseX
-                if(left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)){//如果窗口大小设置成功
-                    root.x += mouseX-pressedX//设置窗口位置
-                }
-            }
-        }
-        MouseArea{//接收窗口页面的鼠标事件
-            enabled: !root.fixedSize&&root.windowStatus==MyQuickWindow.StopCenter
+        MouseArea{//接收这栏右边的鼠标事件
             cursorShape :enabled?Qt.SizeHorCursor:Qt.ArrowCursor
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
@@ -332,7 +301,7 @@ MyWindow{
             }
             onPositionChanged: {
                 var num_temp = mouseX-pressedX
-                left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)
+                left_bar.setBarDefaultWidth(left_bar.defaultWidth+num_temp)//设置左栏的width
             }
         }
     }

@@ -10,6 +10,10 @@ MyQuickWindow{
     property bool fixedBottomBorder: false//同上
     property bool fixedLeftBorder: false//同上
     property bool fixedRightBorder: false//同上
+    property var setTopBorder: mySetTopBorder//用鼠标拉动上边框后调用的函数
+    property var setBottomBorder: mySetBottomBorder//同上
+    property var setLeftBorder: mySetLeftBorder//同上
+    property var setRightBorder: mySetRightBorder//同上
     property bool dockableWindow: false//窗口可停靠？
     property bool windowGlow: true//开启窗口阴影？
     property alias windowGlowItem: glow//阴影Item
@@ -148,7 +152,7 @@ MyQuickWindow{
         default:break
         }
     }
-    function setLeftBorder(arg){//当从左边改变窗口的width时
+    function mySetLeftBorder(arg){//当从左边改变窗口的width时
         if(!fixedLeftBorder){
             var temp = root.width
             root.width+=arg;
@@ -159,7 +163,7 @@ MyQuickWindow{
             }
         }
     }
-    function setRightBorder(arg){//当从右边改变窗口的width时
+    function mySetRightBorder(arg){//当从右边改变窗口的width时
         if(!fixedRightBorder){
             var temp = root.width
             root.width+=arg;
@@ -169,7 +173,7 @@ MyQuickWindow{
             }
         }
     }
-    function setTopBorder(arg){//当从上边改变窗口的width时
+    function mySetTopBorder(arg){//当从上边改变窗口的width时
         if(!fixedTopBorder){
             var temp = root.height
             root.height+=arg;
@@ -180,7 +184,7 @@ MyQuickWindow{
             }
         }
     }
-    function setBottomBorder(arg){//当从下边改变窗口的width时
+    function mySetBottomBorder(arg){//当从下边改变窗口的width时
         if(!fixedBottomBorder){
             var temp = root.height
             root.height+=arg;
