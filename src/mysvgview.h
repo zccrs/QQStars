@@ -8,7 +8,7 @@ class MySvgView : public QQuickPaintedItem
 {
     Q_OBJECT
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
-    Q_PROPERTY(QSize defaultSize READ defaultSize WRITE setDefaultSize NOTIFY defaultSizeChanged CONSTANT)
+    Q_PROPERTY(QSize defaultSize READ defaultSize WRITE setDefaultSize NOTIFY defaultSizeChanged FINAL)
     QSvgRenderer *svg;
     QUrl m_source;
     QSize m_defaultSize;

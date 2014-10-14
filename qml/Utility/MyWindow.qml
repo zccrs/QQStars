@@ -148,6 +148,48 @@ MyQuickWindow{
         default:break
         }
     }
+    function setLeftBorder(arg){//当从左边改变窗口的width时
+        if(!fixedLeftBorder){
+            var temp = root.width
+            root.width+=arg;
+            temp = root.width-temp//计算出其中的差值
+            if(temp!=0){
+                root.x-=temp//改变窗口坐标
+                manulPullLeftBorder()//发送拉动了左边界的信号
+            }
+        }
+    }
+    function setRightBorder(arg){//当从右边改变窗口的width时
+        if(!fixedRightBorder){
+            var temp = root.width
+            root.width+=arg;
+            temp = root.width-temp//计算出其中的差值
+            if(temp!=0){
+                manulPullRightBorder()//发送拉动了右边界的信号
+            }
+        }
+    }
+    function setTopBorder(arg){//当从上边改变窗口的width时
+        if(!fixedTopBorder){
+            var temp = root.height
+            root.height+=arg;
+            temp = root.height-temp//计算出其中的差值
+            if(temp!=0){
+                root.y-=temp//改变窗口坐标
+                manulPullTopBorder()//发送拉动了上边界的信号
+            }
+        }
+    }
+    function setBottomBorder(arg){//当从下边改变窗口的width时
+        if(!fixedBottomBorder){
+            var temp = root.height
+            root.height+=arg;
+            temp = root.height-temp//计算出其中的差值
+            if(temp!=0){
+                manulPullBottomBorder()//发送拉动了下边界的信号
+            }
+        }
+    }
 
     NumberAnimation{
         id: animation
@@ -273,9 +315,7 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = pressedY-mouseY
-            root.height += num_temp
-            root.y += mouseY-pressedY
-            manulPullTopBorder()//发送信号，说明用户手动向上拉动了窗口
+            setTopBorder(num_temp)
         }
     }
     MouseArea{//接收窗口下部的鼠标事件，用于朝下拉动窗口来改变窗口的大小
@@ -293,8 +333,7 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = mouseY-pressedY
-            root.height += num_temp
-            manulPullBottomBorder()//发送信号，说明用户手动向下拉动了窗口
+            setBottomBorder(num_temp)
         }
     }
     MouseArea{//接收窗口左部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
@@ -312,9 +351,7 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = pressedX-mouseX
-            root.width += num_temp
-            root.x += mouseX-pressedX
-            manulPullLeftBorder()//发送信号，说明用户手动向左拉动了窗口
+            setLeftBorder(num_temp)
         }
     }
     MouseArea{//接收窗口右部的鼠标事件，用于朝右拉动窗口来改变窗口的大小
@@ -332,8 +369,7 @@ MyQuickWindow{
         }
         onPositionChanged: {
             var num_temp = mouseX-pressedX
-            root.width += num_temp
-            manulPullRightBorder()//发送信号，说明用户手动向右拉动了窗口
+            setRightBorder(num_temp)
         }
     }
     MouseArea{//接收窗口左上部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
@@ -348,18 +384,10 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            if(!fixedLeftBorder){//判断是否固定了左边框
-                var num_temp1 = pressedX-mouseX
-                root.width += num_temp1
-                root.x += mouseX-pressedX
-                manulPullLeftBorder()//发送信号，说明用户手动向左拉动了窗口
-            }
-            if(!fixedTopBorder){//判断是否固定了右边框
-                var num_temp2 = pressedY-mouseY
-                root.height += num_temp2
-                root.y += mouseY-pressedY
-                manulPullTopBorder()//发送信号，说明用户手动向上拉动了窗口
-            }
+            var num_temp1 = pressedX-mouseX
+            setLeftBorder(num_temp1)
+            var num_temp2 = pressedY-mouseY
+            setTopBorder(num_temp2)
         }
     }
     MouseArea{//接收窗口右上部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
@@ -375,18 +403,10 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            if(!fixedRightBorder){
-                var num_temp1 = mouseX-pressedX
-                root.width += num_temp1
-                manulPullRightBorder()//发送信号，说明用户手动向右拉动了窗口
-            }
-
-            if(!fixedRightBorder){
-                var num_temp2 = pressedY-mouseY
-                root.height += num_temp2 
-                root.y += mouseY-pressedY
-                manulPullTopBorder()//发送信号，说明用户手动向上拉动了窗口
-            }
+            var num_temp1 = pressedX-mouseX
+            setRightBorder(num_temp1)
+            var num_temp2 = pressedY-mouseY
+            setTopBorder(num_temp2)
         }
     }
     MouseArea{//接收窗口左下部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
@@ -403,17 +423,10 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            if(!fixedLeftBorder){
-                var num_temp1 = pressedX-mouseX
-                root.width += num_temp1
-                root.x += mouseX-pressedX
-                manulPullLeftBorder()//发送信号，说明用户手动向左拉动了窗口
-            }
-            if(!fixedBottomBorder){
-                var num_temp2 = mouseY-pressedY
-                root.height += num_temp2 
-                manulPullBottomBorder()//发送信号，说明用户手动向下拉动了窗口
-            }
+            var num_temp1 = pressedX-mouseX
+            setLeftBorder(num_temp1)
+            var num_temp2 = pressedY-mouseY
+            setBottomBorder(num_temp2)
         }
     }
     MouseArea{//接收窗口右下部的鼠标事件，用于朝左拉动窗口来改变窗口的大小
@@ -430,16 +443,10 @@ MyQuickWindow{
             pressedY = mouseY
         }
         onPositionChanged: {
-            if(!fixedRightBorder){
-                var num_temp1 = mouseX-pressedX
-                root.width += num_temp1
-                manulPullRightBorder()//发送信号，说明用户手动向右拉动了窗口
-            }
-            if(!fixedBottomBorder){
-                var num_temp2 = mouseY-pressedY
-                root.height += num_temp2 
-                manulPullBottomBorder()//发送信号，说明用户手动向下拉动了窗口
-            }
+            var num_temp1 = pressedX-mouseX
+            setRightBorder(num_temp1)
+            var num_temp2 = pressedY-mouseY
+            setBottomBorder(num_temp2)
         }
     }
 }
