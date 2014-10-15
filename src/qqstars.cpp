@@ -285,6 +285,8 @@ QString QQCommand::disposeMessage(QJsonObject &obj)
                     }
                 }
             }else if(array_name=="face"){//为表情消息
+                int faceNumber = array[1].toInt ();//转化为int
+                result.append (textToHtml (font_style, "[[为表情:"+QString::number ()+"]]"));//添加纯文本消息
                 //qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
                 //data.append (QString("{")+"\"type\":"+QString::number (Face)+",\"face_code\":"+QString::number (array[1].toInt ())+"},");
             }else{
