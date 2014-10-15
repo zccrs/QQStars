@@ -20,10 +20,11 @@ Item{
     Connections{
         target: myqq
         onNewMessage:{
+            console.log(fromUin+","+myuin)
             if(fromUin==myuin){
                 var data = {
-                    "uin":fromUin,//从哪发过来的
-                    "send_uin":senderUin,//发送者是谁
+                    "uin":senderUin,//发送者是谁
+                    "send_uin":"",//如果mode为right才需要此值
                     "mytype": myinfo.mytype,
                     "mode": "left",
                     "message": message//消息内容
@@ -103,8 +104,8 @@ Item{
                 //sendClicked()//发射信号
                 inputBox.selectAll()//先选中全部
                 var data = {
-                    "uin":myqq.userQQ,
-                    "send_uin":myuin,
+                    "uin":myqq.userQQ,//发送者是当前登录的用户qq
+                    "send_uin":myuin,//发送给自己（这里的自己代表对当前登录的用户qq来说是他的好友或者群，讨论组）
                     "mytype": myinfo.mytype,
                     "mode": "right",
                     "message": inputBox.selectedText//选中的文本

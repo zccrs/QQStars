@@ -29,7 +29,7 @@ FriendInfo{
     function getAvatarFinished( path ,name){
         var imageName = path+"/"+name+".png"
         avatar40 = imageName//保存自己头像的地址
-        console.log(nick+"获取头像完成："+imageName)
+        //console.log(nick+"获取头像完成："+imageName)
     }
     function getQQSignatureFinished(error, data){//获取个性签名完成
         if(error){
@@ -49,7 +49,7 @@ FriendInfo{
     }
     function getAvatar(size){
         if(account!=""){
-            console.log(nick+"请求获取头像")
+            //console.log(nick+"请求获取头像")
             myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account, "friend_"+uin, String(size), getAvatarFinished)//下载头像
         }
     }

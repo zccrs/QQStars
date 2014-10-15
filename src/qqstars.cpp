@@ -261,10 +261,11 @@ QString QQCommand::disposeMessage(QJsonObject &obj)
         if(temp2.isArray ()){
             QJsonArray array = temp2.toArray ();
             QString array_name = array[0].toString ();
-            if(array_name=="cface"){//为图片消息
+            if(array_name=="cface"){//为表情消息
                 foreach (QJsonValue temp3, array) {
                     if(temp3.isObject ()){
                         obj = temp3.toObject ();
+                        result.append (textToHtml (font_style, "[[此处为表情]]"));//添加纯文本消息
                         //QString file_id = doubleToString (obj, "file_id");
                         //QString key = obj["key"].toString ();
                         //QString name = obj["name"].toString ();
@@ -277,6 +278,7 @@ QString QQCommand::disposeMessage(QJsonObject &obj)
                 foreach (QJsonValue temp3, array) {
                     if(temp3.isObject ()){
                         obj = temp3.toObject ();
+                        result.append (textToHtml (font_style, "[[此处为图片]]"));//添加纯文本消息
                         //QString file_path = obj["file_path"].toString ();
                         //qDebug()<<"收到了文件"<<"file_path:"+file_path;
                         //data.append (QString("{")+"\"type\":"+QString::number (Image)+",\"file_path\":\""+file_path+"\"},");
@@ -397,7 +399,7 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString data = disposeMessage (obj);
-        emit newMessage (from_uin, send_uin, data);//发送信号
+        emit newMessage (did, send_uin, data);//发送信号,讨论组需要将did传过去，他的uin都为10000，无用
         //temp.insert (1, "\"send_uin\":\""+send_uin+"\",");
         //emit messageArrive (Discu, did, temp);
         break;
@@ -485,7 +487,7 @@ QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
     data.replace("\r","<br>");
     //上面这几行代码的顺序不能乱，否则会造成多次替换
     
-    QString result="<font size=\""+QString::number (2)+"\" color=\"#"+style.color+"\" face=\""+style.family+"\">";
+    QString result="<font size=\""+QString::number (style.size/3)+"\" color=\"#"+style.color+"\" face=\""+style.family+"\">";
     if(style.bold)
         result.append ("<b>");
     if(style.underline)

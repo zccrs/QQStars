@@ -8,7 +8,7 @@ Component{
         width: parent.width
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
         property var myinfo: myqq.createFriendInfo(uin)
-        property string sendUin: send_uin
+        property string sendUin: send_uin//将此消息发送给谁
         property var sendMessage: {
             switch(mytype){
                 case QQItemInfo.Friend:
@@ -25,8 +25,8 @@ Component{
 
         Component.onCompleted: {
             //console.log(message)//输出消息内容
-            if(send_uin!=""&&sendMessage&&mode=="right"){//如果为模式right代表是要发送消息
-                sendMessage(sendMessageFinished, send_uin, message)//发送消息
+            if(sendUin!=""&&sendMessage&&mode=="right"){//如果为模式right代表是要发送消息
+                sendMessage(sendMessageFinished, sendUin, message)//发送消息
             }
         }
         function sendMessageFinished(error, data){//如果这个Item发送信息，此函数用来接收发送结果
@@ -58,7 +58,7 @@ Component{
             id: nick
             x: mode=="left"?avatar.x+avatar.width+5:avatar.x-implicitWidth-5
             anchors.top: avatar.top
-            text: myqq.aliasOrNick
+            text: myinfo.aliasOrNick
         }
 
         BorderImage {

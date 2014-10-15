@@ -10,8 +10,11 @@ Item{
     width: parent.width
     height: parent.height
     clip:true
-    function addModel( name, index ,obj_friendListData){
+    function addModel( name, index ,obj_friendListData ){
         mymodel.append({"obj_groupingName": name, "obj_groupingIndex": index, "obj_friendListData":obj_friendListData})
+    }
+    function insertModel( sort, name, index ,obj_friendListData ){
+        mymodel.insert(sort, {"obj_groupingName": name, "obj_groupingIndex": index, "obj_friendListData":obj_friendListData})
     }
 
     function getFriendListFinished(error, data) {//获取好友列表完成
@@ -27,8 +30,19 @@ Item{
                 myqq.saveAlias(QQItemInfo.Friend, marknames[i].uin, marknames[i].markname)//储存备注信息
             }
             var categories = data.result.categories//分组信息
+            
+            if(categories.length>0&&categories[0].index>0)//如果分组数目大于0，但是第一个分组的index不为0
+                addModel("我的好友", 0, data.result)//则将默认的"我的好友"分组加进去
+            var arr = new Array
             for(i=0; i<categories.length;++i){
-                addModel(categories[i].name, categories[i].index, data.result)//增加分组
+                arr.push(categories[i])//现将每个对象都放到数组当中
+            }
+            arr.sort(function(a,b){
+                //console.log("调用了排序,"+(a.sort>b.sort))
+                return a.sort>b.sort?1:-1//将数组按照里边的sort属性排序
+            })
+            for(i=0; i<arr.length; ++i){//遍历数组
+                addModel(arr[i].name, arr[i].index, data.result)//增加分组
             }
         }
     }
