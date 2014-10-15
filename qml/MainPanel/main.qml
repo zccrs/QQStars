@@ -26,8 +26,8 @@ MyWindow{
     height: 500
 
     Component.onCompleted: {
-        width = Math.max(myqq.panelSize.width, minimumWidth)
-        height = Math.max(myqq.panelSize.height, minimumHeight)
+        width = Math.max(200, minimumWidth)
+        height = Math.max(500, minimumHeight)
         main.x = Screen.desktopAvailableWidth - main.actualWidth
         main.y = 20
     }

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QTimer>
+#include <QtSql>
 #include "mymessagebox.h"
 #include "mynetworkaccessmanagerfactory.h"
 #include "mywindow.h"
@@ -39,8 +40,10 @@ class QQItemInfo:public QQuickItem
     friend class RecentInfo;
 private:
     explicit QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent=0);
+    ~QQItemInfo();
     void initSettings();
-    
+    static QSqlDatabase sqlite_db;
+
 protected:
     QString m_uin;
     QPointer<QSettings> mysettings;
@@ -50,6 +53,9 @@ protected:
     QString typeString;
     bool isCanUseSetting() const;
     QQItemInfoPrivate::QQItemType m_mytype;
+    //QPointer<QSqlDatabase> mydb;
+    static const QSqlDatabase* openSqlDatabase(const QString userqq);//初始化数据库
+    static void closeSqlDatabase();
 public:
     QString uin() const;
     QString nick() const;
@@ -75,6 +81,7 @@ public slots:
     void setAvatar240(QString arg);
     void setUserQQ(QString arg);
     void clearSettings();
+    void saveChatMessageToLocal(QString html);//保存聊天消息的html代码到本地（保存到数据库中）
 signals:
     void nickChanged();
     void aliasChanged();
@@ -322,5 +329,6 @@ public slots:
     QVariant value(const QString & key, const QVariant & defaultValue = QVariant()) const;//返回储存在QSettings里边的value;
     void setValue(const QString & key, const QVariant & value);
     void shakeChatMainWindow (QQuickItem *item);//抖动聊天窗口
+    void openSqlDatabase();//打开数据库（储存聊天记录等消息）
 };
 #endif // QQCommand_H

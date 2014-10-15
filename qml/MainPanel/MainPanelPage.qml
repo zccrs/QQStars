@@ -36,7 +36,7 @@ Rectangle{
         font.pointSize: 16
         font.bold: true
         color: "black"
-        text: myqq.userData.nick
+        text: myqq.nick
     }
     Text{
         id: text_signature

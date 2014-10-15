@@ -121,6 +121,13 @@ QQ{
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
                 loginReData = list.result//将数据记录下来
+                var allqq = utility.value("qq", "")
+                if(allqq.indexOf(myqq.userQQ)<0){
+                    utility.setValue("qq", allqq+","+myqq.userQQ)
+                }
+                myqq.openSqlDatabase();//登录完成后，打开数据库(用来储存聊天记录)
+                utility.loadQml("qml/MainPanel/main.qml")//登录成功后加载主面板
+                myqq.loginStatus = QQ.LoginFinished//设置为登录成功
                 var url = "http://q.qlogo.cn/headimg_dl?spec=240&dst_uin="+myqq.userQQ
                 downloadImage(url, "friend_"+myqq.userQQ, "240", getAvatarFinished)//获取头像
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
@@ -140,15 +147,15 @@ QQ{
             getUserData(myqq.userQQ, getDataFinished)//再次获取自己的资料
             return
         }
-        if( myqq.loginStatus == QQ.Logining ){
-            var list = JSON.parse(data)
-            if( list.retcode==0 ) {
-                userData = list.result
-                getPanelSize()//获取主面板的大小
-                root.nick = userData.nick//储存昵称
-            }else{
-                myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)
-            }
+        var list = JSON.parse(data)
+        if( list.retcode==0 ) {
+            userData = list.result
+            root.nick = userData.nick//储存昵称
+            var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+            myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
+            //getPanelSize()//获取主面板的大小
+        }else{
+            myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)
         }
     }
     
@@ -169,12 +176,7 @@ QQ{
             //utility.consoleLog("获取主面板大小出错，错误代码："+list.retcode)
             panelSize = JSON.parse('{"height":500,"defaultMode":"restore","width":240}')
         //}
-       
-        myqq.loginStatus = QQ.LoginFinished//设置为登录成功
-        var allqq = utility.value("qq", "")
-        if(allqq.indexOf(myqq.userQQ)<0){
-            utility.setValue("qq", allqq+","+myqq.userQQ)
-        }
+        
         /*var temp = myqq.value("rememberpassword", 0)==1
         console.log("是否保存密码："+temp)
         if( temp ){//如果要保存密码
@@ -185,8 +187,6 @@ QQ{
         }*/
        
         //myqq.setValue( "nick", userData.nick)//保存昵称
-        var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
-        myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
     }
     function getQQSignature(uin, backFun){//获取好友个性签名 backFun为签名获取成功后调用
         var url = "http://s.web2.qq.com/api/get_single_long_nick2?tuin="+uin+"&vfwebqq="+loginReData.vfwebqq
