@@ -54,7 +54,7 @@ public:
     Q_INVOKABLE QString getCookie( QString cookieName );
     QQmlApplicationEngine *qmlEngine();
 signals:
-    void mouseDesktopPosChanged(QPoint pos);
+    void mouseDesktopPosChanged(QPoint arg);
 public slots:
     void initUtility(QSettings *settings=0, QQmlApplicationEngine *qmlEngine=0);
     void setQmlEngine( QQmlApplicationEngine *new_engine );

@@ -7,6 +7,9 @@
 #include <QPainterPath>
 #ifdef Q_OS_WIN
 #include <winuser.h>
+#elif defined(Q_OS_LINUX)
+#include <X11/extensions/shape.h>
+#include <QX11Info>
 #endif
 #include <QWidget>
 
@@ -195,12 +198,12 @@ void MyWindow::setNoBorder(bool isNoBroder)
     }
 }
 
-MyWindow::Status MyWindow::windowStatus()
+MyWindow::WindowStatus MyWindow::windowStatus()
 {
     return m_windowStatus;
 }
 
-void MyWindow::setWindowStatus(MyWindow::Status new_status)
+void MyWindow::setWindowStatus(MyWindow::WindowStatus new_status)
 {
     if( new_status!=m_windowStatus ) {
         if( new_status == BerthPrepare&&m_windowStatus!=StopCenter ) {
@@ -262,7 +265,9 @@ void MyWindow::setTopHint(bool arg)
             setFlags (flags ()|Qt::WindowStaysOnTopHint);
 #ifdef Q_OS_LINUX
             if(isVisible()){
-                hide();
+                //setVisible(false);
+                //setVisible(true);
+                close();
                 show();
             }
 #endif
@@ -270,8 +275,10 @@ void MyWindow::setTopHint(bool arg)
             setFlags (flags ()&~Qt::WindowStaysOnTopHint);
 #ifdef Q_OS_LINUX
             if(isVisible()){
-                hide();
+                close();
                 show();
+                //setVisible(false);
+                //setVisible(true);
             }
 #endif
 #ifdef Q_OS_WIN
@@ -400,7 +407,18 @@ void MyWindow::setMousePenetrate(bool arg)
     if (m_mousePenetrate != arg) {
         m_mousePenetrate = arg;
 #ifdef Q_OS_LINUX
-        qDebug()<<"linux暂不支持鼠标穿透";
+        if(arg){
+            XShapeCombineRectangles(QX11Info::display(), winId(), ShapeInput, 0,
+                    0, NULL, 0, ShapeSet, YXBanded);
+        }else{
+            XRectangle* myrect = new XRectangle;
+            myrect->x = 0;
+            myrect->y = 0;
+            myrect->width = width();
+            myrect->height = height();
+            XShapeCombineRectangles(QX11Info::display(), winId(), ShapeInput, 0,
+                    0, myrect, 1, ShapeSet, YXBanded);
+        }
 #elif defined(Q_OS_OSX)
         qDebug()<<"mac os暂不支持鼠标穿透";
 #elif defined(Q_OS_WIN)
@@ -410,9 +428,10 @@ void MyWindow::setMousePenetrate(bool arg)
                          GetWindowLong(my_hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT);
         }else{
             SetWindowLong(my_hwnd, GWL_EXSTYLE,
-                         GetWindowLong(my_hwnd, GWL_EXSTYLE)&(!WS_EX_TRANSPARENT));
+                         GetWindowLong(my_hwnd, GWL_EXSTYLE)&(~WS_EX_TRANSPARENT));
         }
 #endif
+        //qDebug()<<GetWindowLong(my_hwnd, GWL_EXSTYLE);
         emit mousePenetrateChanged(arg);
     }
 }

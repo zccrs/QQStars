@@ -96,6 +96,8 @@ OTHER_FILES += \
     qml/QQItemInfo/GroupInfo.qml \
     qml/MainPanel/ListPage/DiscuList.qml \
     qml/MainPanel/ListPage/GroupAndDiscuPage.qml \
-    qml/Chat/DiscuChatWindow.qml
+    qml/Chat/DiscuChatWindow.qml \
+    style/menuStyle.css \
+    style/messageBoxStyle.css
             
 FORMS +=

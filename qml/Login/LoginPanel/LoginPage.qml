@@ -7,6 +7,7 @@ import "../../Utility"
 import "../"
 
 Item{
+    property alias contentItem: effect
     width: effect.actualWidth
     height: effect.actualHeight
     function reLogin(){

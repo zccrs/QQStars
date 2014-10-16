@@ -19,6 +19,10 @@ MyQuickWindow{
     property alias windowGlowItem: glow//阴影Item
     property int windowShakeInterval: animation_shake.duration*16///窗口抖动的时间
     property bool centered: true//初次显示时是否居中
+    property int acceptMouseAreaTop: y//设定能接收鼠标信号的区域的顶端的绝对坐标
+    property int acceptMouseAreaBottom: y+height//设定能接收鼠标信号的区域的下端的绝对坐标
+    property int acceptMouseAreaLeft: x//设定能接收鼠标信号的区域的左端的绝对坐标
+    property int acceptMouseAreaRight: x+width//设定能接收鼠标信号的区域的右端的绝对坐标
     signal manulPullLeftBorder//如果用户在窗口左边拉动改变了窗口大小
     signal manulPullRightBorder//同上
     signal manulPullTopBorder//同上
@@ -49,7 +53,22 @@ MyQuickWindow{
             contentItem.height=height
         }
     }
-    
+    Connections{
+        target: utility
+        onMouseDesktopPosChanged:{
+            //console.log("x:"+arg.x+","+acceptMouseAreaLeft+","+acceptMouseAreaRight)
+            //console.log("y:"+arg.y+","+acceptMouseAreaTop+","+acceptMouseAreaBottom)
+            if(arg.x<=acceptMouseAreaRight&&arg.x>=acceptMouseAreaLeft
+                    &&arg.y<=acceptMouseAreaBottom&&arg.y>=acceptMouseAreaTop){
+                //console.log("进入了自己的区域")
+                root.mousePenetrate = false//令鼠标穿透为false
+            }else{
+                root.mousePenetrate = true//如果不是此区域就让鼠标穿透为true
+                //console.log("离开了自己的区域")
+            }
+        }
+    }
+
     QtObject{
         id: obj
         property int windowShakeCount: 0
@@ -277,8 +296,8 @@ MyQuickWindow{
             pressedX = mouseX
             pressedY = mouseY
         }
-        onEntered: showWindow()
-        onExited: berthWindow()
+        onEntered: showWindow()//将窗口从停靠地方显示出来
+        onExited: berthWindow()//调用函数让窗口进行停靠
 
         onReleased: {
             if(dockableWindow&&(!animation.running)&&(root.windowStatus==MyQuickWindow.StopCenter||root.windowStatus==MyQuickWindow.BerthPrepare)){

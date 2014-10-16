@@ -20,6 +20,10 @@ MyWindow{
     actualWidth: 350*myqq.windowScale+200
     actualHeight: 250*myqq.windowScale+150
     visible: true//可视的
+    acceptMouseAreaTop: y+login_page.contentItem.y///////////////////////////设置
+    acceptMouseAreaBottom: acceptMouseAreaTop+login_page.contentItem.height//响应
+    acceptMouseAreaLeft: x+login_page.contentItem.x/////////////////////////鼠标的
+    acceptMouseAreaRight: acceptMouseAreaLeft+login_page.contentItem.width//区域
     noBorder: true//无边框的
     removable: true//可移动的
     fixedSize: true//固定大小的
@@ -28,9 +32,6 @@ MyWindow{
     noNotifyIcon: true//隐藏任务栏图标
     windowGlow: false//是否开启阴影
     color: "transparent"
-    Component.onCompleted: {
-        main.mousePenetrate = true//穿透鼠标
-    }
 
     Connections{
         target: myqq
