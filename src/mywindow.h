@@ -33,6 +33,8 @@ class MyWindow : public QQuickWindow
     Q_PROPERTY(int minimumHeight READ minimumHeight WRITE setMinimumHeight NOTIFY minimumHeightChanged)
     Q_PROPERTY(int maximumWidth READ maximumWidth WRITE setMaximumWidth NOTIFY maximumWidthChanged)
     Q_PROPERTY(int maximumHeight READ maximumHeight WRITE setMaximumHeight NOTIFY maximumHeightChanged)
+    Q_PROPERTY(bool mousePenetrate READ mousePenetrate WRITE setMousePenetrate NOTIFY mousePenetrateChanged)
+    //是否穿透鼠标
     Q_ENUMS(Status)
 public:
     explicit MyWindow(QQuickWindow *parent = 0);
@@ -66,6 +68,8 @@ public:
     int borderTop();
     
     bool topHint() const;
+    bool mousePenetrate() const;
+    
 private:
     QUrl m_windowIcon;
     bool m_noBorder;
@@ -80,6 +84,7 @@ private:
     int m_minimumHeight;
     int m_maximumWidth;
     int m_maximumHeight;
+    bool m_mousePenetrate;
     
     void setWindowActive(bool arg);
 protected:
@@ -109,7 +114,9 @@ signals:
     void minimumHeightChanged(int arg);
     void maximumWidthChanged(int arg);
     void maximumHeightChanged(int arg);
-
+    
+    void mousePenetrateChanged(bool arg);
+    
 public slots:
     void setNoBorder( bool isNoBroder );
     void setWindowIcon( QUrl icon );
@@ -128,6 +135,7 @@ public slots:
     void setMinimumHeight(int arg);
     void setMaximumWidth(int arg);
     void setMaximumHeight(int arg);
+    void setMousePenetrate(bool arg);
 };
 
 #endif // MYWINDOW_H

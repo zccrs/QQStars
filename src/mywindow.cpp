@@ -26,6 +26,7 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     old_topHint=false;
     m_noNotifyIcon = false;
     m_windowActive = false;
+    m_mousePenetrate = false;
     m_minimumWidth = 0;
     m_minimumHeight = 0;
     m_maximumWidth = 9999999;
@@ -115,6 +116,11 @@ int MyWindow::maximumHeight() const
 bool MyWindow::topHint() const
 {
     return m_topHint;
+}
+
+bool MyWindow::mousePenetrate() const
+{
+    return m_mousePenetrate;
 }
 
 QUrl MyWindow::windowIcon()
@@ -238,7 +244,7 @@ int MyWindow::borderTop()
 {
 #ifdef Q_OS_WIN
     return 0;
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_OSX)
     return 0;
 #elif defined(Q_OS_LINUX)
     return 25;
@@ -386,6 +392,28 @@ void MyWindow::setMaximumHeight(int arg)
             setHeight (arg);
         }
         emit maximumHeightChanged(arg);
+    }
+}
+
+void MyWindow::setMousePenetrate(bool arg)
+{
+    if (m_mousePenetrate != arg) {
+        m_mousePenetrate = arg;
+#ifdef Q_OS_LINUX
+        qDebug()<<"linux暂不支持鼠标穿透";
+#elif defined(Q_OS_OSX)
+        qDebug()<<"mac os暂不支持鼠标穿透";
+#elif defined(Q_OS_WIN)
+        HWND my_hwnd = (HWND)this->winId ();
+        if(arg){
+            SetWindowLong(my_hwnd, GWL_EXSTYLE,
+                         GetWindowLong(my_hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT);
+        }else{
+            SetWindowLong(my_hwnd, GWL_EXSTYLE,
+                         GetWindowLong(my_hwnd, GWL_EXSTYLE)&(!WS_EX_TRANSPARENT));
+        }
+#endif
+        emit mousePenetrateChanged(arg);
     }
 }
 

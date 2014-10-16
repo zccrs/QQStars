@@ -19,6 +19,9 @@ Utility::Utility(QObject *parent) :
     http_request = new MyHttpRequest(this);
     download_image = new ThreadDownloadImage(this);
     old_pos = QPoint(-1,-1);
+    
+    connect (&mouse_timer, SIGNAL(timeout()), SLOT(emitDesktopPosChanged()));//连接定时器
+    mouse_timer.start (20);//启动定时器，用来定时判断鼠标位置是否改变
 }
 
 Utility::~Utility()

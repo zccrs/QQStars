@@ -36,7 +36,8 @@ private:
     explicit Utility(QObject *parent = 0);
     ~Utility();
     QPointer<QQmlApplicationEngine> engine;
-    QPoint old_pos;
+    QPoint old_pos;//记录鼠标上次的位置，判断鼠标位置是否改变
+    QTimer mouse_timer;//检测鼠标位置是否变化的定时器
     QPointer<QSettings> mysettings;
     
     MyHttpRequest *http_request;
