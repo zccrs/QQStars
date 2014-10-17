@@ -35,8 +35,8 @@ Window{
             }
             FriendInfo{
                 id:myinfo
-                userQQ: myuin
-                uin: myuin
+                userQQ: myaccount
+                account: myaccount
             }
 
             Rectangle{
@@ -67,7 +67,7 @@ Window{
                 anchors.left: image.right
                 anchors.leftMargin: 10
                 anchors.verticalCenter: parent.verticalCenter
-                text: root.highlightIndex==index?"<font color=\"black\">"+myinfo.nick+"</font>"+"<br><br><font color=\"white\">"+myuin+"</font>":myuin
+                text: root.highlightIndex==index?"<font color=\"black\">"+nick+"</font>"+"<br><br><font color=\"white\">"+myaccount+"</font>":myaccount
                 color: "black"
             }
             MouseArea{
@@ -91,15 +91,12 @@ Window{
                 width: defaultSize.width*myqq.windowScale
                 visible: root.highlightIndex == index
                 source: "qrc:/images/button-quit.svg"
-                property string qq: myuin
+                property string qq: myaccount
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
                         mymodel.remove(index)
-                        var data = utility.value("qq", "")
-                        data = data.replace(new RegExp(","+parent.qq), "")
-                        utility.setValue("qq", data)//将qq号码从里边删除
-                        //myqq.removeValue(parent.qq, "password")//将密码清除
+                        myqq.removeLoginedQQInfo(myinfo.account)//清除此账号的信息
                         myinfo.clearStrings()//清除配置信息
                     }
                 }
@@ -107,11 +104,10 @@ Window{
         }
     }
     Component.onCompleted: {
-        var data = utility.value("qq", "")
-        data = data.split(",")
-        for( var i=1;i<data.length;++i ){
-            //mymodel.append({"imageSrc": myqq.value("avatar-240", "qrc:/images/avatar.png", data[i]), "nick":myqq.value("nick","", data[i]), "uin": data[i]})
-            mymodel.append({"myuin": data[i]})
+        var qq_list = myqq.getLoginedQQInfo()//读取已经登录过的qq的信息
+        qq_list = JSON.parse(qq_list)
+        for( var i=0;i<qq_list.length;++i ){
+            mymodel.append({"myaccount": qq_list[i].account, "nick": qq_list[i].nick})
         }
     }
 

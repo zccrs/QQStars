@@ -21,18 +21,28 @@ public:
         Group,//群
         Discu,//讨论组
     };
+    struct ChatData{
+        QString sender_uin;//消息是谁发过来的
+        QString html_data;//消息内容(html代码)
+        QDate date;//消息发送的日期
+        QTime time;//消息发送的时间
+    };
+
 private:
     static QSqlDatabase sqlite_db;
     QThread thread;
 private slots:
     void m_openSqlDatabase(const QString& userqq);//初始化数据库
     void m_closeSqlDatabase();
+    void m_insertData(const QString& tableName, ChatData* data);
 signals:
     void sql_open(const QString& userqq);
     void sql_close();
+    void sql_insert(const QString& tableName, ChatData* data);
 public slots:
     void openSqlDatabase(const QString& userqq);//初始化数据库
     void closeSqlDatabase();
+    void insertData(const QString& tableName, ChatData* data);
 };
 class QQItemInfo:public QQuickItem
 {
@@ -58,10 +68,12 @@ private:
     
     QQItemInfoPrivate itemInfoPrivate;
 protected:
-    QString m_uin;
+    QString m_uin;//uin，为此qq的唯一标识
+    QString m_account;//qq账号
     QPointer<QSettings> mysettings;
     QString m_aliasOrNick;
     QString m_userQQ;
+    QString m_nick;//储存昵称
     QString m_alias;
     QString typeString;
     QQItemInfoPrivate::QQItemType m_mytype;
@@ -94,7 +106,7 @@ public slots:
     void setAvatar240(QString arg);
     void setUserQQ(QString arg);
     void clearSettings();
-    void saveChatMessageToLocal(QString html);//保存聊天消息的html代码到本地（保存到数据库中）
+    void saveChatMessageToLocal(const QString senderUin, const QString html);//保存聊天消息的html代码到本地（保存到数据库中）
 signals:
     void nickChanged();
     void aliasChanged();
@@ -125,8 +137,16 @@ signals:
 class GroupInfo:public  QQItemInfo
 {
     Q_OBJECT
+    Q_PROPERTY(QString code READ code WRITE setCode NOTIFY codeChanged)
+    QString m_code;
+    
 public:
     explicit GroupInfo(QQuickItem *parent=0);
+    QString code() const;
+public slots:
+    void setCode(QString arg);
+signals:
+    void codeChanged(QString arg);
 };
 
 class DiscuInfo:public  QQItemInfo
@@ -323,6 +343,9 @@ public slots:
     
     QString getHash();//获取请求好友列表需要的hsah
     QString encryptionPassword(const QString &uin, const QString &code);//加密密码，用来登录
+    QString getLoginedQQInfo();//获取所有登录过的qq
+    void removeLoginedQQInfo(const QString account);//移除qq号码为account的账号信息
+    void addLoginedQQInfo(const QString account, const QString nick);
     
     int openMessageBox( QJSValue value );//打开一个对话窗口
     void showWarningInfo(QString message);//显示一个警告窗口
@@ -333,7 +356,7 @@ public slots:
     void updataApi(const QString content);//重新载入api.js，用于更新api后的操作
     
     FriendInfo* createFriendInfo(const QString uin);//创建一个储存好友信息的对象
-    GroupInfo* createGroupInfo(const QString uin);//创建一个储存群信息的对象
+    GroupInfo* createGroupInfo(const QString uin, const QString code="");//创建一个储存群信息的对象，群需要用code来获取真实群号
     DiscuInfo* createDiscuInfo(const QString uin);//创建一个储存讨论组信息的对象
     
     void addChatWindow(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口

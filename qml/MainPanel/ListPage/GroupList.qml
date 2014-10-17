@@ -59,9 +59,8 @@ Item{
             id: item_root
             width: parent.width
             height: avatar.height
-            property var myinfo: myqq.createGroupInfo(obj_info.gid)
+            property var myinfo: myqq.createGroupInfo(obj_info.gid, obj_info.code)
             Component.onCompleted: {
-                myinfo.code = obj_info.code
                 myinfo.nick = obj_info.name
             }
 

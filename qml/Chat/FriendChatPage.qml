@@ -2,7 +2,7 @@ import QtQuick 2.2
 import utility 1.0
 import "../QQItemInfo"
 
-ChatWindow{
+ChatPage{
     id: root
     myinfo: myqq.createFriendInfo(myuin)
    

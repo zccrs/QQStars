@@ -1,7 +1,7 @@
 import QtQuick 2.2
 import utility 1.0
 
-ChatWindow{
+ChatPage{
     id: root
     myinfo: myqq.createDiscuInfo(myuin)
 }

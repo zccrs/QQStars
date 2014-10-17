@@ -528,6 +528,7 @@ void QQCommand::setUserQQ(QString arg)
     if (m_userQQ != arg) {
         m_userQQ = arg;
         FriendInfo::setUserQQ (arg);
+        FriendInfo::setAccount (arg);
         FriendInfo::setUin (arg);
         emit userQQChanged();
     }
@@ -544,10 +545,11 @@ void QQCommand::setUserPassword(QString arg)
 
 void QQCommand::showWarningInfo(QString message)
 {
+    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     if(warning_info_window){
         warning_info_window->show ();
     }else{
-        QQmlComponent component(new QQmlEngine, "./qml/Utility/MyMessageBox.qml");
+        QQmlComponent component(engine, "./qml/Utility/MyMessageBox.qml");
         QObject *obj = component.create ();
         warning_info_window = qobject_cast<MyWindow*>(obj);
         if(obj)
@@ -624,7 +626,7 @@ FriendInfo *QQCommand::createFriendInfo(const QString uin)
     return info;
 }
 
-GroupInfo *QQCommand::createGroupInfo(const QString uin)
+GroupInfo *QQCommand::createGroupInfo(const QString uin, const QString code)
 {
     if(uin=="")
         return NULL;
@@ -633,12 +635,14 @@ GroupInfo *QQCommand::createGroupInfo(const QString uin)
         GroupInfo* info = qobject_cast<GroupInfo*>(map_itemInfo[name]);
         return info;
     }
+    
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     QQmlComponent component(engine, "./qml/QQItemInfo/GroupInfo.qml");
     GroupInfo *info = qobject_cast<GroupInfo*>(component.create ());
     if(info!=NULL){
         info->setUserQQ (userQQ());
         info->setUin (uin);
+        info->setCode (code);//code很重要，用来获取群真实qq号
         info->setAlias (map_alias[name]);//设置备注名
         map_itemInfo[name] = info;
     }
@@ -700,7 +704,7 @@ void QQCommand::addChatWindow(QString uin, int senderType)
         }
     }
 
-    QString qmlName = "./qml/Chat/"+typeStr+"ChatWindow.qml";
+    QString qmlName = "./qml/Chat/"+typeStr+"ChatPage.qml";
     QQmlComponent component(engine, qmlName);
     QQuickItem *item = qobject_cast<QQuickItem*>(component.create ());//新建聊天页面
     if(item){
@@ -794,6 +798,55 @@ QString QQCommand::encryptionPassword(const QString &uin, const QString &code)
     return jsEngine.globalObject ().property ("encryptionPassword").call (list).toString ();
 }
 
+QString QQCommand::getLoginedQQInfo()
+{
+    Utility *utility = Utility::createUtilityClass ();
+    QString reply="[";
+    QString qqs = utility->value ("qq_account", "").toString ();
+    QStringList qq_list = qqs.split (",");
+    foreach (QString qq, qq_list) {
+        if(qq!=""){
+            QStringList temp = qq.split (".");
+            if(temp.size ()==2){//如果有两个，一个为qq号，一个为昵称
+                reply.append ("{\"account\":\""+temp[0]+"\",\"nick\":\""+QByteArray::fromHex (temp[1].toUtf8 ())+"\"},");
+            }
+        }
+    }
+    reply.replace (reply.size ()-1,1,"]");
+    qDebug()<<reply;
+    return reply;
+}
+
+void QQCommand::removeLoginedQQInfo(const QString account)
+{
+    Utility *utility = Utility::createUtilityClass ();
+    QString qqs = utility->value ("qq_account", "").toString ();
+    QStringList qq_list = qqs.split (",");
+    foreach (QString qq, qq_list) {
+        if(qq!=""){
+            QStringList temp = qq.split (".");
+            if(temp.size ()==2){//如果有两个，一个为qq号，一个为昵称
+                if(temp[0]==account){//如果查找到此qq
+                    qqs.replace (qq+",", "");//替换掉
+                    utility->setValue ("qq_account", qqs);//替换掉原来的值
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void QQCommand::addLoginedQQInfo(const QString account, const QString nick)
+{
+    Utility *utility = Utility::createUtilityClass ();
+    QString qqs = utility->value ("qq_account", "").toString ();
+    QString addStr = account+"."+nick.toUtf8 ().toHex ()+",";
+    if(qqs.indexOf (addStr)<0){//如果这条信息不存在
+        qqs.insert (0, addStr);
+        utility->setValue ("qq_account", qqs);//添加进去
+    }
+}
+
 void QQCommand::setWindowScale(double arg)
 {
     if (m_windowScale != arg) {
@@ -870,6 +923,13 @@ void QQCommand::saveUserPassword()
 QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     QQuickItem(parent), m_mytype (type)
 {
+    m_uin = "";
+    m_account = "";
+    m_aliasOrNick = "";
+    m_userQQ = "";
+    m_nick = "";
+    m_alias = "";
+    
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::accountChanged);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::nickChanged);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::aliasChanged);
@@ -879,7 +939,7 @@ QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     connect (this, &QQItemInfo::aliasChanged, this, &QQItemInfo::updataAliasOrNick);
     
     typeString = typeToString (type);
-    mysettings = new QSettings(QDir::homePath ()+"/webqq/"+m_userQQ+"/"+typeString+"_"+m_uin+"/.config.ini", QSettings::IniFormat);
+    mysettings = new QSettings(QDir::homePath ()+"/webqq/"+m_userQQ+"/"+typeString+"_"+m_account+"/.config.ini", QSettings::IniFormat);
 }
 
 QQItemInfo::~QQItemInfo()
@@ -890,11 +950,11 @@ QQItemInfo::~QQItemInfo()
 void QQItemInfo::initSettings()
 {
     QString userqq = userQQ ();
-    QString uin = this->uin();
+    QString account = this->account ();
     
-    if(uin==""||userqq=="")
+    if(account==""||userqq=="")
         return;
-    QString name = QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+uin+"/.config.ini";
+    QString name = QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+account+"/.config.ini";
     if(mysettings){
         if(mysettings->fileName ()==name)
             return;
@@ -907,7 +967,7 @@ void QQItemInfo::initSettings()
 
 bool QQItemInfo::isCanUseSetting() const
 {
-    return (mysettings&&userQQ()!=""&&uin()!="");
+    return (mysettings&&userQQ()!=""&&account()!="");
 }
 
 QString QQItemInfo::uin() const
@@ -917,9 +977,7 @@ QString QQItemInfo::uin() const
 
 QString QQItemInfo::nick() const
 {
-    if(isCanUseSetting())
-        return mysettings->value (typeString+"_"+uin()+"nick", "").toString ();
-    return "";
+    return m_nick;
 }
 
 QString QQItemInfo::alias() const
@@ -931,14 +989,14 @@ QString QQItemInfo::alias() const
 QString QQItemInfo::avatar40() const
 {
     if(isCanUseSetting())
-        return mysettings->value (typeString+"_"+uin()+"avatar-40", "qrc:/images/avatar.png").toString ();
+        return mysettings->value ("avatar-40", "qrc:/images/avatar.png").toString ();
     return "qrc:/images/avatar.png";
 }
 
 QString QQItemInfo::avatar240() const
 {
     if(isCanUseSetting())
-        return mysettings->value (typeString+"_"+uin()+"avatar-240", "qrc:/images/avatar.png").toString ();
+        return mysettings->value ("avatar-240", "qrc:/images/avatar.png").toString ();
     return "qrc:/images/avatar.png";
 }
 
@@ -992,24 +1050,23 @@ QQItemInfoPrivate::QQItemType QQItemInfo::mytype() const
 
 QString QQItemInfo::account() const
 {
-    if(isCanUseSetting())
-        return mysettings->value (typeString+"_"+uin()+"account", "").toString ();
-    return "";
+    return m_account;
 }
 
 void QQItemInfo::setUin(QString arg)
 {
-    if (m_uin != arg) {//m_uin==""保证uin只被设置一次
+    if (m_uin != arg) {
         m_uin = arg;
-        initSettings();
+        if(mytype ()==QQItemInfoPrivate::Discu)//如果是讨论组
+            setAccount (arg);//讨论组无真实qq，所以用uin充当
         emit uinChanged ();
     }
 }
 
 void QQItemInfo::setNick(QString arg)
 {
-    if (isCanUseSetting()&&nick() != arg) {
-        mysettings->setValue (typeString+"_"+uin()+"nick", arg);
+    if (m_nick != arg) {
+        m_nick = arg;
         emit nickChanged ();
     }
 }
@@ -1024,21 +1081,22 @@ void QQItemInfo::setAlias(QString arg)
 
 void QQItemInfo::setAccount(QString arg)
 {
-    if (isCanUseSetting()&&account() != arg) {
-        mysettings->setValue (typeString+"_"+uin()+"account", arg);
+    if (m_account != arg) {
+        m_account = arg;
+        initSettings();
         emit accountChanged();
     }
 }
 
 void QQItemInfo::setAvatar40(QString arg)
 {
-    mysettings->setValue (typeString+"_"+uin()+"avatar-40", arg);
+    mysettings->setValue ("avatar-40", arg);
     emit avatar40Changed();
 }
 
 void QQItemInfo::setAvatar240(QString arg)
 {
-    mysettings->setValue (typeString+"_"+uin()+"avatar-240", arg);
+    mysettings->setValue ("avatar-240", arg);
     emit avatar240Changed();
 }
 
@@ -1056,8 +1114,6 @@ void QQItemInfo::setUserQQ(QString arg)
     if(m_userQQ!=arg) {
         m_userQQ = arg;
         initSettings();
-        closeSqlDatabase ();//先关闭当前数据库
-        openSqlDatabase (arg);//打开新的数据库
         emit userQQChanged ();
     }
 }
@@ -1068,9 +1124,17 @@ void QQItemInfo::clearSettings()
         mysettings->clear ();//清除所有储存的信息
 }
 
-void QQItemInfo::saveChatMessageToLocal(QString html)
+void QQItemInfo::saveChatMessageToLocal(const QString senderUin, const QString html)
 {
-    
+    if(senderUin!=""&&html!=""&&account ()!=""){
+        QString tableName = "table_"+typeToString ()+account();
+        QQItemInfoPrivate::ChatData *data = new QQItemInfoPrivate::ChatData;
+        data->html_data = html;
+        data->sender_uin = senderUin;
+        data->date = QDate::currentDate ();//当前日期
+        data->time = QTime::currentTime ();//当前时间
+        itemInfoPrivate.insertData (tableName, data);
+    }
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):
@@ -1082,14 +1146,14 @@ FriendInfo::FriendInfo(QQuickItem *parent):
 QString FriendInfo::QQSignature()
 {
     if(isCanUseSetting())
-        return mysettings->value (typeString+"_"+uin()+"signature", "").toString ();
+        return mysettings->value ("signature", "").toString ();
     return "";
 }
 
 void FriendInfo::setQQSignature(QString arg)
 {
     if (isCanUseSetting()&&QQSignature() != arg) {
-        mysettings->setValue (typeString+"_"+uin()+"signature", arg);
+        mysettings->setValue ("signature", arg);
         emit qQSignatureChanged();
     }
 }
@@ -1098,7 +1162,21 @@ void FriendInfo::setQQSignature(QString arg)
 GroupInfo::GroupInfo(QQuickItem *parent):
     QQItemInfo(QQItemInfoPrivate::Group, parent)
 {
+    m_code = "";
+}
+
+QString GroupInfo::code() const
+{
+    return m_code;
+}
+
+void GroupInfo::setCode(QString arg)
+{
+    if (m_code == arg)
+        return;
     
+    m_code = arg;
+    emit codeChanged(arg);
 }
 
 
@@ -1186,6 +1264,7 @@ QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
 {
     connect (this, SIGNAL(sql_open(QString)), SLOT(m_openSqlDatabase(QString)));
     connect (this, SIGNAL(sql_close()), SLOT(m_closeSqlDatabase()));
+    connect (this, SIGNAL(sql_insert(QString,ChatData*)), SLOT(m_insertData(QString,ChatData*)));
     moveToThread (&thread);
     thread.start ();//启动线程
 }
@@ -1212,7 +1291,37 @@ void QQItemInfoPrivate::m_closeSqlDatabase()
     }
 }
 
-void QQItemInfoPrivate::openSqlDatabase(const QString &userqq)
+void QQItemInfoPrivate::m_insertData(const QString& tableName, QQItemInfoPrivate::ChatData *data)
+{
+    if(sqlite_db.isOpen ()){//如果数据库已经打开
+        QString temp = "create table if not exists "+tableName+
+                "(senderUin VARCHAR[16],message TEXT,mydate DATE,mytime TIME)";
+        //创建一个表，如果这表不存在，表的列为uin message mydate mytime
+        QSqlQuery query = sqlite_db.exec (temp);
+        if(query.lastError ().type ()==QSqlError::NoError){//如果上面的语句执行没有出错
+            temp = "insert into "+tableName+
+                    " values(:senderUin,:message,:mydate,:mytime)";
+            QSqlQuery insert_query;
+            insert_query.prepare (temp);
+            insert_query.bindValue (":senderUin", data->sender_uin);
+            insert_query.bindValue (":message", data->html_data);
+            insert_query.bindValue (":mydate", data->date);
+            insert_query.bindValue (":mytime", data->time);
+            if(insert_query.exec ()){//如果上面的语句执行没有出错
+                qDebug()<<"插入数据成功";
+            }else{
+                qDebug()<<"执行"<<temp<<"出错："<<insert_query.lastError ().text ();
+            }
+        }else{
+            qDebug()<<"执行"<<temp<<"出错："<<query.lastError ().text ();
+        }
+    }else{
+        qDebug()<<"数据库未打开";
+    }
+    delete data;//销毁data
+}
+
+void QQItemInfoPrivate::openSqlDatabase(const QString& userqq)
 {
     emit sql_open (userqq);//发送信号打开数据库
 }
@@ -1220,4 +1329,9 @@ void QQItemInfoPrivate::openSqlDatabase(const QString &userqq)
 void QQItemInfoPrivate::closeSqlDatabase()
 {
     emit sql_close ();//关闭数据库
+}
+
+void QQItemInfoPrivate::insertData(const QString& tableName, QQItemInfoPrivate::ChatData *data)
+{
+    emit sql_insert (tableName, data);
 }

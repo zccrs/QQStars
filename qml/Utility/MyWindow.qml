@@ -19,10 +19,10 @@ MyQuickWindow{
     property alias windowGlowItem: glow//阴影Item
     property int windowShakeInterval: animation_shake.duration*16///窗口抖动的时间
     property bool centered: true//初次显示时是否居中
-    property int acceptMouseAreaTop: y-3//设定能接收鼠标信号的区域的顶端的绝对坐标
-    property int acceptMouseAreaBottom: y+height+3//设定能接收鼠标信号的区域的下端的绝对坐标
-    property int acceptMouseAreaLeft: x-3//设定能接收鼠标信号的区域的左端的绝对坐标
-    property int acceptMouseAreaRight: x+width+3//设定能接收鼠标信号的区域的右端的绝对坐标
+    property int contentItemAreaTop: -3//设定内容区域的上边界坐标
+    property int contentItemAreaBottom: contentItemAreaTop+height+6//同上
+    property int contentItemAreaLeft: -3//同上
+    property int contentItemAreaRight: contentItemAreaLeft+width+6//同上
     signal manulPullLeftBorder//如果用户在窗口左边拉动改变了窗口大小
     signal manulPullRightBorder//同上
     signal manulPullTopBorder//同上
@@ -56,10 +56,10 @@ MyQuickWindow{
     Connections{
         target: utility
         onMouseDesktopPosChanged:{
-            //console.log("x:"+arg.x+","+acceptMouseAreaLeft+","+acceptMouseAreaRight)
-            //console.log("y:"+arg.y+","+acceptMouseAreaTop+","+acceptMouseAreaBottom)
-            if(arg.x<=acceptMouseAreaRight&&arg.x>=acceptMouseAreaLeft
-                    &&arg.y<=acceptMouseAreaBottom&&arg.y>=acceptMouseAreaTop){
+            var x = arg.x-root.x
+            var y = arg.y-root.y
+            if(x<=contentItemAreaRight&&x>=contentItemAreaLeft
+                    &&y<=contentItemAreaBottom&&y>=contentItemAreaTop){//判断是否在内容的区域
                 //console.log("进入了自己的区域")
                 root.mousePenetrate = false//令鼠标穿透为false
             }else{
@@ -287,17 +287,37 @@ MyQuickWindow{
         id: mouse_main
         enabled: removable
         anchors.fill: parent
-        //width: root.actualWidth
-        //height: root.actualHeight
+
         property real pressedX: 0
         property real pressedY: 0
         hoverEnabled: dockableWindow
+        
         onPressed: {
             pressedX = mouseX
             pressedY = mouseY
         }
-        onEntered: showWindow()//将窗口从停靠地方显示出来
-        onExited: berthWindow()//调用函数让窗口进行停靠
+        onEntered: {
+            mouse_main_connections.target = null//关闭接收全局鼠标改变的信号
+            showWindow()//将窗口从停靠地方显示出来
+        }
+        Connections{
+            id: mouse_main_connections
+            target: null
+            onMouseDesktopPosChanged:{
+                var x = arg.x-root.x
+                var y = arg.y-root.y
+                if(!(x<=contentItemAreaRight&&x>=contentItemAreaLeft
+                    &&y<=contentItemAreaBottom&&y>=contentItemAreaTop)){
+                    //console.log("从内容区域出来了")
+                    berthWindow()//调用函数让窗口进行停靠
+                    mouse_main_connections.target = null//关闭接收全局鼠标改变的信号
+                }
+            }
+        }
+
+        onExited: {
+            mouse_main_connections.target = utility//接收全局鼠标改变的信号
+        }
 
         onReleased: {
             if(dockableWindow&&(!animation.running)&&(root.windowStatus==MyQuickWindow.StopCenter||root.windowStatus==MyQuickWindow.BerthPrepare)){
@@ -316,9 +336,9 @@ MyQuickWindow{
         }
 
         onPositionChanged: {
-            if( mouse_main.pressed ){
-                root.x += (mouseX-pressedX)
-                root.y += (mouseY-pressedY)
+            if( mouse_main.pressed ){//如果鼠标被按下
+                root.x += (mouseX-pressedX)//改变窗口的位置
+                root.y += (mouseY-pressedY)//改变窗口的位置
             }
         }
     }

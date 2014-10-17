@@ -3,11 +3,12 @@ import QQItemInfo 1.0
 
 GroupInfo{
     userQQ: myqq.userQQ
-    property string code
+    
     onCodeChanged: {
         if(code!="")
             myqq.getFriendQQ(code, getQQFinished)//获得真实qq
     }
+    
     onAccountChanged: {
         if(account==""&&code!="")
             myqq.getFriendQQ(code, getQQFinished)//获得真实qq
@@ -22,7 +23,8 @@ GroupInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
-            getAvatar(40)
+            if(avatar40=="qrc:/images/avatar.png")
+                getAvatar(40)
         }
     }
     function getAvatarFinished( path ,name){

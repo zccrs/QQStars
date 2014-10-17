@@ -4,13 +4,8 @@ import QtQuick 2.2
 FriendInfo{
     id: root
     userQQ: myqq.userQQ
-    onAccountChanged: {
-        if(account==""){
-            //console.log(uin+"请求获取真实QQ")
-            myqq.getFriendQQ( uin, getQQFinished )//获取好友的真实qq号
-            //myqq.getFriendQQ( uin, root, "getQQFinished" )//获取好友的真实qq号
-        }
-        //console.log(nick+"的真实qq号是："+account+","+uin)
+    onUinChanged: {//如果uin变了
+        myqq.getFriendQQ( uin, getQQFinished )//获取好友的真实qq号
     }
 
     function getQQFinished(error, data){//获取好友真实qq后调用的函数
@@ -23,7 +18,8 @@ FriendInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
-            getAvatar(40)//去获取头像
+            if( avatar40=="qrc:/images/avatar.png" )
+                getAvatar(40)//去获取头像
         }
     }
     function getAvatarFinished( path ,name){
@@ -49,7 +45,6 @@ FriendInfo{
     }
     function getAvatar(size){
         if(account!=""){
-            //console.log(nick+"请求获取头像")
             myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account, "friend_"+uin, String(size), getAvatarFinished)//下载头像
         }
     }

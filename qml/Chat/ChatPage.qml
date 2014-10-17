@@ -10,7 +10,7 @@ Item{
     anchors.fill: parent
     property string myuin
     property int type
-    property var myinfo
+    property var myinfo//用来储存自己的各种信息（用uin标识）
     signal sendClicked//点击发送按钮好调用此函数
     property alias menuBar: menu_bar
     property alias rightBar: right_bar
@@ -20,16 +20,18 @@ Item{
     Connections{
         target: myqq
         onNewMessage:{
-            console.log(fromUin+","+myuin)
             if(fromUin==myuin){
                 var data = {
                     "uin":senderUin,//发送者是谁
-                    "send_uin":"",//如果mode为right才需要此值
+                    "send_uin":"",//如果mode为right才需要此值(为发送给谁)
                     "mytype": myinfo.mytype,
                     "mode": "left",
                     "message": message//消息内容
                 }
                 listModel.append(data)
+            }
+            if(myinfo){//如果myinfo不为未定义或null
+                myinfo.saveChatMessageToLocal(senderUin, message)//将聊天记录保存到本地
             }
         }
     }
@@ -109,6 +111,9 @@ Item{
                     "mytype": myinfo.mytype,
                     "mode": "right",
                     "message": inputBox.selectedText//选中的文本
+                }
+                if(myinfo){//如果myinfo不为未定义或null
+                    myinfo.saveChatMessageToLocal(myqq.userQQ, inputBox.text)//将聊天记录保存到本地
                 }
                 listModel.append(data)
                 inputBox.text = ""

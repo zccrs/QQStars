@@ -121,10 +121,6 @@ QQ{
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
                 loginReData = list.result//将数据记录下来
-                var allqq = utility.value("qq", "")
-                if(allqq.indexOf(myqq.userQQ)<0){
-                    utility.setValue("qq", allqq+","+myqq.userQQ)
-                }
                 myqq.openSqlDatabase();//登录完成后，打开数据库(用来储存聊天记录)
                 utility.loadQml("qml/MainPanel/main.qml")//登录成功后加载主面板
                 myqq.loginStatus = QQ.LoginFinished//设置为登录成功
@@ -151,6 +147,7 @@ QQ{
         if( list.retcode==0 ) {
             userData = list.result
             root.nick = userData.nick//储存昵称
+            myqq.addLoginedQQInfo(userQQ, nick)//保存此账号的登录信息
             var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
             myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
             //getPanelSize()//获取主面板的大小

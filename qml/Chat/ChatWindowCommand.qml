@@ -35,7 +35,7 @@ MyWindow{
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
     windowGlowItem.color: "black"//"#f07000"
-    property ChatWindow currentShowPage//记录当前显示中的聊天页面
+    property ChatPage currentShowPage//记录当前显示中的聊天页面
     property int chatPageWidth: myqq.value("chatPageWidth", 600)//获取聊天页面的width, 初始化为600，聊天也的width
     
     function setCurrentShowPage(page){
@@ -207,7 +207,7 @@ MyWindow{
                 id: item_root
                 width: parent.width
                 height: avatar.height
-                property ChatWindow my: obj_item
+                property ChatPage my: obj_item
                 Rectangle{
                     id: rect_hover
                     width: parent.width+10

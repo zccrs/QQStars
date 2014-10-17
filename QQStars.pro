@@ -76,10 +76,7 @@ OTHER_FILES += \
     qml/Utility/ComboBox/MyComboBox.qml \
     qml/Utility/ComboBox/MyComboBoxComponent.qml \
     qml/Login/MyLoginButton.qml \
-    qml/Chat/ChatWindow.qml \
     qml/Chat/ChatWindowCommand.qml \
-    qml/Chat/FriendChatWindow.qml \
-    qml/Chat/GroupChatWindow.qml \
     qml/Chat/MessageListComponent.qml \
     qml/Chat/qqshow.png \
     qml/Utility/KeyboardPage/SoftKeyboard.qml \
@@ -96,8 +93,11 @@ OTHER_FILES += \
     qml/QQItemInfo/GroupInfo.qml \
     qml/MainPanel/ListPage/DiscuList.qml \
     qml/MainPanel/ListPage/GroupAndDiscuPage.qml \
-    qml/Chat/DiscuChatWindow.qml \
     style/menuStyle.css \
-    style/messageBoxStyle.css
+    style/messageBoxStyle.css \
+    qml/Chat/FriendChatPage.qml \
+    qml/Chat/GroupChatPage.qml \
+    qml/Chat/DiscuChatPage.qml \
+    qml/Chat/ChatPage.qml
             
 FORMS +=
