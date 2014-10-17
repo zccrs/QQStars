@@ -14,7 +14,7 @@ class MyWindow : public QQuickWindow
     Q_OBJECT
     Q_PROPERTY(QUrl windowIcon READ windowIcon WRITE setWindowIcon NOTIFY windowIconChanged)//状态栏图标
     Q_PROPERTY(bool noBorder READ noBorder WRITE setNoBorder NOTIFY noBorderIconChanged)//无边框
-    Q_PROPERTY(Status windowStatus READ windowStatus WRITE setWindowStatus NOTIFY windowStatusChanged)//窗口状态
+    Q_PROPERTY(WindowStatus windowStatus READ windowStatus WRITE setWindowStatus NOTIFY windowStatusChanged)//窗口状态
     Q_PROPERTY(int borderLeft READ borderLeft CONSTANT)//离屏幕左边的距离
     Q_PROPERTY(int borderRight READ borderRight CONSTANT)//离屏幕右边的距离
     Q_PROPERTY(int borderTop READ borderTop CONSTANT)//离屏幕上边的距离
@@ -35,10 +35,10 @@ class MyWindow : public QQuickWindow
     Q_PROPERTY(int maximumHeight READ maximumHeight WRITE setMaximumHeight NOTIFY maximumHeightChanged)
     Q_PROPERTY(bool mousePenetrate READ mousePenetrate WRITE setMousePenetrate NOTIFY mousePenetrateChanged)
     //是否穿透鼠标
-    Q_ENUMS(Status)
+    Q_ENUMS(WindowStatus)
 public:
     explicit MyWindow(QQuickWindow *parent = 0);
-    enum Status{
+    enum WindowStatus{
         StopCenter,//初始状态,停在屏幕中，不靠任何边界
         BerthPrepare,//进入准停靠状态（此时鼠标离开窗体就会停靠）
         BerthLeft,//停靠在左边
@@ -61,7 +61,7 @@ public:
     int minimumHeight() const;
     int maximumWidth() const;
     int maximumHeight() const;
-    Status windowStatus();
+    WindowStatus windowStatus();
     bool noBorder();
     int borderLeft();
     int borderRight();
@@ -73,7 +73,7 @@ public:
 private:
     QUrl m_windowIcon;
     bool m_noBorder;
-    Status m_windowStatus;
+    WindowStatus m_windowStatus;
     bool m_topHint, old_topHint;
     bool m_noNotifyIcon;
     QPixmap pixmap;
@@ -120,7 +120,7 @@ signals:
 public slots:
     void setNoBorder( bool isNoBroder );
     void setWindowIcon( QUrl icon );
-    void setWindowStatus( Status new_status );
+    void setWindowStatus( WindowStatus new_status );
     void setTopHint(bool arg);
     void setNoNotifyIcon(bool arg);
     void setWidth(int arg);

@@ -431,7 +431,6 @@ void MyWindow::setMousePenetrate(bool arg)
                          GetWindowLong(my_hwnd, GWL_EXSTYLE)&(~WS_EX_TRANSPARENT));
         }
 #endif
-        //qDebug()<<GetWindowLong(my_hwnd, GWL_EXSTYLE);
         emit mousePenetrateChanged(arg);
     }
 }

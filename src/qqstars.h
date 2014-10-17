@@ -15,11 +15,24 @@ class QQItemInfoPrivate:public QQuickItem
     Q_OBJECT
     Q_ENUMS(QQItemType)
 public:
+    explicit QQItemInfoPrivate(QQuickItem *parent=0);
     enum QQItemType{
         Friend,//好友
         Group,//群
         Discu,//讨论组
     };
+private:
+    static QSqlDatabase sqlite_db;
+    QThread thread;
+private slots:
+    void m_openSqlDatabase(const QString& userqq);//初始化数据库
+    void m_closeSqlDatabase();
+signals:
+    void sql_open(const QString& userqq);
+    void sql_close();
+public slots:
+    void openSqlDatabase(const QString& userqq);//初始化数据库
+    void closeSqlDatabase();
 };
 class QQItemInfo:public QQuickItem
 {
@@ -42,8 +55,8 @@ private:
     explicit QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent=0);
     ~QQItemInfo();
     void initSettings();
-    static QSqlDatabase sqlite_db;
-
+    
+    QQItemInfoPrivate itemInfoPrivate;
 protected:
     QString m_uin;
     QPointer<QSettings> mysettings;
@@ -51,11 +64,11 @@ protected:
     QString m_userQQ;
     QString m_alias;
     QString typeString;
-    bool isCanUseSetting() const;
     QQItemInfoPrivate::QQItemType m_mytype;
-    //QPointer<QSqlDatabase> mydb;
-    static const QSqlDatabase* openSqlDatabase(const QString userqq);//初始化数据库
-    static void closeSqlDatabase();
+    
+    bool isCanUseSetting() const;//是否可以调用settings
+    void openSqlDatabase(const QString &userqq);//初始化数据库
+    void closeSqlDatabase();
 public:
     QString uin() const;
     QString nick() const;

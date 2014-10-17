@@ -766,7 +766,7 @@ void QQCommand::shakeChatMainWindow(QQuickItem *item)
 
 void QQCommand::openSqlDatabase()
 {
-    QQItemInfo::openSqlDatabase (userQQ());
+    FriendInfo::openSqlDatabase (userQQ());//打开数据库
 }
 
 void QQCommand::saveAlias(int type, QString uin, QString alias)
@@ -777,7 +777,7 @@ void QQCommand::saveAlias(int type, QString uin, QString alias)
 
 void QQCommand::updataApi(const QString content)
 {
-    qDebug()<<content;
+    qDebug()<<"更新api.js"<<content;
 }
 
 QString QQCommand::getHash()
@@ -866,7 +866,7 @@ void QQCommand::saveUserPassword()
         mysettings->setValue ("password", pass);
     }
 }
-QSqlDatabase QQItemInfo::sqlite_db = QSqlDatabase::addDatabase ("QSQLITE");
+
 QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     QQuickItem(parent), m_mytype (type)
 {
@@ -908,29 +908,6 @@ void QQItemInfo::initSettings()
 bool QQItemInfo::isCanUseSetting() const
 {
     return (mysettings&&userQQ()!=""&&uin()!="");
-}
-
-const QSqlDatabase *QQItemInfo::openSqlDatabase(const QString userqq)
-{
-    if(!sqlite_db.isOpen ()){//如果数据库未打开
-        //sqlite_db = QSqlDatabase::addDatabase("QSQLITE");
-        sqlite_db.setHostName ("localhost");
-        QString name = QDir::homePath ()+"/webqq/"+userqq+"/.QQData.db";
-        sqlite_db.setDatabaseName (name);
-        sqlite_db.setUserName ("雨后星辰");
-        sqlite_db.setPassword ("XingChenQQ");
-        if(!sqlite_db.open ()){
-            qDebug()<<"数据库 "<<name<<" 打开失败";
-        }
-    }
-    return &sqlite_db;
-}
-
-void QQItemInfo::closeSqlDatabase()
-{
-    if(!sqlite_db.isOpen ()){
-        sqlite_db.close ();
-    }
 }
 
 QString QQItemInfo::uin() const
@@ -996,6 +973,16 @@ const QString QQItemInfo::typeToString(QQItemInfoPrivate::QQItemType type)
     default:
         return "";
     }
+}
+
+void QQItemInfo::openSqlDatabase(const QString& userqq)
+{
+    itemInfoPrivate.openSqlDatabase (userqq);
+}
+
+void QQItemInfo::closeSqlDatabase()
+{
+    itemInfoPrivate.closeSqlDatabase ();
 }
 
 QQItemInfoPrivate::QQItemType QQItemInfo::mytype() const
@@ -1069,6 +1056,8 @@ void QQItemInfo::setUserQQ(QString arg)
     if(m_userQQ!=arg) {
         m_userQQ = arg;
         initSettings();
+        closeSqlDatabase ();//先关闭当前数据库
+        openSqlDatabase (arg);//打开新的数据库
         emit userQQChanged ();
     }
 }
@@ -1189,4 +1178,46 @@ void RecentInfo::setInfoData(QQuickItem *info)
 {
     m_infoData = info;
     emit infoDataChanged ();
+}
+
+QSqlDatabase QQItemInfoPrivate::sqlite_db = QSqlDatabase::addDatabase ("QSQLITE");
+QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
+    QQuickItem(0)
+{
+    connect (this, SIGNAL(sql_open(QString)), SLOT(m_openSqlDatabase(QString)));
+    connect (this, SIGNAL(sql_close()), SLOT(m_closeSqlDatabase()));
+    moveToThread (&thread);
+    thread.start ();//启动线程
+}
+
+void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)
+{
+    if(!sqlite_db.isOpen ()){//如果数据库未打开
+        //sqlite_db = QSqlDatabase::addDatabase("QSQLITE");
+        sqlite_db.setHostName ("localhost");
+        QString name = QDir::homePath ()+"/webqq/"+userqq+"/.QQData.db";
+        sqlite_db.setDatabaseName (name);
+        sqlite_db.setUserName ("雨后星辰");
+        sqlite_db.setPassword ("XingChenQQ");
+        if(!sqlite_db.open ()){
+            qDebug()<<"数据库 "<<name<<" 打开失败";
+        }
+    }
+}
+
+void QQItemInfoPrivate::m_closeSqlDatabase()
+{
+    if(!sqlite_db.isOpen ()){
+        sqlite_db.close ();
+    }
+}
+
+void QQItemInfoPrivate::openSqlDatabase(const QString &userqq)
+{
+    emit sql_open (userqq);//发送信号打开数据库
+}
+
+void QQItemInfoPrivate::closeSqlDatabase()
+{
+    emit sql_close ();//关闭数据库
 }

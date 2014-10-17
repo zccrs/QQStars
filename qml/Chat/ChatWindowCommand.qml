@@ -11,7 +11,7 @@ MyWindow{
     //fixedLeftBorder: true//固定左边边框(不能从左边拉动改变窗口大小)
     //fixedRightBorder: true//固定右边边框(不能从右边拉动改变窗口大小)
     setLeftBorder: function(arg){
-        if(left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
+        if(!left_bar.isOpen||left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
             root.mySetLeftBorder(arg)//设置窗口位置
         }
     }

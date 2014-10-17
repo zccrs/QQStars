@@ -19,10 +19,10 @@ MyQuickWindow{
     property alias windowGlowItem: glow//阴影Item
     property int windowShakeInterval: animation_shake.duration*16///窗口抖动的时间
     property bool centered: true//初次显示时是否居中
-    property int acceptMouseAreaTop: y//设定能接收鼠标信号的区域的顶端的绝对坐标
-    property int acceptMouseAreaBottom: y+height//设定能接收鼠标信号的区域的下端的绝对坐标
-    property int acceptMouseAreaLeft: x//设定能接收鼠标信号的区域的左端的绝对坐标
-    property int acceptMouseAreaRight: x+width//设定能接收鼠标信号的区域的右端的绝对坐标
+    property int acceptMouseAreaTop: y-3//设定能接收鼠标信号的区域的顶端的绝对坐标
+    property int acceptMouseAreaBottom: y+height+3//设定能接收鼠标信号的区域的下端的绝对坐标
+    property int acceptMouseAreaLeft: x-3//设定能接收鼠标信号的区域的左端的绝对坐标
+    property int acceptMouseAreaRight: x+width+3//设定能接收鼠标信号的区域的右端的绝对坐标
     signal manulPullLeftBorder//如果用户在窗口左边拉动改变了窗口大小
     signal manulPullRightBorder//同上
     signal manulPullTopBorder//同上
