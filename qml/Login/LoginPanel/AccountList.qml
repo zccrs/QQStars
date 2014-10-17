@@ -78,7 +78,7 @@ Window{
                 }
                 
                 onClicked: {
-                    root.clicked(myuin)
+                    root.clicked(myaccount)
                     root.close()
                     listClose()
                 }

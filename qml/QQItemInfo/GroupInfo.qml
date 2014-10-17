@@ -5,6 +5,7 @@ GroupInfo{
     userQQ: myqq.userQQ
     
     onCodeChanged: {
+        console.log(code+"将要获取真实qq")
         if(code!="")
             myqq.getFriendQQ(code, getQQFinished)//获得真实qq
     }
