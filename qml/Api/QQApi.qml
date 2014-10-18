@@ -124,6 +124,8 @@ QQ{
                 myqq.openSqlDatabase();//登录完成后，打开数据库(用来储存聊天记录)
                 utility.loadQml("qml/MainPanel/main.qml")//登录成功后加载主面板
                 myqq.loginStatus = QQ.LoginFinished//设置为登录成功
+                var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+                myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
                 var url = "http://q.qlogo.cn/headimg_dl?spec=240&dst_uin="+myqq.userQQ
                 downloadImage(url, "friend_"+myqq.userQQ, "240", getAvatarFinished)//获取头像
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
@@ -148,8 +150,6 @@ QQ{
             userData = list.result
             root.nick = userData.nick//储存昵称
             myqq.addLoginedQQInfo(userQQ, nick)//保存此账号的登录信息
-            var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
-            myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
             //getPanelSize()//获取主面板的大小
         }else{
             myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)

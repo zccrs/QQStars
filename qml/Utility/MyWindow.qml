@@ -222,7 +222,7 @@ MyQuickWindow{
     NumberAnimation{
         id: animation_shake
         target: root
-        duration: 20
+        duration: 50
         easing.type: Easing.OutInElastic
         property var backFun: null
         onStopped: {
