@@ -33,12 +33,7 @@ Window{
                     duration: 200
                 }
             }
-            FriendInfo{
-                id:myinfo
-                userQQ: myaccount
-                account: myaccount
-            }
-
+            
             Rectangle{
                 id: background_rect
                 anchors.top: parent.top
@@ -53,7 +48,7 @@ Window{
             MyImage{
                 id: image
                 maskSource: "qrc:/images/bit.bmp"
-                source: myinfo.avatar240
+                source: mysource
                 x:5
                 width: parent.height-10
                 anchors.verticalCenter: parent.verticalCenter
@@ -96,8 +91,7 @@ Window{
                     anchors.fill: parent
                     onClicked: {
                         mymodel.remove(index)
-                        myqq.removeLoginedQQInfo(myinfo.account)//清除此账号的信息
-                        myinfo.clearStrings()//清除配置信息
+                        myqq.removeLoginedQQInfo(myaccount)//清除此账号的信息
                     }
                 }
             }
@@ -107,7 +101,7 @@ Window{
         var qq_list = myqq.getLoginedQQInfo()//读取已经登录过的qq的信息
         qq_list = JSON.parse(qq_list)
         for( var i=0;i<qq_list.length;++i ){
-            mymodel.append({"myaccount": qq_list[i].account, "nick": qq_list[i].nick})
+            mymodel.append({"myaccount": qq_list[i].account, "nick": qq_list[i].nick, "mysource": qq_list[i].avatarSource})
         }
     }
 

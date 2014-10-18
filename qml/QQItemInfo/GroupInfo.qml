@@ -34,7 +34,9 @@ GroupInfo{
     }
     function getAvatar(size){
         if(account!=""){
-            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+account, String(size), getAvatarFinished)//下载头像
+            myqq.downloadImage(QQItemInfo.Group
+                               , "http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size)
+                               , account, String(size), getAvatarFinished)//下载头像
         }
     }
     onAvatar40Changed: {

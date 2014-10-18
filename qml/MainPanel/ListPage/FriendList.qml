@@ -31,7 +31,6 @@ Item{
                 if(obj_info){
                     obj_info.alias = marknames[i].markname//储存备注信息
                 }
-                //myqq.saveAlias(QQItemInfo.Friend, marknames[i].uin, marknames[i].markname)
             }
             var categories = data.result.categories//分组信息
             

@@ -25,8 +25,6 @@ Item{
                 if(obj_info){
                     obj_info.alias = groupmarknames[i].markname//储存备注信息
                 }
-
-                //myqq.saveAlias(QQItemInfo.Group, groupmarknames[i].uin, groupmarknames[i].markname)//储存备注信息
             }
 
             var list_info = data.result.gnamelist

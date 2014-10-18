@@ -74,10 +74,10 @@ public slots:
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     
-    QString stringEncrypt(const QString &content, QString key);//加密任意字符串
+    QString stringEncrypt(const QString &content, QString key);//加密任意字符串，中文请使用utf-8编码
     QString stringUncrypt(const QString &content_hex, QString key);//解密加密后的字符串
     
-    void removePath(QString dirPath ,bool deleteHidden = true, bool deleteSelf = false );
+    void removePath(QString dirPath ,bool deleteHidden = true, bool deleteSelf = true );
 };
 
 #endif // UTILITY_H

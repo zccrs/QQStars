@@ -16,6 +16,7 @@ class QQItemInfoPrivate:public QQuickItem
     Q_ENUMS(QQItemType)
 public:
     explicit QQItemInfoPrivate(QQuickItem *parent=0);
+    ~QQItemInfoPrivate();
     enum QQItemType{
         Friend,//好友
         Group,//群
@@ -44,6 +45,7 @@ public slots:
     void closeSqlDatabase();
     void insertData(const QString& tableName, ChatData* data);
 };
+
 class QQItemInfo:public QQuickItem
 {
     Q_OBJECT
@@ -63,10 +65,7 @@ class QQItemInfo:public QQuickItem
     friend class RecentInfo;
 private:
     explicit QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent=0);
-    ~QQItemInfo();
     void initSettings();
-    
-    QQItemInfoPrivate itemInfoPrivate;
 protected:
     QString m_uin;//uin，为此qq的唯一标识
     QString m_account;//qq账号
@@ -77,11 +76,10 @@ protected:
     QString m_alias;
     QString typeString;
     QQItemInfoPrivate::QQItemType m_mytype;
-    
     bool isCanUseSetting() const;//是否可以调用settings
-    void openSqlDatabase(const QString &userqq);//初始化数据库
-    void closeSqlDatabase();
 public:
+    static const QString typeToString(QQItemInfoPrivate::QQItemType type);
+    static const QString localCachePath(QQItemInfoPrivate::QQItemType type, const QString& userqq, const QString& account);//本地缓存路径
     QString uin() const;
     QString nick() const;
     QString alias() const;
@@ -93,8 +91,6 @@ public:
     QString userQQ() const;
     QString typeToString();
     QQItemInfoPrivate::QQItemType mytype() const;
-    static const QString typeToString(QQItemInfoPrivate::QQItemType type);
-    
 private slots:
     void updataAliasOrNick();
 public slots:
@@ -106,7 +102,7 @@ public slots:
     void setAvatar240(QString arg);
     void setUserQQ(QString arg);
     void clearSettings();
-    void saveChatMessageToLocal(const QString senderUin, const QString html);//保存聊天消息的html代码到本地（保存到数据库中）
+    const QString localCachePath();//本地缓存路径
 signals:
     void nickChanged();
     void aliasChanged();
@@ -116,7 +112,6 @@ signals:
     void aliasOrNickChanged();
     void userQQChanged();
     void uinChanged();
-    
     void settingsChanged();
     void mytypeChanged(QQItemInfoPrivate::QQItemType arg);
 };
@@ -125,11 +120,16 @@ class FriendInfo:public  QQItemInfo
 {
     Q_OBJECT
     Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY qQSignatureChanged)//个性签名
+    QQItemInfoPrivate itemInfoPrivate;//里边定义了数据库的操作，用来储存聊天记录
 public:
     explicit FriendInfo(QQuickItem *parent=0);
+
     QString QQSignature();
 public slots:
     void setQQSignature(QString arg);
+    void openSqlDatabase(const QString &userqq);//初始化数据库
+    void closeSqlDatabase();
+    void saveChatMessageToLocal(const QString senderUin, const QString html);//保存聊天消息的html代码到本地（保存到数据库中）
 signals:
     void qQSignatureChanged();
 };
@@ -281,7 +281,7 @@ private:
     QString m_codeText;//储存输入验证码
     QPointer<MyWindow> warning_info_window;//储存指向警告窗口的指针
     QMap<QString, QQItemInfo*> map_itemInfo;//储存每个好友或群讨论组Info
-    QMap<QString, QString> map_alias;//储存备注名
+    //QMap<QString, QString> map_alias;//储存备注名
     QPointer<MyWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
     QQuickItem* mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
     QMap<QString, QQuickItem*> map_chatPage;//储存备已经打开的聊天页面
@@ -339,17 +339,17 @@ public slots:
     void setUserQQ(QString arg);
     void setUserPassword(QString arg);
     void setWindowScale(double arg);
-    void saveAlias(int type, QString uin, QString alias);//储存备注名称
+    //void saveAlias(int type, QString uin, QString alias);//储存备注名称
     
     QString getHash();//获取请求好友列表需要的hsah
     QString encryptionPassword(const QString &uin, const QString &code);//加密密码，用来登录
     QString getLoginedQQInfo();//获取所有登录过的qq
-    void removeLoginedQQInfo(const QString account);//移除qq号码为account的账号信息
+    void removeLoginedQQInfo(const QString account, bool rmLocalCache=false);//移除qq号码为account的账号信息
     void addLoginedQQInfo(const QString account, const QString nick);
     
     int openMessageBox( QJSValue value );//打开一个对话窗口
     void showWarningInfo(QString message);//显示一个警告窗口
-    void downloadImage( QUrl url, QString account, QString imageSize, QJSValue callbackFun );//下载图片
+    void downloadImage( int senderType/*QQItemType类型*/, QUrl url, QString account, QString imageSize, QJSValue callbackFun );//下载图片
     void showCodeWindow(const QJSValue callbackFun, const QString code_uin);//显示出输入验证码的窗口
     void closeCodeWindow();//关闭输入验证码的窗口
     void updataCode();//刷新验证码的显示

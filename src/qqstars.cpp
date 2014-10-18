@@ -559,9 +559,10 @@ void QQCommand::showWarningInfo(QString message)
     }
 }
 
-void QQCommand::downloadImage(QUrl url, QString account, QString imageSize, QJSValue callbackFun)
+void QQCommand::downloadImage(int senderType, QUrl url, QString account, QString imageSize, QJSValue callbackFun)
 {
-    QString path = QDir::homePath ()+"/webqq/"+userQQ ()+"/"+account;
+    QString path = QQItemInfo::localCachePath ((QQItemInfoPrivate::QQItemType)senderType, userQQ(), account);
+    //先获取此qq为account，类型为senderType的缓存目录，将此目录传给下载图片的函数。此图片下载完成就会存入此路径
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
 }
 
@@ -772,11 +773,11 @@ void QQCommand::openSqlDatabase()
     FriendInfo::openSqlDatabase (userQQ());//打开数据库
 }
 
-void QQCommand::saveAlias(int type, QString uin, QString alias)
+/*void QQCommand::saveAlias(int type, QString uin, QString alias)
 {
     QString name = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)type)+uin;
     map_alias[name] = alias;
-}
+}*/
 
 void QQCommand::updataApi(const QString content)
 {
@@ -807,7 +808,13 @@ QString QQCommand::getLoginedQQInfo()
         if(qq!=""){
             QStringList temp = qq.split (".");
             if(temp.size ()==2){//如果有两个，一个为qq号，一个为昵称
-                reply.append ("{\"account\":\""+temp[0]+"\",\"nick\":\""+QByteArray::fromHex (temp[1].toUtf8 ())+"\"},");
+                FriendInfo info;
+                QString account = temp[0];
+                info.setUserQQ (account);
+                info.setAccount (account);
+                reply.append ("{\"account\":\""+account
+                              +"\",\"nick\":\""+QByteArray::fromHex (temp[1].toUtf8 ())
+                        +"\",\"avatarSource\":\""+info.avatar240 ()+"\"},");
             }
         }
     }
@@ -816,7 +823,7 @@ QString QQCommand::getLoginedQQInfo()
     return reply;
 }
 
-void QQCommand::removeLoginedQQInfo(const QString account)
+void QQCommand::removeLoginedQQInfo(const QString account, bool rmLocalCache)
 {
     Utility *utility = Utility::createUtilityClass ();
     QString qqs = utility->value ("qq_account", "").toString ();
@@ -828,6 +835,13 @@ void QQCommand::removeLoginedQQInfo(const QString account)
                 if(temp[0]==account){//如果查找到此qq
                     qqs.replace (qq+",", "");//替换掉
                     utility->setValue ("qq_account", qqs);//替换掉原来的值
+                    FriendInfo info;
+                    info.setUserQQ (account);
+                    info.setAccount (account);
+                    info.clearSettings ();//清除配置内容
+                    if(rmLocalCache){//如果要删除本地缓存
+                        utility->removePath (info.localCachePath ());
+                    }
                     return;
                 }
             }
@@ -937,11 +951,6 @@ QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     typeString = typeToString (type);
 }
 
-QQItemInfo::~QQItemInfo()
-{
-    closeSqlDatabase();//关闭数据库
-}
-
 void QQItemInfo::initSettings()
 {
     QString userqq = userQQ ();
@@ -1029,14 +1038,10 @@ const QString QQItemInfo::typeToString(QQItemInfoPrivate::QQItemType type)
     }
 }
 
-void QQItemInfo::openSqlDatabase(const QString& userqq)
+const QString QQItemInfo::localCachePath(QQItemInfoPrivate::QQItemType type, const QString &userqq, const QString &account)
 {
-    itemInfoPrivate.openSqlDatabase (userqq);
-}
-
-void QQItemInfo::closeSqlDatabase()
-{
-    itemInfoPrivate.closeSqlDatabase ();
+    QString typeString = typeToString (type);
+    return QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+account;
 }
 
 QQItemInfoPrivate::QQItemType QQItemInfo::mytype() const
@@ -1120,21 +1125,15 @@ void QQItemInfo::setUserQQ(QString arg)
 
 void QQItemInfo::clearSettings()
 {
-    if(isCanUseSetting())
+    if(isCanUseSetting()){
         mysettings->clear ();//清除所有储存的信息
+        qDebug()<<mysettings->fileName ()<<"清除成功";
+    }
 }
 
-void QQItemInfo::saveChatMessageToLocal(const QString senderUin, const QString html)
+const QString QQItemInfo::localCachePath()
 {
-    if(senderUin!=""&&html!=""&&account ()!=""){
-        QString tableName = "table_"+typeToString ()+account();
-        QQItemInfoPrivate::ChatData *data = new QQItemInfoPrivate::ChatData;
-        data->html_data = html;
-        data->sender_uin = senderUin;
-        data->date = QDate::currentDate ();//当前日期
-        data->time = QTime::currentTime ();//当前时间
-        itemInfoPrivate.insertData (tableName, data);
-    }
+    return QDir::homePath ()+"/webqq/"+userQQ()+"/"+typeString+"_"+account();
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):
@@ -1155,6 +1154,30 @@ void FriendInfo::setQQSignature(QString arg)
     if (isCanUseSetting()&&QQSignature() != arg) {
         mysettings->setValue ("signature", arg);
         emit qQSignatureChanged();
+    }
+}
+
+void FriendInfo::openSqlDatabase(const QString &userqq)
+{
+    itemInfoPrivate.openSqlDatabase (userqq);
+}
+
+void FriendInfo::closeSqlDatabase()
+{
+    itemInfoPrivate.closeSqlDatabase ();
+}
+
+void FriendInfo::saveChatMessageToLocal(const QString senderUin, const QString html)
+{
+    if(senderUin!=""&&html!=""&&account ()!=""){
+        QString tableName = "table_"+typeToString ()+account();
+        QQItemInfoPrivate::ChatData *data = new QQItemInfoPrivate::ChatData;
+        Utility *utility = Utility::createUtilityClass ();
+        data->html_data = utility->stringEncrypt (html, "XingChenQQ123");//将内容加密后储存
+        data->sender_uin = senderUin;
+        data->date = QDate::currentDate ();//当前日期
+        data->time = QTime::currentTime ();//当前时间
+        itemInfoPrivate.insertData (tableName, data);
     }
 }
 
@@ -1267,6 +1290,13 @@ QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
     connect (this, SIGNAL(sql_insert(QString,ChatData*)), SLOT(m_insertData(QString,ChatData*)));
     moveToThread (&thread);
     thread.start ();//启动线程
+}
+
+QQItemInfoPrivate::~QQItemInfoPrivate()
+{
+    sqlite_db.close();//关闭数据库
+    thread.quit ();
+    thread.wait ();
 }
 
 void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)

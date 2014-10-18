@@ -45,7 +45,9 @@ FriendInfo{
     }
     function getAvatar(size){
         if(account!=""){
-            myqq.downloadImage("http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account, "friend_"+account, String(size), getAvatarFinished)//下载头像
+            myqq.downloadImage(QQItemInfo.Friend
+                               , "http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account
+                               , account, String(size), getAvatarFinished)//下载头像
         }
     }
    

@@ -225,7 +225,7 @@ QString Utility::stringEncrypt(const QString &content, QString key)
         return content;
     if(key.size ()>256)
         key = key.mid (0,256);//密匙最长256位
-    QByteArray data = strZoarium (content.toLatin1 ().toBase64 ());
+    QByteArray data = strZoarium (content.toUtf8 ().toBase64 ());
     int data_size = data.size ();
     QByteArray mykey = strZoarium (key.toLatin1 ().toHex ());
     int key_size = mykey.size ();
@@ -240,17 +240,16 @@ QString Utility::stringEncrypt(const QString &content, QString key)
             temp.append (QString(ch));
     }
     //qDebug()<<temp;
-    return QString::fromLatin1 (temp.toBase64 ());
+    return QString::fromUtf8 (temp);
 }
 
-QString Utility::stringUncrypt(const QString &content_hex, QString key)
+QString Utility::stringUncrypt(const QString &content, QString key)
 {
-    if(content_hex==""||key=="")
-        return content_hex;
+    if(content==""||key=="")
+        return content;
     if(key.size ()>256)
         key = key.mid (0,256);//密匙最长256位
-    QByteArray data = QString::fromUtf8 (QByteArray::fromBase64 (content_hex.toLatin1 ())).toLatin1 ();
-    //qDebug()<<data.size ();
+    QByteArray data = content.toLatin1 ();
     QByteArray mykey = strZoarium (key.toLatin1 ().toHex ());
     int key_size = mykey.size ();
     QByteArray temp;
@@ -258,19 +257,14 @@ QString Utility::stringUncrypt(const QString &content_hex, QString key)
     for(int i=0;i<data.size ();++i){
         int ch = (int)(uchar)data[i]-(int)mykey[i%key_size];
         if(ch>=0){
-            //qDebug()<<(int)(uchar)data[i]<<(int)mykey[i%key_size]<<ch;
             temp.append ((char)ch);
         }
     }
-    //qDebug()<<temp;
     temp = unStrZoarium (temp);
     int fill_size = temp.mid (0, 3).toInt ();
-    //qDebug()<<temp;
-    //qDebug()<<fill_size;
     temp = temp.mid (fill_size+3, temp.size ()-fill_size-3);//除去填充的字符
-    //qDebug()<<temp;
     
-    return QString::fromLatin1 (QByteArray::fromBase64 (temp));
+    return QString::fromUtf8 (QByteArray::fromBase64 (temp));
 }
 
 bool myRemovePath(QString dirPath, bool deleteHidden, bool deleteSelf)
@@ -310,7 +304,7 @@ bool myRemovePath(QString dirPath, bool deleteHidden, bool deleteSelf)
     return true;
 }
 
-void Utility::removePath(QString dirPath, bool deleteHidden/*=false*/, bool deleteSelf/*=false*/)
+void Utility::removePath(QString dirPath, bool deleteHidden/*=false*/, bool deleteSelf/*=true*/)
 {
     qDebug()<<"removePath的调用进程"<<QThread::currentThread ();
     QtConcurrent::run(myRemovePath, dirPath, deleteHidden, deleteSelf);
