@@ -9,6 +9,8 @@ Component{
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
         property var myinfo: myqq.createFriendInfo(uin)
         property string sendUin: send_uin//将此消息发送给谁
+        property ChatMessageInfo messageInfo: message_info
+        
         property var sendMessage: {
             switch(mytype){
                 case QQItemInfo.Friend:

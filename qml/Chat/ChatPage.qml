@@ -21,17 +21,20 @@ Item{
         target: myqq
         onNewMessage:{
             if(fromUin==myuin){
+                var message_info
+                if(myinfo){
+                    message_info = myinfo.addChatRecords(senderUin, message)//将聊天记录保存到本地
+                }
+
                 var data = {
                     "uin":senderUin,//发送者是谁
                     "send_uin":"",//如果mode为right才需要此值(为发送给谁)
                     "mytype": myinfo.mytype,
                     "mode": "left",
-                    "message": message//消息内容
+                    "message": message,//消息内容
+                    "message_info": message_info
                 }
                 listModel.append(data)
-            }
-            if(myinfo){//如果myinfo不为未定义或null
-                myinfo.saveChatMessageToLocal(senderUin, message)//将聊天记录保存到本地
             }
         }
     }
@@ -105,16 +108,19 @@ Item{
             onClicked: {
                 //sendClicked()//发射信号
                 inputBox.selectAll()//先选中全部
+                var message_info
+                if(myinfo){//如果myinfo不为未定义或null
+                    message_info = myinfo.addChatRecords(myqq.userQQ, inputBox.text)//将聊天记录保存到本地
+                }
                 var data = {
                     "uin":myqq.userQQ,//发送者是当前登录的用户qq
                     "send_uin":myuin,//发送给自己（这里的自己代表对当前登录的用户qq来说是他的好友或者群，讨论组）
                     "mytype": myinfo.mytype,
                     "mode": "right",
-                    "message": inputBox.selectedText//选中的文本
+                    "message": inputBox.selectedText,//选中的文本
+                    "message_info": message_info
                 }
-                if(myinfo){//如果myinfo不为未定义或null
-                    myinfo.saveChatMessageToLocal(myqq.userQQ, inputBox.text)//将聊天记录保存到本地
-                }
+                
                 listModel.append(data)
                 inputBox.text = ""
             }

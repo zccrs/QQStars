@@ -5,20 +5,21 @@ QT += widgets network webkit svg qml quick concurrent sql#gui-private
 INCLUDEPATH += \
     src \
     src/qxtglobalshortcut \
-    src/aes
+    src/qqstars
 
 SOURCES += main.cpp \
     src/mynetworkaccessmanagerfactory.cpp \
     src/utility.cpp \
     src/mywindow.cpp \
-    src/qqstars.cpp \
+    src/qqstars/qqstars.cpp \
     src/systemtrayicon.cpp \
     src/threaddownloadimage.cpp \
     src/mysvgview.cpp \ 
     src/myimage.cpp \
     src/mymessagebox.cpp \
     src/myhttprequest.cpp \
-    src/myshortcut.cpp
+    src/myshortcut.cpp \
+    src/qqstars/qqiteminfo.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc \
@@ -44,14 +45,15 @@ HEADERS += \
     src/mynetworkaccessmanagerfactory.h \
     src/utility.h \
     src/mywindow.h \
-    src/qqstars.h \
+    src/qqstars/qqstars.h \
     src/systemtrayicon.h \
     src/threaddownloadimage.h \
     src/mysvgview.h \ 
     src/myimage.h \
     src/mymessagebox.h \
     src/myhttprequest.h \
-    src/myshortcut.h
+    src/myshortcut.h \
+    src/qqstars/qqiteminfo.h
 
 OTHER_FILES += \
     qml/Utility/CodeInput.qml \

@@ -38,10 +38,8 @@ FriendInfo{
             QQSignature = data.result[0].lnick//储存个性签名
         }
     }
-    onQQSignatureChanged: {
-        if( QQSignature=="" ){
-            myqq.getQQSignature( uin, getQQSignatureFinished )//获取个性签名
-        }
+    onHttpGetQQSignature:{//如果收到c++端发来的去获取个性签名的信号
+        myqq.getQQSignature( uin, getQQSignatureFinished )//获取个性签名
     }
     function getAvatar(size){
         if(account!=""){

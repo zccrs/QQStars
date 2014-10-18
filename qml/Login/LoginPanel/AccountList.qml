@@ -99,7 +99,7 @@ Window{
     }
     Component.onCompleted: {
         var qq_list = myqq.getLoginedQQInfo()//读取已经登录过的qq的信息
-        qq_list = JSON.parse(qq_list)
+        //qq_list = JSON.parse(qq_list)
         for( var i=0;i<qq_list.length;++i ){
             mymodel.append({"myaccount": qq_list[i].account, "nick": qq_list[i].nick, "mysource": qq_list[i].avatarSource})
         }

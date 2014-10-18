@@ -78,6 +78,8 @@ public slots:
     QString stringUncrypt(const QString &content_hex, QString key);//解密加密后的字符串
     
     void removePath(QString dirPath ,bool deleteHidden = true, bool deleteSelf = true );
+    
+    
 };
 
 #endif // UTILITY_H
