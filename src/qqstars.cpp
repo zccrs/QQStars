@@ -559,9 +559,9 @@ void QQCommand::showWarningInfo(QString message)
     }
 }
 
-void QQCommand::downloadImage(QUrl url, QString uin, QString imageSize, QJSValue callbackFun)
+void QQCommand::downloadImage(QUrl url, QString account, QString imageSize, QJSValue callbackFun)
 {
-    QString path = QDir::homePath ()+"/webqq/"+userQQ ()+"/"+uin;
+    QString path = QDir::homePath ()+"/webqq/"+userQQ ()+"/"+account;
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
 }
 
@@ -620,13 +620,13 @@ FriendInfo *QQCommand::createFriendInfo(const QString uin)
     if(info!=NULL){
         info->setUserQQ (userQQ());
         info->setUin (uin);
-        info->setAlias (map_alias[name]);//设置备注名
+        //info->setAlias (map_alias[name]);//设置备注名
         map_itemInfo[name] = info;
     }
     return info;
 }
 
-GroupInfo *QQCommand::createGroupInfo(const QString uin, const QString code)
+GroupInfo *QQCommand::createGroupInfo(const QString uin)
 {
     if(uin=="")
         return NULL;
@@ -642,8 +642,7 @@ GroupInfo *QQCommand::createGroupInfo(const QString uin, const QString code)
     if(info!=NULL){
         info->setUserQQ (userQQ());
         info->setUin (uin);
-        info->setCode (code);//code很重要，用来获取群真实qq号
-        info->setAlias (map_alias[name]);//设置备注名
+        //info->setAlias (map_alias[name]);//设置备注名
         map_itemInfo[name] = info;
     }
     return info;
@@ -930,16 +929,12 @@ QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     m_nick = "";
     m_alias = "";
     
-    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::accountChanged);
-    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::nickChanged);
-    connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::aliasChanged);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar40Changed);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar240Changed);
     connect (this, &QQItemInfo::nickChanged, this, &QQItemInfo::updataAliasOrNick);
     connect (this, &QQItemInfo::aliasChanged, this, &QQItemInfo::updataAliasOrNick);
     
     typeString = typeToString (type);
-    mysettings = new QSettings(QDir::homePath ()+"/webqq/"+m_userQQ+"/"+typeString+"_"+m_account+"/.config.ini", QSettings::IniFormat);
 }
 
 QQItemInfo::~QQItemInfo()
@@ -955,19 +950,20 @@ void QQItemInfo::initSettings()
     if(account==""||userqq=="")
         return;
     QString name = QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+account+"/.config.ini";
+    //qDebug()<<"设置了QSettings为"<<name;
     if(mysettings){
+        //qDebug()<<mysettings->fileName ();
         if(mysettings->fileName ()==name)
             return;
         mysettings->deleteLater ();
     }
     mysettings = new QSettings(name, QSettings::IniFormat);
-    
     emit settingsChanged ();
 }
 
 bool QQItemInfo::isCanUseSetting() const
 {
-    return (mysettings&&userQQ()!=""&&account()!="");
+    return (mytype()!=QQItemInfoPrivate::Discu&&userQQ()!=""&&account()!=""&&mysettings);
 }
 
 QString QQItemInfo::uin() const
@@ -1090,14 +1086,18 @@ void QQItemInfo::setAccount(QString arg)
 
 void QQItemInfo::setAvatar40(QString arg)
 {
-    mysettings->setValue ("avatar-40", arg);
-    emit avatar40Changed();
+    if(isCanUseSetting ()){
+        mysettings->setValue ("avatar-40", arg);
+        emit avatar40Changed();
+    }
 }
 
 void QQItemInfo::setAvatar240(QString arg)
 {
-    mysettings->setValue ("avatar-240", arg);
-    emit avatar240Changed();
+    if(isCanUseSetting ()){
+        mysettings->setValue ("avatar-240", arg);
+        emit avatar240Changed();
+    }
 }
 
 void QQItemInfo::updataAliasOrNick()

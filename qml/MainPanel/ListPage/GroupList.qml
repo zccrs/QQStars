@@ -21,7 +21,12 @@ Item{
             var i=0;
             
             for( i=0; i<groupmarknames.length;++i ) {
-                myqq.saveAlias(QQItemInfo.Group, groupmarknames[i].uin, groupmarknames[i].markname)//储存备注信息
+                var obj_info = myqq.createGroupInfo(groupmarknames[i].uin)
+                if(obj_info){
+                    obj_info.alias = groupmarknames[i].markname//储存备注信息
+                }
+
+                //myqq.saveAlias(QQItemInfo.Group, groupmarknames[i].uin, groupmarknames[i].markname)//储存备注信息
             }
 
             var list_info = data.result.gnamelist
@@ -59,8 +64,9 @@ Item{
             id: item_root
             width: parent.width
             height: avatar.height
-            property var myinfo: myqq.createGroupInfo(obj_info.gid, obj_info.code)
+            property var myinfo: myqq.createGroupInfo(obj_info.gid)
             Component.onCompleted: {
+                myinfo.code = obj_info.code
                 myinfo.nick = obj_info.name
             }
 

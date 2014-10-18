@@ -53,7 +53,7 @@ MyQuickWindow{
             contentItem.height=height
         }
     }
-    Connections{
+    Connections{//链接utility是为了接收鼠标改变的信号（鼠标在任何地方移动了都能接收）
         target: utility
         onMouseDesktopPosChanged:{
             var x = arg.x-root.x

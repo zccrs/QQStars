@@ -27,7 +27,11 @@ Item{
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
             for( var i=0; i<marknames.length;++i ) {
-                myqq.saveAlias(QQItemInfo.Friend, marknames[i].uin, marknames[i].markname)//储存备注信息
+                var obj_info = myqq.createFriendInfo(marknames[i].uin)
+                if(obj_info){
+                    obj_info.alias = marknames[i].markname//储存备注信息
+                }
+                //myqq.saveAlias(QQItemInfo.Friend, marknames[i].uin, marknames[i].markname)
             }
             var categories = data.result.categories//分组信息
             

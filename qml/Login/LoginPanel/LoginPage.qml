@@ -48,7 +48,7 @@ Item{
                 anchors.verticalCenter: inputarea.verticalCenter
 
                 onLoadError:{
-                    console.log("头像加载出错")
+                    console.log("头像加载出错:"+myqq.avatar240)
                     source = "qrc:/images/avatar.png"
                 }
         

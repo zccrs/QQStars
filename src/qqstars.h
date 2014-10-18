@@ -349,14 +349,14 @@ public slots:
     
     int openMessageBox( QJSValue value );//打开一个对话窗口
     void showWarningInfo(QString message);//显示一个警告窗口
-    void downloadImage( QUrl url, QString uin, QString imageSize, QJSValue callbackFun );//下载图片
+    void downloadImage( QUrl url, QString account, QString imageSize, QJSValue callbackFun );//下载图片
     void showCodeWindow(const QJSValue callbackFun, const QString code_uin);//显示出输入验证码的窗口
     void closeCodeWindow();//关闭输入验证码的窗口
     void updataCode();//刷新验证码的显示
     void updataApi(const QString content);//重新载入api.js，用于更新api后的操作
     
     FriendInfo* createFriendInfo(const QString uin);//创建一个储存好友信息的对象
-    GroupInfo* createGroupInfo(const QString uin, const QString code="");//创建一个储存群信息的对象，群需要用code来获取真实群号
+    GroupInfo* createGroupInfo(const QString uin);//创建一个储存群信息的对象
     DiscuInfo* createDiscuInfo(const QString uin);//创建一个储存讨论组信息的对象
     
     void addChatWindow(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口

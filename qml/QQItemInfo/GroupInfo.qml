@@ -3,16 +3,15 @@ import QQItemInfo 1.0
 
 GroupInfo{
     userQQ: myqq.userQQ
-    
     onCodeChanged: {
-        console.log(code+"将要获取真实qq")
+        //console.log(nick+"将要获取真实qq")
         if(code!="")
             myqq.getFriendQQ(code, getQQFinished)//获得真实qq
     }
     
     onAccountChanged: {
         if(account==""&&code!="")
-            myqq.getFriendQQ(code, getQQFinished)//获得真实qq
+            myqq.getFriendQQ(nick, getQQFinished)//获得真实qq
     }
 
     function getQQFinished(error, data){//获取真实群号后调用的函数
@@ -24,6 +23,7 @@ GroupInfo{
         data = JSON.parse(data)
         if( data.retcode==0 ){
             account = data.result.account
+            //console.log(code+"的真实qq："+account)
             if(avatar40=="qrc:/images/avatar.png")
                 getAvatar(40)
         }
@@ -34,7 +34,7 @@ GroupInfo{
     }
     function getAvatar(size){
         if(account!=""){
-            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+uin, String(size), getAvatarFinished)//下载头像
+            myqq.downloadImage("http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size), "group_"+account, String(size), getAvatarFinished)//下载头像
         }
     }
     onAvatar40Changed: {

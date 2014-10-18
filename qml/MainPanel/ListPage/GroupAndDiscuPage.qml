@@ -7,6 +7,7 @@ Item{
         anchors.fill: parent
         Tab{
             title: "QQ群"
+            active: true
             GroupList{
                 width: parent.width
                 height: parent.height
@@ -14,6 +15,7 @@ Item{
         }
         Tab{
             title: "讨论组"
+            active: true
             DiscuList{
                 width: parent.width
                 height: parent.height
