@@ -37,7 +37,7 @@ MySystemTrayIcon{
         myqq.addChatPage(currentInfo.uin, currentInfo.mytype)//增加聊天页面
     }
     onActivated:{
-        if( myqq.loginStatus==QQ.LoginFinished&&arg == MySystemTrayIcon.Trigger ) {
+        if( timer_shake.running&&arg == MySystemTrayIcon.Trigger ) {
             windowIcon="qrc:/images/avatar.png"
             myqq.addChatPage(currentInfo.uin, currentInfo.mytype)//增加聊天页面
         }
