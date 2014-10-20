@@ -41,14 +41,18 @@ public slots:
 class ChatMessageInfoList:public QObject
 {
     Q_OBJECT
+public:
+    ~ChatMessageInfoList();
 private:
-    QList<ChatMessageInfo*> list;
+    QQueue<ChatMessageInfo*> list;
 public slots:
     ChatMessageInfo* at(int i);
     int length();
     int size();
-    void append(ChatMessageInfo* obj);
+    void append( ChatMessageInfo *obj);
     void destroy();
+    void clear();//清除储存的聊天记录
+    ChatMessageInfo* dequeue();//出队
 };
 
 class QQItemInfoPrivate:public QQuickItem//为qml提供一些枚举值，并且提供数据库的操作（用于储存聊天记录）
@@ -70,22 +74,18 @@ private:
     bool tableAvailable(const QString& tableName);//判断表名为tableName的表是可操作
 private slots:
     void m_openSqlDatabase(const QString& userqq);//初始化数据库
-    void m_closeSqlDatabase();
-    void m_insertData(const QString& tableName, ChatMessageInfo* data);
     void m_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
-    void m_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
+    void m_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList *datas);
     //获取数据库中currentData这条数据之前的count条数据，将获得的数据存入datas当中
 signals:
     void sql_open(const QString& userqq);
-    void sql_close();
-    void sql_insert(const QString& tableName, ChatMessageInfo* data);
     void sql_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
     void sql_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
     void getDatasFinished(ChatMessageInfoList* datas);//获取多条数据完成
 public slots:
     void openSqlDatabase(const QString& userqq);//初始化数据库
     void closeSqlDatabase();
-    void insertData(const QString& tableName, ChatMessageInfo* data);//向数据库中插入数据
+    void insertData(const QString& tableName, ChatMessageInfo *data);//向数据库中插入数据
     void insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
     void getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
     //获取数据库中的count条数据，将获得的数据存入datas当中
@@ -123,6 +123,9 @@ protected:
     QQItemInfoPrivate::QQItemType m_mytype;
     ChatMessageInfoList queue_chatRecords;//储存聊天记录的队列
     bool isCanUseSetting() const;//是否可以调用settings
+    QTimer m_timer;//此定时器用于当聊天页面被销毁后在内存中保存聊天的时常，此定时器触发后会调用虚槽函数
+protected slots:
+    virtual void clearChatRecords();//清空聊天记录
 public:
     static const QString typeToString(QQItemInfoPrivate::QQItemType type);
     static const QString localCachePath(QQItemInfoPrivate::QQItemType type, const QString& userqq, const QString& account);//本地缓存路径
@@ -149,7 +152,11 @@ public slots:
     void setUserQQ(QString arg);
     void clearSettings();
     const QString localCachePath();//本地缓存路径
-    ChatMessageInfo* addChatRecords(const QString senderUin, const QString html);//增加聊天记录，记录在内存当中
+    virtual QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
+    //const ChatMessageInfoList* getChatRecordsList();//将储存聊天记录的队列返回
+    void addChatRecord(ChatMessageInfo *data);//增加聊天记录，记录在内存当中
+    void startClearChatRecordsTimer();//启动清空聊天记录的定时器
+    void stopClearChatRecordsTimer();//停止情况聊天记录的定时器
 signals:
     void nickChanged();
     void aliasChanged();
@@ -170,6 +177,7 @@ class FriendInfo:public  QQItemInfo
     
 public:
     explicit FriendInfo(QQuickItem *parent=0);
+    ~FriendInfo();
     QString QQSignature();
 private:
     QString m_signature;//用来储存个性签名
@@ -177,12 +185,15 @@ private:
     bool getChatRecordsing;//记录现在是否正在请求获取本地聊天记录
 private slots:
     void onSettingsChanged();//处理settings对象改变的信号
+    void clearChatRecords();//清空聊天记录
 public slots:
     void setQQSignature(QString arg);
     void openSqlDatabase(const QString &userqq);//初始化数据库
     void closeSqlDatabase();
+    void getLocalChatRecords(ChatMessageInfo *currentData, int count);//读取本地聊天记录（从数据库）
+    void saveChatMessageToLocal(ChatMessageInfo *data);//将此消息记录保存到到本地（保存到数据库中）
     void saveChatMessageToLocal();//将当前内存中的消息记录保存到到本地（保存到数据库中）
-    void getLocalChatRecords(ChatMessageInfo* currentData, int count);//读取本地聊天记录（从数据库）
+    QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
 signals:
     void qQSignatureChanged();
     void httpGetQQSignature();//发送信号告诉qml端去获取个性签名

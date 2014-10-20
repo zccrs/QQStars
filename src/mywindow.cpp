@@ -435,3 +435,9 @@ void MyWindow::setMousePenetrate(bool arg)
     }
 }
 
+void MyWindow::close()
+{
+    emit closeing ();
+    QQuickWindow::close ();
+}
+

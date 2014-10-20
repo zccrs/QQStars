@@ -62,8 +62,6 @@ QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
     QQuickItem(0)
 {
     connect (this, &QQItemInfoPrivate::sql_open, this, &QQItemInfoPrivate::m_openSqlDatabase);
-    connect (this, &QQItemInfoPrivate::sql_close, this, &QQItemInfoPrivate::m_closeSqlDatabase);
-    connect (this, &QQItemInfoPrivate::sql_insert, this, &QQItemInfoPrivate::m_insertData);
     connect (this, &QQItemInfoPrivate::sql_insertDatas, this, &QQItemInfoPrivate::m_insertDatas);
     connect (this, &QQItemInfoPrivate::sql_getDatas, this, &QQItemInfoPrivate::m_getDatas);
     moveToThread (&thread);
@@ -81,7 +79,7 @@ bool QQItemInfoPrivate::tableAvailable(const QString &tableName)
 {
     if(tableName!=""&&sqlite_db.isOpen ()){//如果数据库已经打开
         QString temp = "create table if not exists "+tableName+
-                "(index INT,senderUin VARCHAR[16],message TEXT,mydate DATE,mytime TIME)";
+                "(myindex INTEGER,senderUin VARCHAR[16],message TEXT,mydate DATE,mytime TIME)";
         //创建一个表，如果这表不存在，表的列为uin message mydate mytime
         QSqlQuery query = sqlite_db.exec (temp);
         if(query.lastError ().type ()==QSqlError::NoError){//如果上面的语句执行没有出错
@@ -110,36 +108,6 @@ void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)
     }
 }
 
-void QQItemInfoPrivate::m_closeSqlDatabase()
-{
-    if(!sqlite_db.isOpen ()){
-        sqlite_db.close ();
-    }
-}
-
-void QQItemInfoPrivate::m_insertData(const QString& tableName, ChatMessageInfo *data)
-{
-    if(tableAvailable (tableName)){//判断表是否可以操作
-        QString temp = "insert into "+tableName+
-                " values(:index,:senderUin,:message,:mydate,:mytime)";
-        QSqlQuery insert_query;
-        insert_query.prepare (temp);
-        int index = sqlite_db.exec ("select count(*) from "+tableName).size ()+1;//设置此条数据的索引值
-        Utility *utility = Utility::createUtilityClass ();
-        insert_query.bindValue (":index", index);//设置数据的索引值（为此条数据的唯一标识）
-        insert_query.bindValue (":senderUin", data->senderUin ());
-        insert_query.bindValue (":message", utility->stringEncrypt (data->contentData (), "XingchenQQ123"));
-        //将contentData加密后储存
-        insert_query.bindValue (":mydate", data->date());
-        insert_query.bindValue (":mytime", data->time());
-        if(insert_query.exec ()){//如果上面的语句执行没有出错
-            qDebug()<<"插入数据成功";
-        }else{
-            qDebug()<<"执行"<<temp<<"出错："<<insert_query.lastError ().text ();
-        }
-    }
-}
-
 void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoList *datas)
 {
     if(tableAvailable (tableName)){//判断表是否可以操作
@@ -147,22 +115,12 @@ void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoL
         for (int i=0;i<datas->size ();++i) {
             ChatMessageInfo* data = datas->at (i);
             if(data!=NULL){
-                QString temp = "insert into "+tableName+
-                        " values(:index,:senderUin,:message,:mydate,:mytime)";
-                QSqlQuery insert_query;
-                insert_query.prepare (temp);
-                int index = sqlite_db.exec ("select count(*) from "+tableName).size ()+1;//设置此条数据的索引值
-                Utility *utility = Utility::createUtilityClass ();
-                insert_query.bindValue (":index", index);//设置数据的索引值（为此条数据的唯一标识）
-                insert_query.bindValue (":senderUin", data->senderUin ());
-                insert_query.bindValue (":message", utility->stringEncrypt (data->contentData (), "XingchenQQ123"));
-                insert_query.bindValue (":mydate", data->date());
-                insert_query.bindValue (":mytime", data->time());
-                insert_query.exec ();
+                insertData (tableName, data);
             }
         }
         if(sqlite_db.commit ()){//提交事务操作,如果上面的语句执行没有出错
-            qDebug()<<"插入多条数据成功";
+            qDebug()<<"插入"+QString::number (datas->size ())+"条数据成功";
+            datas->clear ();//插入成功后清除信息
         }else{
             qDebug()<<"执行多条插入出错："<<sqlite_db.lastError ().text ();
         }
@@ -172,7 +130,7 @@ void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoL
 void QQItemInfoPrivate::m_getDatas(const QString &tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas)
 {
     if(datas!=NULL&&tableAvailable (tableName)){//判断表是否可以操作
-        QString sql_code = "select index from "+tableName
+        QString sql_code = "select myindex from "+tableName
                 +"where senderUin="+currentData->senderUin ()
                 +" and message="+currentData->contentData ()
                 +" and mydate="+currentData->date().toString ()
@@ -182,8 +140,8 @@ void QQItemInfoPrivate::m_getDatas(const QString &tableName, int count, ChatMess
             if(sql_query.size ()>0){
                 int currentIndex = sql_query.value (0).toInt ();//当前数据的索引为
                 sql_code = "select * from "+tableName
-                        +"where index<"+QString::number (currentIndex)
-                        +" and index<="+QString::number (currentIndex+count);
+                        +"where myindex<"+QString::number (currentIndex)
+                        +" and myindex<="+QString::number (currentIndex+count);
                 sql_query.exec (sql_code);
                 if(sql_query.lastError ().type ()==QSqlError::NoError){//如果查询没有出错
                     qDebug()<<"查询多条数据完成，数据的个数："<<sql_query.size ();
@@ -217,12 +175,32 @@ void QQItemInfoPrivate::openSqlDatabase(const QString& userqq)
 
 void QQItemInfoPrivate::closeSqlDatabase()
 {
-    emit sql_close ();//关闭数据库
+    if(!sqlite_db.isOpen ()){
+        sqlite_db.close ();
+    }
 }
 
 void QQItemInfoPrivate::insertData(const QString& tableName, ChatMessageInfo *data)
 {
-    emit sql_insert (tableName, data);
+    if(tableAvailable (tableName)){//判断表是否可以操作
+        QString temp = "insert into "+tableName+
+                " values(:myindex,:senderUin,:message,:mydate,:mytime)";
+        QSqlQuery insert_query;
+        insert_query.prepare (temp);
+        int index = sqlite_db.exec ("select count(*) from "+tableName).size ()+1;//设置此条数据的索引值
+        Utility *utility = Utility::createUtilityClass ();
+        insert_query.bindValue (":myindex", index);//设置数据的索引值（为此条数据的唯一标识）
+        insert_query.bindValue (":senderUin", data->senderUin ());
+        insert_query.bindValue (":message", utility->stringEncrypt (data->contentData (), "XingchenQQ123"));
+        //将contentData加密后储存
+        insert_query.bindValue (":mydate", data->date());
+        insert_query.bindValue (":mytime", data->time());
+        if(insert_query.exec ()){//如果上面的语句执行没有出错
+            //qDebug()<<"插入数据成功";
+        }else{
+            qDebug()<<"执行"<<temp<<"出错："<<insert_query.lastError ().text ();
+        }
+    }
 }
 
 void QQItemInfoPrivate::insertDatas(const QString &tableName, ChatMessageInfoList* datas)
@@ -230,7 +208,7 @@ void QQItemInfoPrivate::insertDatas(const QString &tableName, ChatMessageInfoLis
     emit sql_insertDatas (tableName, datas);
 }
 
-void QQItemInfoPrivate::getDatas(const QString &tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas)
+void QQItemInfoPrivate::getDatas(const QString &tableName, int count, ChatMessageInfo *currentData, ChatMessageInfoList *datas)
 {
     emit sql_getDatas (tableName, count, currentData, datas);
 }
@@ -249,6 +227,9 @@ QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar240Changed);
     connect (this, &QQItemInfo::nickChanged, this, &QQItemInfo::updataAliasOrNick);
     connect (this, &QQItemInfo::aliasChanged, this, &QQItemInfo::updataAliasOrNick);
+    
+    m_timer.setSingleShot (true);//设为单发射器
+    connect (&m_timer, &QTimer::timeout, this, &QQItemInfo::clearChatRecords);
     
     typeString = typeToString (type);
 }
@@ -275,6 +256,12 @@ void QQItemInfo::initSettings()
 bool QQItemInfo::isCanUseSetting() const
 {
     return (mytype()!=QQItemInfoPrivate::Discu&&userQQ()!=""&&account()!=""&&mysettings);
+}
+
+void QQItemInfo::clearChatRecords()
+{
+    //qDebug()<<"调用了QQItemInfo的清空聊天记录";
+    queue_chatRecords.clear ();//清空聊天记录
 }
 
 QString QQItemInfo::uin() const
@@ -329,12 +316,12 @@ const QString QQItemInfo::typeToString(QQItemInfoPrivate::QQItemType type)
 {
     switch (type) {
     case QQItemInfoPrivate::Friend:
-        return "friend";
+        return "Friend";
         break;
     case QQItemInfoPrivate::Group:
-        return "group";
+        return "Group";
     case QQItemInfoPrivate::Discu:
-        return "discu";
+        return "Discu";
     default:
         return "";
     }
@@ -438,19 +425,46 @@ const QString QQItemInfo::localCachePath()
     return QDir::homePath ()+"/webqq/"+userQQ()+"/"+typeString+"_"+account();
 }
 
-ChatMessageInfo *QQItemInfo::addChatRecords(const QString senderUin, const QString html)
+QVariant QQItemInfo::getChatRecords()
 {
-    if(senderUin!=""&&html!=""){
-        ChatMessageInfo *data = new ChatMessageInfo();
-        data->setContentData (html);//将内容加密后储存
-        data->setSenderUin (senderUin);
-        data->setDate (QDate::currentDate ());//当前日期
-        data->setTime (QTime::currentTime ());//当前时间
-        queue_chatRecords.append (data);//将此条记录加到队列当中
-        return data;
-    }else{
-        return NULL;
+    QVariantList var_list;
+    for(int i=0;i<queue_chatRecords.size ();++i){
+        ChatMessageInfo *data = queue_chatRecords.at (i);
+        if(data!=NULL){
+            QVariantMap map;
+            map["senderUin"] = data->senderUin ();
+            map["date"] = data->date ();
+            map["time"] = data->time ();
+            map["contentData"] = data->contentData ();
+            var_list<<map;
+        }
     }
+    queue_chatRecords.clear ();//清空所有聊天记录
+    //qDebug()<<"调用了QQItemInfo中的获取所有聊天记录，条数为："<<var_list.size ()<<var_list;
+    return var_list;
+}
+
+/*const ChatMessageInfoList *QQItemInfo::getChatRecordsList()
+{
+    return &queue_chatRecords;
+}*/
+
+void QQItemInfo::addChatRecord(ChatMessageInfo *data)
+{
+    if(data!=NULL){
+        queue_chatRecords.append (data);//将此条记录加到队列当中
+        //qDebug()<<"现在缓冲区中消息的条数为："<<queue_chatRecords.size ();
+    }
+}
+
+void QQItemInfo::startClearChatRecordsTimer()
+{
+    m_timer.start (300000);//5分钟
+}
+
+void QQItemInfo::stopClearChatRecordsTimer()
+{
+    m_timer.stop ();//停止定时器
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):
@@ -462,6 +476,11 @@ FriendInfo::FriendInfo(QQuickItem *parent):
     getChatRecordsing=false;//记录现在是否在请求获取聊天记录
     connect (&itemInfoPrivate, SIGNAL(getDatasFinished(ChatMessageInfoList*)), SIGNAL(getLocalChatRecordsFinished(ChatMessageInfoList*)));
     //链接信号，处理从数据库中读取聊天记录后的操作
+}
+
+FriendInfo::~FriendInfo()
+{
+    saveChatMessageToLocal ();//销毁此对象之前不要忘记将聊天记录存起来
 }
 
 QString FriendInfo::QQSignature()
@@ -479,6 +498,11 @@ void FriendInfo::onSettingsChanged()
             emit httpGetQQSignature();//发送信号
         }
     }
+}
+
+void FriendInfo::clearChatRecords()
+{
+    saveChatMessageToLocal ();//先将聊天记录都保存到本地，数据库会在插入成功后自动清除信息
 }
 
 void FriendInfo::setQQSignature(QString arg)
@@ -505,7 +529,34 @@ void FriendInfo::saveChatMessageToLocal()
 {
     if(account ()!=""){//qq账户（qq号码）一定不能为空，因为它是消息发送者的唯一标识
         QString tableName = "table_"+typeToString ()+account();
-        itemInfoPrivate.insertDatas (tableName, &queue_chatRecords);//将此条消息记录插入到数据库当中
+        itemInfoPrivate.insertDatas (tableName, &queue_chatRecords);//将所有聊天记录保存下来
+        //将内存中的消息添加到数据库
+    }
+}
+
+QVariant FriendInfo::getChatRecords()
+{
+    QVariantList var_list;
+    for(int i=0;i<queue_chatRecords.size ();++i){
+        ChatMessageInfo *data = queue_chatRecords.at (i);
+        if(data!=NULL){
+            QVariantMap map;
+            map["senderUin"] = data->senderUin ();
+            map["date"] = data->date ();
+            map["time"] = data->time ();
+            map["contentData"] = data->contentData ();
+            var_list<<map;
+        }
+    }
+    saveChatMessageToLocal ();//先将聊天记录保存到数据库，储存完毕后数据库会自动清除数据
+    return var_list;
+}
+
+void FriendInfo::saveChatMessageToLocal(ChatMessageInfo* data)
+{
+    if(account ()!=""){//qq账户（qq号码）一定不能为空，因为它是消息发送者的唯一标识
+        QString tableName = "table_"+typeToString ()+account();
+        itemInfoPrivate.insertData (tableName, data);
     }
 }
 
@@ -618,6 +669,11 @@ void RecentInfo::setInfoData(QQuickItem *info)
     emit infoDataChanged ();
 }
 
+ChatMessageInfoList::~ChatMessageInfoList()
+{
+    clear ();//销毁自己之前不要忘记销毁所有的聊天记录
+}
+
 ChatMessageInfo *ChatMessageInfoList::at(int i)
 {
     return list.at (i);
@@ -635,10 +691,26 @@ int ChatMessageInfoList::size()
 
 void ChatMessageInfoList::append(ChatMessageInfo *obj)
 {
-    list.append (obj);
+    list<<obj;
 }
 
 void ChatMessageInfoList::destroy()
 {
+    clear();//先清除
     this->deleteLater ();
+}
+
+void ChatMessageInfoList::clear()
+{
+    foreach (ChatMessageInfo* info, list) {
+        if(info!=NULL){
+            info->deleteLater ();//销毁这条消息
+        }
+    }
+    list.clear ();//清空list;
+}
+
+ChatMessageInfo *ChatMessageInfoList::dequeue()
+{
+    return list.dequeue ();
 }

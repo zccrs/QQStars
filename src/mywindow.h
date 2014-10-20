@@ -116,7 +116,7 @@ signals:
     void maximumHeightChanged(int arg);
     
     void mousePenetrateChanged(bool arg);
-    
+    void closeing();//当调用close时发射;
 public slots:
     void setNoBorder( bool isNoBroder );
     void setWindowIcon( QUrl icon );
@@ -136,6 +136,8 @@ public slots:
     void setMaximumWidth(int arg);
     void setMaximumHeight(int arg);
     void setMousePenetrate(bool arg);
+    
+    void close();
 };
 
 #endif // MYWINDOW_H
