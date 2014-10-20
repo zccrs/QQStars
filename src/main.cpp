@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QWidget>
 #include <QNetworkProxy>
+#include <QNetworkRequest>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <QScreen>
@@ -14,6 +15,7 @@
 #include "threaddownloadimage.h"
 #include "mysvgview.h"
 #include "myshortcut.h"
+#include "httprequestid.h"
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +52,8 @@ int main(int argc, char *argv[])
    
     //QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
+    utility->getHttpRequest ()->getNetworkRequest ()->setRawHeader (
+                "Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");//qq登录需要
     utility->initUtility (new QSettings, &engine);
     
     QQmlComponent component0(&engine, "./qml/Api/QQApi.qml");

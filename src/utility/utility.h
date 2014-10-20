@@ -37,7 +37,7 @@ private:
     ~Utility();
     QPointer<QQmlApplicationEngine> engine;
     QPoint old_pos;//记录鼠标上次的位置，判断鼠标位置是否改变
-    QTimer mouse_timer;//检测鼠标位置是否变化的定时器
+    QTimer *mouse_timer;//检测鼠标位置是否变化的定时器
     QPointer<QSettings> mysettings;
     
     MyHttpRequest *http_request;
@@ -53,6 +53,7 @@ public:
     Q_INVOKABLE void consoleLog(QString str);//输出调试信息
     Q_INVOKABLE QString getCookie( QString cookieName );
     QQmlApplicationEngine *qmlEngine();
+    MyHttpRequest *getHttpRequest();
 signals:
     void mouseDesktopPosChanged(QPoint arg);
 public slots:
@@ -78,8 +79,6 @@ public slots:
     QString stringUncrypt(const QString &content_hex, QString key);//解密加密后的字符串
     
     void removePath(QString dirPath ,bool deleteHidden = true, bool deleteSelf = true );
-    
-    
 };
 
 #endif // UTILITY_H

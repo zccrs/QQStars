@@ -20,8 +20,8 @@ public:
     bool cache() const;
 private:
     QUrl m_source;
-    QPixmap pixmap;
-    QBitmap bitmap;
+    QPixmap *pixmap;
+    QBitmap *bitmap;
     QUrl m_maskSource;
     bool m_cache;
     

@@ -20,8 +20,9 @@ Utility::Utility(QObject *parent) :
     download_image = new ThreadDownloadImage(this);
     old_pos = QPoint(-1,-1);
     
-    connect (&mouse_timer, SIGNAL(timeout()), SLOT(emitDesktopPosChanged()));//连接定时器
-    mouse_timer.start (20);//启动定时器，用来定时判断鼠标位置是否改变
+    mouse_timer = new QTimer(this);
+    connect (mouse_timer, SIGNAL(timeout()), SLOT(emitDesktopPosChanged()));//连接定时器
+    mouse_timer->start (20);//启动定时器，用来定时判断鼠标位置是否改变
 }
 
 Utility::~Utility()
@@ -119,6 +120,11 @@ QString Utility::getCookie(QString cookieName)
 QQmlApplicationEngine *Utility::qmlEngine()
 {
     return engine;
+}
+
+MyHttpRequest *Utility::getHttpRequest()
+{
+    return http_request;
 }
 
 void Utility::setQmlEngine(QQmlApplicationEngine *new_engine)

@@ -93,8 +93,8 @@ private:
     QString m_userStatusToString;//储存登录状态的string类型的数据
     LoginStatus m_loginStatus;//储存当前用户的登录状态
     QByteArray poll2_data;//post心跳包的数据
-    NetworkAccessManager manager;//储存管理心跳包网络请求的对象
-    QNetworkRequest request;//储存发送心跳包的网络请求对象
+    NetworkAccessManager *manager;//储存管理心跳包网络请求的对象
+    QNetworkRequest *request;//储存发送心跳包的网络请求对象
     QString m_userQQ;//储存当前用户qq号码
     QString m_userPassword;//储存当前用户密码
     QPointer<MyWindow> code_window;//储存指向输入验证码窗口的指针

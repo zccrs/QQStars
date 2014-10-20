@@ -7,6 +7,8 @@ MyImage::MyImage(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
     m_cache = true;
+    pixmap = new QPixmap;
+    bitmap = new QBitmap;
     connect (this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
     connect (this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
 }
@@ -28,16 +30,16 @@ bool MyImage::cache() const
 
 void MyImage::onWidthChanged()
 {
-    setImplicitHeight (pixmap.size ().height ()*(width ()/pixmap.size ().width ()));
+    setImplicitHeight (pixmap->size ().height ()*(width ()/pixmap->size ().width ()));
 }
  
 void MyImage::onHeightChanged()
 {
-    setImplicitWidth (pixmap.size ().width ()*(height ()/pixmap.size ().height ()));
+    setImplicitWidth (pixmap->size ().width ()*(height ()/pixmap->size ().height ()));
 }
 void MyImage::paint(QPainter *painter)
 {
-    painter->drawPixmap (0,0,pixmap.scaled (width(), height (), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    painter->drawPixmap (0,0,pixmap->scaled (width(), height (), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 void MyImage::setSource(QUrl arg)
@@ -52,10 +54,10 @@ void MyImage::setSource(QUrl arg)
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
         //if(!m_cache)
-            //pixmap.load ("");
-        if( pixmap.load (str) ){
-            pixmap.setMask (bitmap.scaled (pixmap.size ()));
-            setImplicitSize (pixmap.size ().width (), pixmap.size ().height ());//设置默认大小
+            //pixmap->load ("");
+        if( pixmap->load (str) ){
+            pixmap->setMask (bitmap->scaled (pixmap->size ()));
+            setImplicitSize (pixmap->size ().width (), pixmap->size ().height ());//设置默认大小
             if( width()>0 )
                 onWidthChanged();
             if(height ()>0)
@@ -75,7 +77,7 @@ void MyImage::setMaskSource(QUrl arg)
         QString str = arg.toString ();
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
-        bitmap.load (str);
+        bitmap->load (str);
         emit maskSourceChanged(arg);
     }
 }

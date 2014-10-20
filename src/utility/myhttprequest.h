@@ -13,16 +13,17 @@ class MyHttpRequest : public QObject
     Q_ENUMS(RequestStatus)
     Q_ENUMS(Priority)
 public:
-    explicit MyHttpRequest(QObject *parent = 0);
+    explicit MyHttpRequest(QObject *parent = 0, QNetworkRequest *m_request = new QNetworkRequest);
     enum RequestStatus{
         Idle,//初始状态
         Busy//请求中
     };
 
-    NetworkAccessManager *getNetworkAccessManager();
+    const NetworkAccessManager *getNetworkAccessManager();
+    QNetworkRequest *getNetworkRequest();
 protected:
     NetworkAccessManager *manager;
-    QNetworkRequest request;
+    QNetworkRequest *request;
     QPointer<QNetworkReply> m_reply;
     
     RequestStatus m_status;
@@ -61,15 +62,14 @@ public slots:
     void post(QJSValue callbackFun, QUrl url, QByteArray data="", bool highRequest=false );
     void abort();//取消当前网络请求
     QString errorString();
-    void setRawHeader(const QByteArray &headerName, const QByteArray &value);
 };
 
 class MyHttpRequestPrivate : public MyHttpRequest
 {
     Q_OBJECT
 private:
-    explicit MyHttpRequestPrivate(QJSValue callbackFun, QUrl url, QByteArray data);
-    explicit MyHttpRequestPrivate(QObject *caller, QByteArray slotName, QUrl url, QByteArray data);
+    explicit MyHttpRequestPrivate(QNetworkRequest *request, QJSValue callbackFun, QUrl url, QByteArray data);
+    explicit MyHttpRequestPrivate(QNetworkRequest *request, QObject *caller, QByteArray slotName, QUrl url, QByteArray data);
     friend class MyHttpRequest;
 private slots:
     void finished( QNetworkReply *reply );

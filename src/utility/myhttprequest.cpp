@@ -1,13 +1,13 @@
 #include "myhttprequest.h"
 #include "utility.h"
 
-MyHttpRequest::MyHttpRequest(QObject *parent) :
+MyHttpRequest::MyHttpRequest(QObject *parent, QNetworkRequest *m_request) :
     QObject(parent)
 {
     m_status = Idle;
+    request = m_request;
+    request->setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     manager = new NetworkAccessManager(this);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setRawHeader ("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");
     connect (manager, SIGNAL(finished(QNetworkReply*)), SLOT(finished(QNetworkReply*)));
 }
 
@@ -24,9 +24,14 @@ void MyHttpRequest::setStatus(MyHttpRequest::RequestStatus new_status)
     }
 }
 
-NetworkAccessManager *MyHttpRequest::getNetworkAccessManager()
+const NetworkAccessManager *MyHttpRequest::getNetworkAccessManager()
 {
     return manager;
+}
+
+QNetworkRequest *MyHttpRequest::getNetworkRequest()
+{
+    return request;
 }
 
 void MyHttpRequest::finished(QNetworkReply *reply)
@@ -59,7 +64,7 @@ void MyHttpRequest::send(QJSValue callbackFun, QUrl url, QByteArray data, bool h
         return;
     if(highRequest){
         qDebug()<<"高优先级的网络请求";
-        new MyHttpRequestPrivate(callbackFun, url, data);//进行高优先级的网络请求
+        new MyHttpRequestPrivate(request, callbackFun, url, data);//进行高优先级的网络请求
     }else {
         requestData request_data;
         request_data.url = url;
@@ -103,7 +108,7 @@ void MyHttpRequest::send(QObject *caller, QByteArray slotName, QUrl url, QByteAr
         return;
     if(highRequest){
         qDebug()<<"高优先级的网络请求";
-        new MyHttpRequestPrivate(caller, slotName, url, data);//进行高优先级的网络请求
+        new MyHttpRequestPrivate(request, caller, slotName, url, data);//进行高优先级的网络请求
     }else{
         requestData request_data;
         request_data.url = url;
@@ -136,12 +141,12 @@ void MyHttpRequest::send()
     if( queue_requestData.count ()>0){
         setStatus (Busy);
         requestData temp = queue_requestData.dequeue ();
-        request.setUrl (temp.url);
+        request->setUrl (temp.url);
         QByteArray data = temp.data;
         if( data=="" )
-            m_reply = manager->get (request);
+            m_reply = manager->get (*request);
         else
-            m_reply = manager->post (request, data);
+            m_reply = manager->post (*request, data);
     }else
         setStatus (Idle);//设置状态为空闲
 }
@@ -151,21 +156,15 @@ QString MyHttpRequest::errorString()
     return m_reply->errorString ();
 }
 
-void MyHttpRequest::setRawHeader(const QByteArray &headerName, const QByteArray &value)
-{
-    request.setRawHeader (headerName, value);
-}
-
-
-MyHttpRequestPrivate::MyHttpRequestPrivate(QJSValue callbackFun, QUrl url, QByteArray data):
-    MyHttpRequest(0)
+MyHttpRequestPrivate::MyHttpRequestPrivate(QNetworkRequest *request, QJSValue callbackFun, QUrl url, QByteArray data):
+    MyHttpRequest(0,request)
 {
     qDebug()<<"创建了高优先级的网络请求";
     send(callbackFun, url, data, false);
 }
 
-MyHttpRequestPrivate::MyHttpRequestPrivate(QObject *caller, QByteArray slotName, QUrl url, QByteArray data):
-    MyHttpRequest(0)
+MyHttpRequestPrivate::MyHttpRequestPrivate(QNetworkRequest *request, QObject *caller, QByteArray slotName, QUrl url, QByteArray data):
+    MyHttpRequest(0,request)
 {
     qDebug()<<"创建了高优先级的网络请求";
     send(caller, slotName, url, data, false);

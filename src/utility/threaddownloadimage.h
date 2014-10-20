@@ -25,8 +25,7 @@ public:
     RequestStatus status() const;
     
 private:
-    NetworkAccessManager imageManager;
-    QNetworkRequest request;
+    NetworkAccessManager *imageManager;
     
     QQueue<QJSValue> queue_callbackFun;
     QQueue<QUrl> queue_url;

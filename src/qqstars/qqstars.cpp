@@ -25,14 +25,16 @@ QQCommand::QQCommand(QQuickItem *parent) :
     m_loginStatus = Offline;
     m_windowScale = 1;
     
-    request.setUrl (QUrl("http://d.web2.qq.com/channel/poll2"));
-    request.setRawHeader ("Origin", "http://d.web2.qq.com");
-    request.setRawHeader ("Accept", "*/*");
-    request.setRawHeader ("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");
-    request.setRawHeader ("Content-Type", "application/x-www-form-urlencoded");
-    request.setRawHeader ("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER");
+    request = new QNetworkRequest;
+    request->setUrl (QUrl("http://d.web2.qq.com/channel/poll2"));
+    request->setRawHeader ("Origin", "http://d.web2.qq.com");
+    request->setRawHeader ("Accept", "*/*");
+    request->setRawHeader ("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");
+    request->setRawHeader ("Content-Type", "application/x-www-form-urlencoded");
+    request->setRawHeader ("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36 LBBROWSER");
     
-    connect (&manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
+    manager = new NetworkAccessManager(this);
+    connect (manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
     
     loadApi ();//加载api的js文件
 }
@@ -116,7 +118,7 @@ void QQCommand::setStatusToString()
 
 void QQCommand::beginPoll2()
 {
-    manager.post (request, poll2_data);
+    manager->post (*request, poll2_data);
 }
 
 void QQCommand::poll2Finished(QNetworkReply *replys)

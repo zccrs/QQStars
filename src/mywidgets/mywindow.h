@@ -76,7 +76,6 @@ private:
     WindowStatus m_windowStatus;
     bool m_topHint, old_topHint;
     bool m_noNotifyIcon;
-    QPixmap pixmap;
     qreal m_width;
     qreal m_height;
     bool m_windowActive;

@@ -2,7 +2,7 @@
 #define QQITEMINFO_H
 
 #include <QQuickItem>
-//#include <QtSql>
+#include <QtSql>
 #include <QSettings>
 #include <QObject>
 #include <QDate>
@@ -11,6 +11,8 @@
 #include <QThread>
 #include <QPointer>
 #include <QTimer>
+#include <QString>
+#include <QDir>
 
 class ChatMessageInfo:public QObject//用来储存聊天消息的各种信息
 {
@@ -74,8 +76,8 @@ public:
         Discu,//讨论组
     };
 private:
-    //static QSqlDatabase sqlite_db;
-    QThread thread;
+    static QSqlDatabase sqlite_db;
+    QThread *thread;
     
     bool tableAvailable(const QString& tableName);//判断表名为tableName的表是可操作
 private slots:
@@ -127,7 +129,7 @@ protected:
     QString m_alias;
     QString typeString;
     QQItemInfoPrivate::QQItemType m_mytype;
-    ChatMessageInfoList queue_chatRecords;//储存聊天记录的队列
+    ChatMessageInfoList *queue_chatRecords;//储存聊天记录的队列
     bool isCanUseSetting() const;//是否可以调用settings
     QTimer m_timer;//此定时器用于当聊天页面被销毁后在内存中保存聊天的时常，此定时器触发后会调用虚槽函数
 protected slots:

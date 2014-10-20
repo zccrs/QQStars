@@ -9,8 +9,9 @@ SystemTrayIcon::SystemTrayIcon(QQuickItem *parent) :
     QQuickItem(parent)
 {
     setVisible (false);
-    connect (&systempTray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
-    connect (&systempTray, SIGNAL(messageClicked()), this, SIGNAL(messageClicked()));
+    systempTray = new QSystemTrayIcon;
+    connect (systempTray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
+    connect (systempTray, SIGNAL(messageClicked()), this, SIGNAL(messageClicked()));
     connect (this, SIGNAL(visibleChanged()), SLOT(onVisibleChanged()));
 }
 
@@ -21,7 +22,7 @@ void SystemTrayIcon::onActivated(QSystemTrayIcon::ActivationReason reason)
 
 void SystemTrayIcon::onVisibleChanged()
 {
-    systempTray.setVisible (isVisible ());
+    systempTray->setVisible (isVisible ());
 }
 
 MyMenu *SystemTrayIcon::menu() const
@@ -44,7 +45,7 @@ void SystemTrayIcon::setWindowIcon(QUrl icon)
         QString str = icon.toString ();
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
-        systempTray.setIcon (QIcon(str));
+        systempTray->setIcon (QIcon(str));
         m_windowIcon = icon;
         emit windowIconChanged ();
     }
@@ -52,14 +53,14 @@ void SystemTrayIcon::setWindowIcon(QUrl icon)
 
 void SystemTrayIcon::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int millisecondsTimeoutHint)
 {
-    systempTray.showMessage (title, message, icon, millisecondsTimeoutHint);
+    systempTray->showMessage (title, message, icon, millisecondsTimeoutHint);
 }
 
 void SystemTrayIcon::setMenu(MyMenu *arg)
 {
     if (m_menu != arg) {
         m_menu = arg;
-        systempTray.setContextMenu (m_menu->menu);
+        systempTray->setContextMenu (m_menu->menu);
         emit menuChanged(arg);
     }
 }
@@ -68,7 +69,7 @@ void SystemTrayIcon::setToolTip(QString arg)
 {
     if (m_toolTip != arg) {
         m_toolTip = arg;
-        systempTray.setToolTip (arg);
+        systempTray->setToolTip (arg);
         emit toolTipChanged(arg);
     }
 }

@@ -7,7 +7,9 @@ ThreadDownloadImage::ThreadDownloadImage(QObject *parent) :
     QObject(parent)
 {
     m_status = Idle;
-    connect (&imageManager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinish(QNetworkReply*)));
+    
+    imageManager = new NetworkAccessManager(this);
+    connect (imageManager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinish(QNetworkReply*)));
 }
 
 ThreadDownloadImage::~ThreadDownloadImage()
@@ -56,8 +58,9 @@ void ThreadDownloadImage::getImage()
 {
     if( queue_url.count ()>0 ){
         setStatus (Busy);
+        QNetworkRequest request;
         request.setUrl (queue_url.dequeue ());
-        imageManager.get (request);
+        imageManager->get (request);
     }else
         setStatus (Idle);
 }

@@ -89,7 +89,7 @@ class SystemTrayIcon : public QQuickItem
     Q_ENUMS(ActivationReason)
     QUrl m_windowIcon;
     MyMenu* m_menu;
-    QSystemTrayIcon systempTray;
+    QSystemTrayIcon *systempTray;
     QString m_toolTip;
     
 protected:

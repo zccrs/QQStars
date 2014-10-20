@@ -23,7 +23,7 @@ private:
      QPoint press_point;
      bool allow_move;
      
-     QPixmap background_pixmap;
+     QPixmap *background_pixmap;
 signals:
     void styleSourceChanged(QUrl arg);
 public slots:
