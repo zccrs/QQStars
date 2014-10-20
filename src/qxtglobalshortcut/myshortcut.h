@@ -1,6 +1,13 @@
 #ifndef MYSHORTCUT_H
 #define MYSHORTCUT_H
-
+/*使用须知：
+ * 此类为 雨后星辰后来添加，封装了app内部全局热键（通过给QApplication安装事件过滤器）
+ * 封装了指定对象热键（为此对象安装事件过滤器实现）
+ * 最后封装了qxtglobalshortcut实现了系统全局热键，在这里感谢原作者的贡献
+ * 另外，由于qxtglobalshortcut不支持qt5，所以我额外给他增加了一下代码
+ * 总结，此类支持对象内热键（必须为QObject类型或继承QObject），程序全局热键，系统全局热键，支持qt5和qt4(未尝试，可以需要修改部分代码)
+ * 请不要删除这段话，谢谢！ 
+*/
 #include <QObject>
 #include <QPointer>
 #include <QQueue>
