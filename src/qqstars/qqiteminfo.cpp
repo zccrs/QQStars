@@ -481,7 +481,8 @@ FriendInfo::FriendInfo(QQuickItem *parent):
     connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::onSettingsChanged);
     //链接信号，处理settings对象改变的信号
     getChatRecordsing=false;//记录现在是否在请求获取聊天记录
-    connect (&itemInfoPrivate, SIGNAL(getDatasFinished(ChatMessageInfoList*)), SIGNAL(getLocalChatRecordsFinished(ChatMessageInfoList*)));
+    itemInfoPrivate = new QQItemInfoPrivate(this);
+    connect (itemInfoPrivate, SIGNAL(getDatasFinished(ChatMessageInfoList*)), SIGNAL(getLocalChatRecordsFinished(ChatMessageInfoList*)));
     //链接信号，处理从数据库中读取聊天记录后的操作
 }
 
@@ -524,19 +525,19 @@ void FriendInfo::setQQSignature(QString arg)
 
 void FriendInfo::openSqlDatabase(const QString &userqq)
 {
-    itemInfoPrivate.openSqlDatabase (userqq);
+    itemInfoPrivate->openSqlDatabase (userqq);
 }
 
 void FriendInfo::closeSqlDatabase()
 {
-    itemInfoPrivate.closeSqlDatabase ();
+    itemInfoPrivate->closeSqlDatabase ();
 }
 
 void FriendInfo::saveChatMessageToLocal()
 {
     if(account ()!=""){//qq账户（qq号码）一定不能为空，因为它是消息发送者的唯一标识
         QString tableName = "table_"+typeToString ()+account();
-        itemInfoPrivate.insertDatas (tableName, queue_chatRecords);//将所有聊天记录保存下来
+        itemInfoPrivate->insertDatas (tableName, queue_chatRecords);//将所有聊天记录保存下来
         //将内存中的消息添加到数据库
     }
 }
@@ -563,7 +564,7 @@ void FriendInfo::saveChatMessageToLocal(ChatMessageInfo* data)
 {
     if(account ()!=""){//qq账户（qq号码）一定不能为空，因为它是消息发送者的唯一标识
         QString tableName = "table_"+typeToString ()+account();
-        itemInfoPrivate.insertData (tableName, data);
+        itemInfoPrivate->insertData (tableName, data);
     }
 }
 
@@ -572,7 +573,7 @@ void FriendInfo::getLocalChatRecords(ChatMessageInfo *currentData, int count)
     if(account ()!=""&&!getChatRecordsing){//qq账户（qq号码）一定不能为空，因为它是消息发送者的唯一标识
         QString tableName = "table_"+typeToString ()+account();
         getChatRecordsing = true;//将此值置为true
-        itemInfoPrivate.getDatas (tableName, count, currentData, new ChatMessageInfoList());
+        itemInfoPrivate->getDatas (tableName, count, currentData, new ChatMessageInfoList());
         //开始获取聊天记录
     }
 }

@@ -36,6 +36,7 @@ QQCommand::QQCommand(QQuickItem *parent) :
     manager = new NetworkAccessManager(this);
     connect (manager, SIGNAL(finished(QNetworkReply*)), SLOT(poll2Finished(QNetworkReply*)));
     
+    jsEngine = new QJSEngine();//此对象用来加载js文件（为qq提供api）
     loadApi ();//加载api的js文件
 }
 
@@ -242,7 +243,7 @@ void QQCommand::loadApi()
         qDebug()<<"打开"+fileName+"失败";
     QString contents = scriptFile.readAll ();
     scriptFile.close();
-    jsEngine.evaluate(contents, fileName);
+    jsEngine->evaluate(contents, fileName);
 }
 
 QString QQCommand::disposeMessage(QJsonObject &obj)
@@ -813,14 +814,14 @@ QString QQCommand::getHash()
 {
     QJSValueList list;
     list<<QJSValue(userQQ())<<QJSValue(Utility::createUtilityClass ()->getCookie ("ptwebqq"));
-    return jsEngine.globalObject ().property ("getHash").call (list).toString ();
+    return jsEngine->globalObject ().property ("getHash").call (list).toString ();
 }
 
 QString QQCommand::encryptionPassword(const QString &uin, const QString &code)
 {
     QJSValueList list;
     list<<QJSValue(userPassword())<<QJSValue(uin)<<QJSValue(code);
-    return jsEngine.globalObject ().property ("encryptionPassword").call (list).toString ();
+    return jsEngine->globalObject ().property ("encryptionPassword").call (list).toString ();
 }
 
 QVariant QQCommand::getLoginedQQInfo()

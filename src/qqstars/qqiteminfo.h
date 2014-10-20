@@ -189,7 +189,7 @@ public:
     QString QQSignature();
 private:
     QString m_signature;//用来储存个性签名
-    QQItemInfoPrivate itemInfoPrivate;//里边定义了数据库的操作，用来储存聊天记录
+    QQItemInfoPrivate *itemInfoPrivate;//里边定义了数据库的操作，用来储存聊天记录
     bool getChatRecordsing;//记录现在是否正在请求获取本地聊天记录
 private slots:
     void onSettingsChanged();//处理settings对象改变的信号

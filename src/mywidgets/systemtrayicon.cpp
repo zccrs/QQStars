@@ -9,7 +9,7 @@ SystemTrayIcon::SystemTrayIcon(QQuickItem *parent) :
     QQuickItem(parent)
 {
     setVisible (false);
-    systempTray = new QSystemTrayIcon;
+    systempTray = new QSystemTrayIcon(this);
     connect (systempTray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onActivated(QSystemTrayIcon::ActivationReason)));
     connect (systempTray, SIGNAL(messageClicked()), this, SIGNAL(messageClicked()));
     connect (this, SIGNAL(visibleChanged()), SLOT(onVisibleChanged()));

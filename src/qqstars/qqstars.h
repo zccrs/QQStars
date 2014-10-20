@@ -98,7 +98,7 @@ private:
     QString m_userQQ;//储存当前用户qq号码
     QString m_userPassword;//储存当前用户密码
     QPointer<MyWindow> code_window;//储存指向输入验证码窗口的指针
-    QJSEngine jsEngine;//储存加载了api(*.js文件)的js引擎
+    QJSEngine *jsEngine;//储存加载了api(*.js文件)的js引擎
     double m_windowScale;//储存可视控件的比例
     QString m_codeText;//储存输入验证码
     QPointer<MyWindow> warning_info_window;//储存指向警告窗口的指针
