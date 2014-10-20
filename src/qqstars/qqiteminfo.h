@@ -2,9 +2,15 @@
 #define QQITEMINFO_H
 
 #include <QQuickItem>
-#include <QtSql>
+//#include <QtSql>
 #include <QSettings>
 #include <QObject>
+#include <QDate>
+#include <QTime>
+#include <QQueue>
+#include <QThread>
+#include <QPointer>
+#include <QTimer>
 
 class ChatMessageInfo:public QObject//用来储存聊天消息的各种信息
 {
@@ -68,7 +74,7 @@ public:
         Discu,//讨论组
     };
 private:
-    static QSqlDatabase sqlite_db;
+    //static QSqlDatabase sqlite_db;
     QThread thread;
     
     bool tableAvailable(const QString& tableName);//判断表名为tableName的表是可操作

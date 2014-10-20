@@ -57,7 +57,7 @@ void ChatMessageInfo::setTime(QTime arg)
     emit timeChanged(arg);
 }
 
-QSqlDatabase QQItemInfoPrivate::sqlite_db = QSqlDatabase::addDatabase ("QSQLITE");
+//QSqlDatabase QQItemInfoPrivate::sqlite_db = QSqlDatabase::addDatabase ("QSQLITE");
 QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
     QQuickItem(0)
 {
@@ -70,14 +70,14 @@ QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
 
 QQItemInfoPrivate::~QQItemInfoPrivate()
 {
-    sqlite_db.close();//关闭数据库
+    //sqlite_db.close();//关闭数据库
     thread.quit ();
     thread.wait ();
 }
 
 bool QQItemInfoPrivate::tableAvailable(const QString &tableName)
 {
-    if(tableName!=""&&sqlite_db.isOpen ()){//如果数据库已经打开
+    /*if(tableName!=""&&sqlite_db.isOpen ()){//如果数据库已经打开
         QString temp = "create table if not exists "+tableName+
                 "(myindex INTEGER,senderUin VARCHAR[16],message TEXT,mydate DATE,mytime TIME)";
         //创建一个表，如果这表不存在，表的列为uin message mydate mytime
@@ -90,12 +90,12 @@ bool QQItemInfoPrivate::tableAvailable(const QString &tableName)
     }else{
         qDebug()<<"数据库未打开";
     }
-    return false;
+    return false;*/
 }
 
 void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)
 {
-    if(!sqlite_db.isOpen ()){//如果数据库未打开
+    /*if(!sqlite_db.isOpen ()){//如果数据库未打开
         //sqlite_db = QSqlDatabase::addDatabase("QSQLITE");
         sqlite_db.setHostName ("localhost");
         QString name = QDir::homePath ()+"/webqq/"+userqq+"/.QQData.db";
@@ -105,12 +105,12 @@ void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)
         if(!sqlite_db.open ()){
             qDebug()<<"数据库 "<<name<<" 打开失败";
         }
-    }
+    }*/
 }
 
 void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoList *datas)
 {
-    if(tableAvailable (tableName)){//判断表是否可以操作
+    /*if(tableAvailable (tableName)){//判断表是否可以操作
         sqlite_db.transaction ();//开启事务操作
         for (int i=0;i<datas->size ();++i) {
             ChatMessageInfo* data = datas->at (i);
@@ -124,12 +124,12 @@ void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoL
         }else{
             qDebug()<<"执行多条插入出错："<<sqlite_db.lastError ().text ();
         }
-    }
+    }*/
 }
 
 void QQItemInfoPrivate::m_getDatas(const QString &tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas)
 {
-    if(datas!=NULL&&tableAvailable (tableName)){//判断表是否可以操作
+    /*if(datas!=NULL&&tableAvailable (tableName)){//判断表是否可以操作
         QString sql_code = "select myindex from "+tableName
                 +"where senderUin="+currentData->senderUin ()
                 +" and message="+currentData->contentData ()
@@ -165,7 +165,7 @@ void QQItemInfoPrivate::m_getDatas(const QString &tableName, int count, ChatMess
         }else{
             qDebug()<<"执行"<<sql_code<<"出错："<<sql_query.lastError ().text ();
         }
-    }
+    }*/
 }
 
 void QQItemInfoPrivate::openSqlDatabase(const QString& userqq)
@@ -175,14 +175,14 @@ void QQItemInfoPrivate::openSqlDatabase(const QString& userqq)
 
 void QQItemInfoPrivate::closeSqlDatabase()
 {
-    if(!sqlite_db.isOpen ()){
+    /*if(!sqlite_db.isOpen ()){
         sqlite_db.close ();
-    }
+    }*/
 }
 
 void QQItemInfoPrivate::insertData(const QString& tableName, ChatMessageInfo *data)
 {
-    if(tableAvailable (tableName)){//判断表是否可以操作
+    /*if(tableAvailable (tableName)){//判断表是否可以操作
         QString temp = "insert into "+tableName+
                 " values(:myindex,:senderUin,:message,:mydate,:mytime)";
         QSqlQuery insert_query;
@@ -200,7 +200,7 @@ void QQItemInfoPrivate::insertData(const QString& tableName, ChatMessageInfo *da
         }else{
             qDebug()<<"执行"<<temp<<"出错："<<insert_query.lastError ().text ();
         }
-    }
+    }*/
 }
 
 void QQItemInfoPrivate::insertDatas(const QString &tableName, ChatMessageInfoList* datas)

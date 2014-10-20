@@ -5,20 +5,21 @@ QT += widgets network webkit svg qml quick concurrent sql#gui-private
 INCLUDEPATH += \
     src \
     src/qxtglobalshortcut \
-    src/qqstars
+    src/qqstars \
+    src/mywidgets \
+    src/utility
 
-SOURCES += main.cpp \
-    src/mynetworkaccessmanagerfactory.cpp \
-    src/utility.cpp \
-    src/mywindow.cpp \
+SOURCES += src/main.cpp \
+    src/utility/mynetworkaccessmanagerfactory.cpp \
+    src/utility/utility.cpp \
+    src/mywidgets/mywindow.cpp \
     src/qqstars/qqstars.cpp \
-    src/systemtrayicon.cpp \
-    src/threaddownloadimage.cpp \
-    src/mysvgview.cpp \ 
-    src/myimage.cpp \
-    src/mymessagebox.cpp \
-    src/myhttprequest.cpp \
-    src/myshortcut.cpp \
+    src/mywidgets/systemtrayicon.cpp \
+    src/utility/threaddownloadimage.cpp \
+    src/mywidgets/mysvgview.cpp \ 
+    src/mywidgets/myimage.cpp \
+    src/mywidgets/mymessagebox.cpp \
+    src/utility/myhttprequest.cpp \
     src/qqstars/qqiteminfo.cpp
 
 RESOURCES += \ # qml.qrc
@@ -42,17 +43,16 @@ include (src/qxtglobalshortcut/qxtglobalshortcut.pri)
 include (qmlapplicationviewer.pri)
 qtcAddDeployment()
 HEADERS += \
-    src/mynetworkaccessmanagerfactory.h \
-    src/utility.h \
-    src/mywindow.h \
+    src/utility/mynetworkaccessmanagerfactory.h \
+    src/utility/utility.h \
+    src/mywidgets/mywindow.h \
     src/qqstars/qqstars.h \
-    src/systemtrayicon.h \
-    src/threaddownloadimage.h \
-    src/mysvgview.h \ 
-    src/myimage.h \
-    src/mymessagebox.h \
-    src/myhttprequest.h \
-    src/myshortcut.h \
+    src/mywidgets/systemtrayicon.h \
+    src/utility/threaddownloadimage.h \
+    src/mywidgets/mysvgview.h \ 
+    src/mywidgets/myimage.h \
+    src/mywidgets/mymessagebox.h \
+    src/utility/myhttprequest.h \
     src/qqstars/qqiteminfo.h
 
 OTHER_FILES += \

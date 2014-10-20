@@ -1,9 +1,11 @@
 #include <QApplication>
 #include <QDebug>
+#include <QWidget>
 #include <QNetworkProxy>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <QScreen>
+#include "mynetworkaccessmanagerfactory.h"
 #include "systemtrayicon.h"
 #include "utility.h"
 #include "mywindow.h"
@@ -12,7 +14,6 @@
 #include "threaddownloadimage.h"
 #include "mysvgview.h"
 #include "myshortcut.h"
-//#include <QDirModel>
 
 int main(int argc, char *argv[])
 {
@@ -35,17 +36,17 @@ int main(int argc, char *argv[])
     qmlRegisterType<MyMenu>("mywindow", 1,0, "MyMenu");
     qmlRegisterType<MenuSeparator>("mywindow", 1,0, "MenuSeparator");
     qmlRegisterType<MyMenuItem>("mywindow", 1,0, "MyMenuItem");
-    qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
     qmlRegisterType<MyShortcut>("utility", 1,0, "MyShortcut");
+    qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
     qmlRegisterType<FriendInfo>("QQItemInfo", 1,0, "FriendInfo");
     qmlRegisterType<GroupInfo>("QQItemInfo", 1,0, "GroupInfo");
     qmlRegisterType<DiscuInfo>("QQItemInfo", 1,0, "DiscuInfo");
     qmlRegisterType<QQItemInfoPrivate>("QQItemInfo", 1,0, "QQItemInfo");
+    qmlRegisterType<ChatMessageInfo>("QQItemInfo", 1, 0, "ChatMessageInfo");
+    qmlRegisterType<ChatMessageInfoList>("QQItemInfo", 1, 0, "ChatMessageInfoList");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
-    qmlRegisterType<ChatMessageInfo>("QQItemInfo", 1, 0, "ChatMessageInfo");
-    qmlRegisterType<ChatMessageInfoList>("QQItemInfo", 1, 0, "ChatMessageInfoList");
    
     //QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
