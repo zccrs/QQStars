@@ -88,7 +88,7 @@ Item{
                 anchors.fill: parent
                 onDoubleClicked: {
                     //console.log("双击了最近联系人")
-                    myqq.addChatWindow(myinfo.uin, myinfo.mytype)
+                    myqq.addChatPage(myinfo.uin, myinfo.mytype)
                 }
             }
         }

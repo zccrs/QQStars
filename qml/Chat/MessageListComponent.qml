@@ -9,10 +9,12 @@ Component{
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
         property var myinfo: myqq.createFriendInfo(uin)
         property string sendUin: send_uin//将此消息发送给谁
-        property ChatMessageInfo messageInfo: message_info
+        property var parentInfo: parent_info//如果消息发送成功就回调此函数
         
         property var sendMessage: {
-            switch(mytype){
+            if(!parentInfo)
+                return null
+            switch(parentInfo.mytype){
                 case QQItemInfo.Friend:
                     return myqq.sendFriendMessage
                 case QQItemInfo.Group:
@@ -36,10 +38,12 @@ Component{
             if(!error){//如果没有出错
                 data = JSON.parse(data)
                 if(data.retcode==0&&data.result=="ok"){
-                    console.log("发送成功")
+                    var message_info = myqq.createChatMessageInfo(myqq.userQQ, mytext.text)
+                    parentInfo.addChatRecord(message_info)//将聊天记录保存到内存当中
+                    console.debug("消息发送成功")
                 }else{
                     console.log("发送失败")
-                    mytext.text+=":发送失败"
+                    mytext.append('<font color="red">[发送失败]</font>')
                 }
             }else{
                 console.log("发送失败")

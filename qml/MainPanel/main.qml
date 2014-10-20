@@ -53,50 +53,6 @@ MyWindow{
         }
     }
     
-    Connections{
-        target: myqq
-        onMessageArrive:{
-            var temp = JSON.parse(jsonData)
-            if(!temp)
-                console.log(jsonData)
-            //console.log("来自"+myqq.value(uin+"alias", myqq.value(uin+"nick", uin))+"的消息")
-            var content
-            var i
-            var type
-            var showMessage=""
-            if(senderType == QQ.Friend){//如果是好友消息
-                chat_command.addMessage(uin, jsonData)//显示消息
-            }else if(senderType == QQ.Group){//如果是群消息
-                chat_command.addMessage(uin, jsonData)//显示消息
-            }else if(senderType == QQ.Discu){//如果是讨论组消息
-                chat_command.addMessage(uin, jsonData)//显示消息
-            }else if(senderType == QQ.SystemMessage){//如果是系统消息
-                content = temp
-                type = content.type
-                if(type == QQ.FriendStatusChanged){
-                    //console.log("状态改变为："+content.status)
-                    //showMessage+="状态改变为："+content.status
-                }else if(type == QQ.FriendVerify){
-                    console.log("qq号为"+content.account+"要加你为好友")
-                    showMessage+="qq号为"+content.account+"要加你为好友"
-                }else if(type == QQ.GroupAdmin){
-                    if(content.flag==1){
-                        console.log(content.uin+"被设置为管理员")
-                        showMessage+=content.uin+"被设置为管理员"
-                    }else{
-                        console.log(content.uin+"被取消管理员资格")
-                        showMessage+=content.uin+"被取消管理员资格"
-                    }
-                }else if(type == QQ.GroupLeave){
-                    console.log(content.old_member+"离开了群")
-                    showMessage+=content.old_member+"离开了群"
-                }
-            }
-            //if(showMessage!="")
-                //systemTray.showMessage("来自"+myqq.value(uin+"alias", myqq.value(uin+"nick", uin))+"的消息", showMessage)
-        }
-    }
-    
     Text{
         anchors.centerIn: parent
         text: "已离线"

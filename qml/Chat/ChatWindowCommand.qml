@@ -8,13 +8,22 @@ MyWindow{
     id: root
     minimumHeight: 500
     minimumWidth: item_chatPage.minWidth+left_bar.width//设置最小宽度
-    //fixedLeftBorder: true//固定左边边框(不能从左边拉动改变窗口大小)
-    //fixedRightBorder: true//固定右边边框(不能从右边拉动改变窗口大小)
+    width: left_bar.width+item_chatPage.width
     setLeftBorder: function(arg){
-        if(!left_bar.isOpen||left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
+        if(left_bar.isOpen&&left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
             root.mySetLeftBorder(arg)//设置窗口位置
+        }else if(!left_bar.isOpen){
+            if(item_chatPage.setPageWidth(chatPageWidth+arg)){
+                root.mySetLeftBorder(arg)
+            }
         }
     }
+    setRightBorder: function(arg){
+        if(item_chatPage.setPageWidth(chatPageWidth+arg)){
+            root.mySetRightBorder(arg)
+        }
+    }
+
     visible: true
     onVisibleChanged: {
         if(visible)
@@ -55,7 +64,8 @@ MyWindow{
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: left_bar.right
-        anchors.right: parent.right
+        width: chatPageWidth
+        property int maxWidth: 99999
         property int minWidth: 500
 
         function setPageWidth(arg){
@@ -69,12 +79,12 @@ MyWindow{
     }
     Connections{
         target: myqq
-        onAddChatPage:{
+        onAddChatPageToWindow:{
             setCurrentShowPage(item)//设置当前显示的页面为item
             left_bar.addItem(item)//增加左栏
         }
         onActiveChatPageChanged:{//如果活跃的Page改变为item
-            console.log(item)
+            //console.log(item)
             setCurrentShowPage(item)//设置当前显示的页面为item
         }
     }
@@ -110,7 +120,10 @@ MyWindow{
                 setBarWidth(defaultWidth)//如果默认宽度改变就设置此栏的当前width
             }
         }
-        
+        onWidthChanged: {
+            root.width = width+chatPageWidth//设置窗口的大小
+        }
+
         NumberAnimation{//动画控件
             id: animation_width
             target: left_bar
@@ -120,6 +133,7 @@ MyWindow{
         }
 
         function openBar(){
+            console.debug("调用了打开侧栏："+isOpen)
             if(!animation_width.running&&(!isOpen)){
                 isOpen = true
                 animation_width.to = defaultWidth
