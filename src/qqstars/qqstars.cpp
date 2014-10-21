@@ -516,7 +516,18 @@ QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
     data.replace("\r","<br>");
     //上面这几行代码的顺序不能乱，否则会造成多次替换
     
-    QString result="<font size=\""+QString::number (style.size/3)+"\" color=\"#"+style.color+"\" face=\""+style.family+"\">";
+    QString result="<font";
+    if(style.size>0)
+        result.append (" size=\""+QString::number (style.size/3)+"\"");
+    if(style.color!=""){
+        if(style.color[0].isNumber ())
+            result.append (" color=\"#"+style.color+"\"");
+        else
+            result.append (" color=\""+style.color+"\"");
+    }
+    if(style.family!="")
+        result.append (" face=\""+style.family+"\"");
+    result.append (">");
     if(style.bold)
         result.append ("<b>");
     if(style.underline)

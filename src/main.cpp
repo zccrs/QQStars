@@ -26,12 +26,12 @@ int main(int argc, char *argv[])
     app.setOrganizationName ("雨后星辰");
     app.setApplicationDisplayName ("星辰QQ");
     
-    QTranslator translator;
-    translator.load (":/qt_zh_CN.qm");
-    QApplication::installTranslator (&translator);
+    QTranslator *translator = new QTranslator;
+    translator->load (":/qt_zh_CN.qm");
+    QApplication::installTranslator (translator);
     
-    QQmlApplicationEngine engine;
-    engine.setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
+    QQmlApplicationEngine *engine = new QQmlApplicationEngine;
+    engine->setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
     
     qmlRegisterType<MyWindow>("mywindow", 1,0, "MyQuickWindow");
     qmlRegisterType<SystemTrayIcon>("mywindow", 1,0, "MySystemTrayIcon");
@@ -54,19 +54,19 @@ int main(int argc, char *argv[])
     Utility *utility=Utility::createUtilityClass ();
     utility->getHttpRequest ()->getNetworkRequest ()->setRawHeader (
                 "Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");//qq登录需要
-    utility->initUtility (new QSettings, &engine);
+    utility->initUtility (new QSettings, engine);
     
-    QQmlComponent component0(&engine, "./qml/Api/QQApi.qml");
+    QQmlComponent component0(engine, "./qml/Api/QQApi.qml");
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
-    engine.rootContext ()->setContextProperty ("myqq", qqapi);
+    engine->rootContext ()->setContextProperty ("myqq", qqapi);
     
-    QQmlComponent component(&engine, "./qml/Utility/SystemTray.qml");
+    QQmlComponent component(engine, "./qml/Utility/SystemTray.qml");
     SystemTrayIcon *systemTray = qobject_cast<SystemTrayIcon *>(component.create ());
 #ifdef Q_OS_WIN
     systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题
 #endif
-    engine.rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
-    engine.load(QUrl(QStringLiteral("qml/Login/main.qml")));
+    engine->rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
+    engine->load(QUrl(QStringLiteral("qml/Login/main.qml")));
 
     return app.exec();
 }
