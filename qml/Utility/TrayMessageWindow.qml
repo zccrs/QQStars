@@ -90,12 +90,13 @@ Window{
         id: list_delegate
         Item{
             width: parent.width
-            height: 30
+            height: 40
             property var myinfo: sender_info
             MyImage{
                 id: avatar
                 x:10
-                width:parent.height
+                width:parent.height-10
+                anchors.verticalCenter: parent.verticalCenter
                 maskSource: "qrc:/images/bit.bmp"
                 cache: false
                 source: myinfo.avatar40
