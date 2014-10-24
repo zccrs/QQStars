@@ -16,6 +16,21 @@ MySystemTrayIcon{
             timer_shake.stop()
         }
     }
+    ListModel{
+        id: mymodel
+    }
+
+    function openMessageWindow(){
+        mymodel.append({"sender_info": myqq.createFriendInfo("826169080")})
+        var component = Qt.createComponent("TrayMessageWindow.qml")
+        var data = {
+            "trayX": root.x,
+            "trayY": root.y,
+            "trayWidth": root.width,
+            "mymodel": mymodel
+        }
+        component.createObject(null, data)
+    }
 
     Timer{
         id: timer_shake

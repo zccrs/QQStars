@@ -58,9 +58,47 @@ MyWindow{
         text: "已离线"
         visible: myqq.userStatus == QQ.Offlineing
     }
-
-    MainPanelPage{
-        id: panel_page
-        visible: myqq.userStatus != QQ.Offlineing
+    Rectangle{
+        anchors.fill: parent
+        radius: 10
+        gradient: Gradient {
+                        GradientStop { position: 0 ; color:  "#EEEDEC" }
+                        GradientStop { position: 120/main.height ; color:  "#E7E5E4" }
+                        GradientStop { position: 120/main.height+0.01 ; color:  "#f9f9f8" }
+                        GradientStop { position: 1 ; color:  "#f9f9f8" }
+                    }
+        SvgView{
+            id:image_quit_icon
+            width: defaultSize.width*myqq.windowScale
+            source: "qrc:/images/button-quit.svg"
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: 10
+            MouseArea{
+                anchors.fill: parent
+                onClicked: Qt.quit()
+            }
+        }
+        SvgView{
+            id:image_minimize_icon
+            width: defaultSize.width*myqq.windowScale
+            source: "qrc:/images/button-minimize.svg"
+            anchors.top: image_quit_icon.top
+            anchors.left: image_quit_icon.right
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    main.showMinimized()
+                }
+            }
+        }
+        MainPanelPage{
+            id: panel_page
+            visible: myqq.userStatus != QQ.Offlineing
+            anchors.top: image_minimize_icon.bottom
+            anchors.topMargin: 10
+            anchors.bottom: parent.bottom
+            width: parent.width
+        }
     }
 }

@@ -39,6 +39,25 @@ QString SystemTrayIcon::toolTip() const
 {
     return m_toolTip;
 }
+
+int SystemTrayIcon::x() const
+{
+    return systempTray->geometry ().x ();
+}
+int SystemTrayIcon::y() const
+{
+    return systempTray->geometry ().y ();
+}
+
+int SystemTrayIcon::width() const
+{
+    return systempTray->geometry ().width ();
+}
+
+int SystemTrayIcon::height() const
+{
+    return systempTray->geometry ().height ();
+}
 void SystemTrayIcon::setWindowIcon(QUrl icon)
 {
     if( icon!=m_windowIcon ){

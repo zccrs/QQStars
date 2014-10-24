@@ -100,6 +100,7 @@ OTHER_FILES += \
     qml/Chat/FriendChatPage.qml \
     qml/Chat/GroupChatPage.qml \
     qml/Chat/DiscuChatPage.qml \
-    qml/Chat/ChatPage.qml
+    qml/Chat/ChatPage.qml \
+    qml/Utility/TrayMessageWindow.qml
             
 FORMS +=

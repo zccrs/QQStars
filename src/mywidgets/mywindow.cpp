@@ -44,6 +44,10 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     connect (contentItem (), &QQuickItem::xChanged, this, &MyWindow::xChanged);
     connect (contentItem (), &QQuickItem::yChanged, this, &MyWindow::yChanged);
     
+    mouse_timer = new QTimer(this);
+    connect (mouse_timer, SIGNAL(timeout()), SLOT(onDesktopPosChanged()));//连接定时器
+    mouse_timer->start (20);//启动定时器，用来定时判断鼠标位置是否改变
+    
 }
 
 bool MyWindow::noNotifyIcon() const
@@ -171,6 +175,11 @@ void MyWindow::onActualXChanged()
 void MyWindow::onActualYChanged()
 {
     emit yChanged();
+}
+
+void MyWindow::onDesktopPosChanged()
+{
+    emit mouseDesktopPosChanged (QCursor::pos ());
 }
 
 bool MyWindow::noBorder()

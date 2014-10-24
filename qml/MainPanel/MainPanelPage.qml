@@ -4,35 +4,12 @@ import QtQuick.Controls.Styles 1.2
 import mywindow 1.0
 import "ListPage"
 
-Rectangle{
+Item{
     id: root
-    radius: 10
-    anchors.fill: parent
-    //border.width:1
-    //border.color:"#f07000"
     clip:true
-    gradient: Gradient {
-                    GradientStop { position: 0 ; color:  "#EEEDEC" }
-                    GradientStop { position: 120/root.height ; color:  "#E7E5E4" }
-                    GradientStop { position: 120/root.height+0.01 ; color:  "#f9f9f8" }
-                    GradientStop { position: 1 ; color:  "#f9f9f8" }
-                }
-    SvgView{
-        id:image_quit_icon
-        source: "qrc:/images/button-quit.svg"
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.margins: 10
-        MouseArea{
-            anchors.fill: parent
-            onClicked: Qt.quit()
-        }
-    }
     Text{
         id: text_nick
         x: 10
-        anchors.top: image_quit_icon.bottom
-        anchors.topMargin: 10
         font.pointSize: 16
         font.bold: true
         color: "black"

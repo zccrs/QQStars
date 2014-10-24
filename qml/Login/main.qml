@@ -32,6 +32,9 @@ MyWindow{
     noNotifyIcon: true//隐藏任务栏图标
     windowGlow: false//是否开启阴影
     color: "transparent"
+    Component.onCompleted: {
+        systemTray.openMessageWindow()
+    }
 
     Connections{
         target: myqq

@@ -86,12 +86,15 @@ class SystemTrayIcon : public QQuickItem
     Q_PROPERTY(QUrl windowIcon READ windowIcon WRITE setWindowIcon NOTIFY windowIconChanged)
     Q_PROPERTY(MyMenu* menu READ menu WRITE setMenu NOTIFY menuChanged)
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip NOTIFY toolTipChanged)
+    Q_PROPERTY(int x READ x CONSTANT)
+    Q_PROPERTY(int y READ y CONSTANT)
+    Q_PROPERTY(int width READ width CONSTANT)
+    Q_PROPERTY(int height READ height CONSTANT)
     Q_ENUMS(ActivationReason)
     QUrl m_windowIcon;
     MyMenu* m_menu;
     QSystemTrayIcon *systempTray;
     QString m_toolTip;
-    
 protected:
     
 public:
@@ -107,6 +110,10 @@ public:
     };
     
     QString toolTip() const;
+    int x() const;
+    int y() const;
+    int width() const;
+    int height() const;
 private slots:
     void onActivated( QSystemTrayIcon::ActivationReason reason );
     void onVisibleChanged();

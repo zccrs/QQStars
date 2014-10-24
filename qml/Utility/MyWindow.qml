@@ -53,19 +53,16 @@ MyQuickWindow{
             contentItem.height=height
         }
     }
-    Connections{//链接utility是为了接收鼠标改变的信号（鼠标在任何地方移动了都能接收）
-        target: utility
-        onMouseDesktopPosChanged:{
-            var x = arg.x-root.x
-            var y = arg.y-root.y
-            if(x<=contentItemAreaRight&&x>=contentItemAreaLeft
-                    &&y<=contentItemAreaBottom&&y>=contentItemAreaTop){//判断是否在内容的区域
-                //console.log("进入了自己的区域")
-                root.mousePenetrate = false//令鼠标穿透为false
-            }else{
-                root.mousePenetrate = true//如果不是此区域就让鼠标穿透为true
-                //console.log("离开了自己的区域")
-            }
+    onMouseDesktopPosChanged:{//是为了接收鼠标改变的信号（鼠标在任何地方移动了都能接收）
+        var tempx = arg.x-root.x
+        var tempy = arg.y-root.y
+        if(tempx<=contentItemAreaRight&&tempx>=contentItemAreaLeft
+                &&tempy<=contentItemAreaBottom&&tempy>=contentItemAreaTop){//判断是否在内容的区域
+            //console.log("进入了自己的区域")
+            root.mousePenetrate = false//令鼠标穿透为false
+        }else{
+            root.mousePenetrate = true//如果不是此区域就让鼠标穿透为true
+            //console.log("离开了自己的区域")
         }
     }
 
@@ -316,7 +313,9 @@ MyQuickWindow{
         }
 
         onExited: {
-            mouse_main_connections.target = utility//接收全局鼠标改变的信号
+            if(dockableWindow){//如果开启了窗口停靠
+                mouse_main_connections.target = root//接收全局鼠标改变的信号
+            }
         }
 
         onReleased: {

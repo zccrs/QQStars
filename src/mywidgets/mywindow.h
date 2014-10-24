@@ -84,6 +84,8 @@ private:
     int m_maximumWidth;
     int m_maximumHeight;
     bool m_mousePenetrate;
+    QPoint old_pos;//记录鼠标上次的位置，判断鼠标位置是否改变
+    QTimer *mouse_timer;//检测鼠标位置是否变化的定时器
     
     void setWindowActive(bool arg);
 protected:
@@ -92,6 +94,7 @@ protected:
 private slots:
     void onActualXChanged();
     void onActualYChanged();
+    void onDesktopPosChanged();
 signals:
     void windowIconChanged();
     void noBorderIconChanged();
@@ -116,6 +119,8 @@ signals:
     
     void mousePenetrateChanged(bool arg);
     void closeing();//当调用close时发射;
+    
+    void mouseDesktopPosChanged(QPoint arg);//如果鼠标坐标改变（不管是不是在程序窗口内）
 public slots:
     void setNoBorder( bool isNoBroder );
     void setWindowIcon( QUrl icon );
