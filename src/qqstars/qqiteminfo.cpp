@@ -227,6 +227,7 @@ QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     m_userQQ = "";
     m_nick = "";
     m_alias = "";
+    m_unreadMessagesCount = 0;
     
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar40Changed);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar240Changed);
@@ -342,6 +343,11 @@ const QString QQItemInfo::localCachePath(QQItemInfoPrivate::QQItemType type, con
 QQItemInfoPrivate::QQItemType QQItemInfo::mytype() const
 {
     return m_mytype;
+}
+
+int QQItemInfo::unreadMessagesCount() const
+{
+    return m_unreadMessagesCount;
 }
 
 QString QQItemInfo::account() const
@@ -472,6 +478,14 @@ void QQItemInfo::startClearChatRecordsTimer()
 void QQItemInfo::stopClearChatRecordsTimer()
 {
     m_timer.stop ();//停止定时器
+}
+
+void QQItemInfo::setUnreadMessagesCount(int arg)
+{
+    if (m_unreadMessagesCount != arg) {
+        m_unreadMessagesCount = arg;
+        emit unreadMessagesCountChanged(arg);
+    }
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):

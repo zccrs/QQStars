@@ -6,9 +6,18 @@ import "../Utility"
 
 MyWindow{
     id: root
+    visible: true
     minimumHeight: 500
     minimumWidth: item_chatPage.minWidth+left_bar.width//设置最小宽度
     width: left_bar.width+item_chatPage.width
+    noBorder: true//无边框的
+    removable: true//可移动的
+    fixedSize: false//固定大小的
+    dockableWindow: false//可停靠的
+    topHint: false//窗口保持在最前端
+    noNotifyIcon:false//隐藏任务栏图标
+    color: "transparent"
+    windowGlowItem.color: "black"//"#f07000"
     setLeftBorder: function(arg){
         if(left_bar.isOpen&&left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
             root.mySetLeftBorder(arg)//设置窗口位置
@@ -23,8 +32,6 @@ MyWindow{
             root.mySetRightBorder(arg)
         }
     }
-
-    visible: true
     onVisibleChanged: {
         if(visible)
             root.showFront()//显示到最屏幕最前端
@@ -35,15 +42,6 @@ MyWindow{
         else
             return "qrc:/images/avatar.png"
     }
-
-    noBorder: true//无边框的
-    removable: true//可移动的
-    fixedSize: false//固定大小的
-    dockableWindow: false//可停靠的
-    topHint: false//窗口保持在最前端
-    noNotifyIcon:false//隐藏任务栏图标
-    color: "transparent"
-    windowGlowItem.color: "black"//"#f07000"
     property ChatPage currentShowPage//记录当前显示中的聊天页面
     property int chatPageWidth: myqq.value("chatPageWidth", 600)//获取聊天页面的width, 初始化为600，聊天也的width
     
@@ -54,6 +52,7 @@ MyWindow{
             if(currentShowPage)
                 currentShowPage.visible = false//先将旧的page设置为隐藏
             currentShowPage = page//
+            currentShowPage.myinfo.unreadMessagesCount = 0//将未读消息的条数设为0
             //console.log(page+","+currentShowPage)
         }
     }

@@ -1,6 +1,7 @@
 #ifndef MYSHORTCUT_H
 #define MYSHORTCUT_H
-/*使用须知：
+/*!
+ * 使用须知：
  * 此类为 雨后星辰后来添加，封装了app内部全局热键（通过给QApplication安装事件过滤器）
  * 封装了指定对象热键（为此对象安装事件过滤器实现）
  * 最后封装了qxtglobalshortcut实现了系统全局热键，在这里感谢原作者的贡献

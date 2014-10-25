@@ -344,6 +344,10 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
+        if(!isChatPageExist(from_uin, QQItemInfoPrivate::Friend)){//如果聊天页面不存在
+            info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
+            //增加未读消息的个数
+        }
         //qDebug()<<"收到了好友消息："<<data;
         emit newMessage (from_uin, (int)QQItemInfoPrivate::Friend, message_info);
         break;
@@ -363,14 +367,12 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
         break;
     }
     case AvRequest:
-        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (AvRequest)+"}]}");
         break;
     case AvRefuse:
-        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (AvRefuse)+"}]}");
         break;
-    case ShakeWindow:
-        emit shakeWindow (from_uin);
-        //emit messageArrive (Friend, from_uin, "{\"content\":[{\"type\":"+QString::number (ShakeWindow)+"}]}");
+    case ShakeWindow://如果是窗口抖动的消息
+        addChatPage (from_uin, QQItemInfoPrivate::Friend);//现将此聊天窗口显示出来
+        emit shakeWindow (from_uin);//然后发送信号告诉窗口有人抖动他
         break;
     default:
         break;
@@ -399,6 +401,10 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
+        if(!isChatPageExist(from_uin, QQItemInfoPrivate::Group)){//如果聊天页面不存在
+            info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
+            //增加未读消息的个数
+        }
         emit newMessage (from_uin, (int)QQItemInfoPrivate::Group, message_info);
         break;
     }
@@ -423,14 +429,18 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString data = disposeMessage (obj);
-        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfoPrivate::Discu);
+        QQItemInfo *info = createQQItemInfo (did, QQItemInfoPrivate::Discu);
         ChatMessageInfo *message_info = new ChatMessageInfo;
         message_info->setSenderUin (send_uin);
         message_info->setContentData (data);
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        emit newMessage (from_uin, (int)QQItemInfoPrivate::Discu, message_info);
+        if(!isChatPageExist(did, QQItemInfoPrivate::Discu)){//如果聊天页面不存在
+            info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
+            //增加未读消息的个数
+        }
+        emit newMessage (did, (int)QQItemInfoPrivate::Discu, message_info);
         break;
     }
     default:

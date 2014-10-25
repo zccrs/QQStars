@@ -110,6 +110,7 @@ class QQItemInfo:public QQuickItem
     Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
     Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
     Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
+    Q_PROPERTY(int unreadMessagesCount READ unreadMessagesCount WRITE setUnreadMessagesCount NOTIFY unreadMessagesCountChanged)//未读消息的条数
     Q_PROPERTY(QQItemInfoPrivate::QQItemType mytype READ mytype NOTIFY mytypeChanged FINAL)
 
     friend class FriendInfo;
@@ -119,6 +120,7 @@ class QQItemInfo:public QQuickItem
 private:
     explicit QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent=0);
     void initSettings();
+    
 protected:
     QString m_uin;//uin，为此qq的唯一标识
     QString m_account;//qq账号
@@ -128,6 +130,7 @@ protected:
     QString m_nick;//储存昵称
     QString m_alias;
     QString typeString;
+    int m_unreadMessagesCount;
     QQItemInfoPrivate::QQItemType m_mytype;
     ChatMessageInfoList *queue_chatRecords;//储存聊天记录的队列
     bool isCanUseSetting() const;//是否可以调用settings
@@ -148,6 +151,7 @@ public:
     QString userQQ() const;
     QString typeToString();
     QQItemInfoPrivate::QQItemType mytype() const;
+    int unreadMessagesCount() const;
 private slots:
     void updataAliasOrNick();
 public slots:
@@ -165,6 +169,7 @@ public slots:
     void addChatRecord(ChatMessageInfo *data);//增加聊天记录，记录在内存当中
     void startClearChatRecordsTimer();//启动清空聊天记录的定时器
     void stopClearChatRecordsTimer();//停止情况聊天记录的定时器
+    void setUnreadMessagesCount(int arg);
 signals:
     void nickChanged();
     void aliasChanged();
@@ -176,6 +181,7 @@ signals:
     void uinChanged();
     void settingsChanged();
     void mytypeChanged(QQItemInfoPrivate::QQItemType arg);
+    void unreadMessagesCountChanged(int arg);
 };
 
 class FriendInfo:public  QQItemInfo

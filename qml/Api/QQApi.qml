@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import utility 1.0
 import QtQuick.Window 2.1
+import QQItemInfo 1.0
 
 QQ{
     id: root
@@ -12,7 +13,7 @@ QQ{
     property var friendListData//储存好友列表
     property string list_hash//获取好友列表时需要的hash
     property string ptwebqq//登录后返回的cookie
-    
+
     windowScale: {
         var dosktopWidth = Screen.desktopAvailableWidth
         if(dosktopWidth<=1366)
@@ -121,14 +122,14 @@ QQ{
             var list = JSON.parse(data)
             if( list.retcode==0 ) {
                 loginReData = list.result//将数据记录下来
+                getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
                 myqq.openSqlDatabase();//登录完成后，打开数据库(用来储存聊天记录)
                 utility.loadQml("qml/MainPanel/main.qml")//登录成功后加载主面板
                 myqq.loginStatus = QQ.LoginFinished//设置为登录成功
                 var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
                 myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
                 var url = "http://q.qlogo.cn/headimg_dl?spec=240&dst_uin="+myqq.userQQ
-                downloadImage(url, "friend_"+myqq.userQQ, "240", getAvatarFinished)//获取头像
-                getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
+                downloadImage(QQItemInfo.Friend, url, myqq.userQQ, "240", getAvatarFinished)//获取头像
             }else{
                 myqq.showWarningInfo("登陆出错，错误代码："+list.retcode)
             }
@@ -148,7 +149,8 @@ QQ{
         var list = JSON.parse(data)
         if( list.retcode==0 ) {
             userData = list.result
-            root.nick = userData.nick//储存昵称
+            //console.debug("获取资料成功，我的昵称是："+userData.nick)
+            root.nick = String(userData.nick)//储存昵称
             myqq.addLoginedQQInfo(userQQ, nick)//保存此账号的登录信息
             //getPanelSize()//获取主面板的大小
         }else{

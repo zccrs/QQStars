@@ -7,74 +7,110 @@ MySystemTrayIcon{
     id: root
     visible: true
     windowIcon: "qrc:/images/avatar.png"
-    property var currentInfo
+    menu: myqq.loginStatus == QQ.LoginFinished?menu2:menu1
+
+    toolTip: {
+        if( myqq.loginStatus == QQ.LoginFinished ){
+            return "QQ:"+myqq.nick+"("+myqq.userQQ+")"
+        }else
+            return "星辰QQ"
+    }
+
+    property var currentInfo//当前最新消息的发送人的信息
+    signal triggered(var arg)
+    property bool hovered: false//鼠标是否悬浮在托盘上空
+    property TrayMessageWindow trayMessageWindow
     
-    onWindowIconChanged: {
-        if(windowIcon!="qrc:/images/avatar.png"){
-            timer_shake.start()
-        }else{
-            timer_shake.stop()
+    Component.onCompleted: {
+        var component = Qt.createComponent("TrayMessageWindow.qml");
+        if (component.status == Component.Ready){
+            trayMessageWindow = component.createObject(null, {});
         }
     }
-    ListModel{
-        id: mymodel
-    }
 
-    function openMessageWindow(){
-        mymodel.append({"sender_info": myqq.createFriendInfo("826169080")})
-        var component = Qt.createComponent("TrayMessageWindow.qml")
-        var data = {
-            "trayX": root.x,
-            "trayY": root.y,
-            "trayWidth": root.width,
-            "mymodel": mymodel
+    function iconShakeStart(){//开启图标闪动
+        timer_shake.start()
+    }
+    function iconShakeStop(){//停止鼠标闪动
+        timer_shake.stop()
+        windowIcon = "qrc:/images/avatar.png"
+    }
+    
+    onMessageClicked:{
+        iconShakeStop()//停止闪动头像
+        myqq.addChatPage(currentInfo.uin, currentInfo.mytype)//增加聊天页面
+    }
+    onActivated:{
+        if( timer_shake.running&&arg == MySystemTrayIcon.Trigger ) {//如果头像正在闪动
+            iconShakeStop()//停止闪动头像
+            myqq.addChatPage(currentInfo.uin, currentInfo.mytype)//增加聊天页面
         }
-        component.createObject(null, data)
+    }
+    Connections{
+        target: trayMessageWindow
+        onStopShakeIcon: {//如果清除全部消息提示
+            iconShakeStop()//停止闪动头像
+        }
+        onSetCurrentInfo:{
+            currentInfo = info
+            root.windowIcon = currentInfo.avatar40//设置图标
+        }
     }
 
+    Connections{
+        target: timer_shake.running?utility:null
+        onMouseDesktopPosChanged:{
+            if(arg.x>=root.x&&arg.y>=root.y&&arg.x<=root.x+root.width&&arg.y<=root.y+root.height){
+                if(!hovered){
+                    hovered = true
+                    //console.debug("进入了托盘区域")
+                    root.toolTip = ""
+                    trayMessageWindow.showWindow(root.x, root.y, root.width, root.height)//显示消息通知框
+                }
+            }else if(hovered){
+                hovered = false
+                //console.debug("离开了托盘区域")
+                if(arg.x<root.x||arg.x>root.x+root.width){
+                    trayMessageWindow.closeWindow()//隐藏消息通知栏
+                    //console.debug("即将隐藏消息通知栏")
+                }
+                root.toolTip = "QQ:"+myqq.nick+"("+myqq.userQQ+")"
+            }
+        }
+    }
+
+    Connections{
+        target: myqq
+        onNewMessage:{
+            if(!myqq.isChatPageExist(fromUin, type)){//判断聊天页面是否存在，如果存在的话 不用提示新消息
+                if(type==QQItemInfo.Friend){//如果是qq消息
+                    currentInfo = myqq.createFriendInfo(fromUin)
+                    //root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
+                }else if(type==QQItemInfo.Group){//如果是群消息
+                    currentInfo = myqq.createGroupInfo(fromUin)
+                    //root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
+                }else if(type==QQItemInfo.Discu){//如果是讨论组消息
+                    currentInfo = myqq.createDiscuInfo(fromUin)
+                    //root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
+                }
+                root.windowIcon = currentInfo.avatar40
+                trayMessageWindow.appendModel(currentInfo)
+                iconShakeStart()//开始闪动
+            }
+        }
+    }
+    
     Timer{
         id: timer_shake
         interval: 300
         repeat: true//开启重复闪动
-        property string old_icon: "qrc:/images/avatar.png"
+        property string old_icon
         onTriggered: {
             if(root.windowIcon!=""){
                 old_icon=root.windowIcon
                 root.windowIcon=""
             }else{
                 root.windowIcon=old_icon
-            }
-        }
-    }
-
-    onMessageClicked:{
-        windowIcon="qrc:/images/avatar.png"
-        myqq.addChatPage(currentInfo.uin, currentInfo.mytype)//增加聊天页面
-    }
-    onActivated:{
-        if( timer_shake.running&&arg == MySystemTrayIcon.Trigger ) {
-            windowIcon="qrc:/images/avatar.png"
-            myqq.addChatPage(currentInfo.uin, currentInfo.mytype)//增加聊天页面
-        }
-    }
-    toolTip: {
-        if( myqq.userData ){
-            return "QQ:"+myqq.nick+"("+myqq.userQQ+")"
-        }else
-            return "星辰QQ"
-    }
-    signal triggered(var arg)
-    menu: myqq.loginStatus == QQ.LoginFinished?menu2:menu1
-    
-    Connections{
-        target: myqq
-        onNewMessage:{
-            if(!myqq.isChatPageExist(fromUin, type)){//判断聊天页面是否存在
-                if(type==QQItemInfo.Friend){//如果是qq消息
-                    currentInfo = myqq.createFriendInfo(fromUin)
-                    root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
-                    root.windowIcon = currentInfo.avatar40
-                }
             }
         }
     }

@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <QKeySequence>
 #include <QFile>
-#include <QGraphicsDropShadowEffect>
 #include "utility.h"
 
 SystemTrayIcon::SystemTrayIcon(QQuickItem *parent) :

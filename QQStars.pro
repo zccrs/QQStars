@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = QQStars
-QT += widgets network webkit svg qml quick concurrent sql#gui-private
+QT += widgets network webkit svg qml quick concurrent sql #widgets-private core-private gui-private
 
 INCLUDEPATH += \
     src \

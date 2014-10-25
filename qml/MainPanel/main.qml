@@ -42,7 +42,6 @@ MyWindow{
         target: systemTray
         onActivated:{
             if( arg == MySystemTrayIcon.Trigger ) {
-                utility.consoleLog("点击了托盘")
                 windowToActive()//将窗口转为活动状态
             }
         }
