@@ -102,7 +102,7 @@ private:
     double m_windowScale;//储存可视控件的比例
     QString m_codeText;//储存输入验证码
     QPointer<MyWindow> warning_info_window;//储存指向警告窗口的指针
-    QMap<QString, QQItemInfo*> map_itemInfo;//储存每个好友或群讨论组Info
+    QMap<QString, QQItemInfo*> map_itemInfo;//储存每个好友或群讨论组的Info
     //QMap<QString, QString> map_alias;//储存备注名
     QPointer<MyWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
     QQuickItem* mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
@@ -133,7 +133,8 @@ private:
     QString textToHtml(FontStyle &style, QString data);//将文本内容转化为富文本
     
     QQItemInfo* createQQItemInfo(const QString& uin ,const QString& typeString);
-    QQItemInfo* createQQItemInfo(const QString& uin, QQItemInfoPrivate::QQItemType type);
+    QQItemInfo* createQQItemInfo(const QString& uin, QQItemInfo::QQItemType type);
+    QString friendsUin;//用来储存所有好友的uin，陌生人不存在这里，为判断一个uin是否为陌生人做支持
     //创建一个储存信息的对象，被createFriendInfo等调用
 signals:
     void userStatusChanged();
@@ -154,6 +155,8 @@ signals:
     void friendStatusChanged(QString fromUin, QString newStatus);//好友状态改变的信号
     void addChatPageToWindow(QQuickItem* item);//增加聊天页面的信号,此信号被聊天页面所在的window接收
     void activeChatPageChanged(QQuickItem* item);//将item这个page变为活跃的page
+    
+    void getFriendListFinished();//获取好友列表完成，这个信号将被所有FriendInfo接收，然后判断自己是不是陌生人，是的话就去获取陌生人的资料
 public slots:
     void setRememberPassword(bool arg);
     void setAutoLogin(bool arg);
@@ -163,7 +166,6 @@ public slots:
     void setUserQQ(QString arg);
     void setUserPassword(QString arg);
     void setWindowScale(double arg);
-    //void saveAlias(int type, QString uin, QString alias);//储存备注名称
     
     QString getHash();//获取请求好友列表需要的hsah
     QString encryptionPassword(const QString &uin, const QString &code);//加密密码，用来登录
@@ -187,6 +189,9 @@ public slots:
     void addChatPage(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口
     void removeChatPage(QString uin, int senderType/*QQItemType类型*/);//移除已有的聊天Page
     bool isChatPageExist(const QString& uin, int senderType/*QQItemType类型*/);//判断聊天页面是否存在
+    
+    void addFriendUin(const QString& uin);//将此uin添加到好友uin列表
+    bool isStranger(const QString& uin);//判断此uin是否为陌生人
     
     QVariant value(const QString & key, const QVariant & defaultValue = QVariant()) const;//返回储存在QSettings里边的value;
     void setValue(const QString & key, const QVariant & value);

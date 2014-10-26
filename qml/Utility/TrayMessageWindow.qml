@@ -5,8 +5,8 @@ import mywindow 1.0
 
 Window{
     id: root
-    flags: Qt.SplashScreen
-    height: list.contentHeight+user_nick.implicitHeight+item_button.height+30
+    flags: Qt.SplashScreen|Qt.WindowStaysOnTopHint
+    height: list.height+user_nick.implicitHeight+item_button.height+30
     width: 200
     color: "transparent"
     signal stopShakeIcon//停止对托盘图标的闪动
@@ -21,15 +21,20 @@ Window{
         }
         mymodel.append({"sender_info": senderInfo})
         infosQueue.push(senderInfo)//加到队列里边
-        root.height = infosQueue.length*40+user_nick.implicitHeight+item_button.height+30//设置窗口高度
+        //root.height = infosQueue.length*40+user_nick.implicitHeight+item_button.height+30//设置窗口高度
     }
     function removeModel(index){
         if(index>=0){
             mymodel.remove(index)
             infosQueue.splice(index, 1)
+            console.debug(mymodel.count+","+infosQueue.length)
+            if(mymodel.count==0)
+                stopShakeIcon()//停止闪动
+            //root.height = infosQueue.length*40+user_nick.implicitHeight+item_button.height+30//设置窗口高度
         }
     }
     function clearModel(){
+        stopShakeIcon()//发送信号
         mymodel.clear()
         infosQueue.length=0
     }
@@ -42,19 +47,19 @@ Window{
     function showWindow(trayX, trayY, trayWidth, trayHeight){
         x = trayX-width/2+trayWidth/2
         y = trayY-height
+        timer_close.stop()//先停止动画
         root.opacity = 1
         root.show()
     }
     function closeWindow(){
-        if(!timer_close.running)
-            timer_close.start()//启动动画定时器
+        timer_close.start()//启动动画定时器
     }
     NumberAnimation{
         id: timer_close
         target: root
         property: "opacity"
         running: false
-        duration: 1000
+        duration: 600
         from: 1
         to: 0
         onStopped: {//当动画结束后
@@ -70,8 +75,8 @@ Window{
         hoverEnabled: true
         onEntered: {
             hovered = true
-            if(timer_close.running)
-                timer_close.stop()//停止关闭窗口的动画
+            timer_close.stop()//停止关闭窗口的动画
+            root.opacity = 1
         }
         onExited: {
             hovered = false
@@ -80,12 +85,13 @@ Window{
             //console.log("x:"+root.x+","+width+","+globalX)
             //console.log("y:"+root.y+","+height+","+globalY)
             if(globalX<root.x||globalX>root.x+root.width||globalY<root.y||globalY>root.y+root.height){
-                root.close()
+                root.closeWindow()
             }
         }
     }
     Rectangle{
-        anchors.fill: parent
+        width: parent.width
+        height: list.height+user_nick.implicitHeight+item_button.height+30
         border.width: 1
         border.color: "#f07000"
         color: "white"
@@ -103,7 +109,9 @@ Window{
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: user_nick.bottom
-            anchors.bottom: item_button.top
+            height: mymodel.count*40
+            
+            clip: true
             anchors.margins: 10
             signal openAllChatPage//当点击"查看全部"时被发射
             model: ListModel{
@@ -113,7 +121,8 @@ Window{
         
         Item{
             id: item_button
-            anchors.bottom: parent.bottom
+            anchors.top: list.bottom
+            anchors.topMargin: 10
             anchors.left: list.left
             anchors.right: list.right
             height: 30
@@ -131,9 +140,8 @@ Window{
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        stopShakeIcon()//发送信号
                         clearModel()//先清除所有数据
-                        root.close()//然后关闭窗口
+                        root.closeWindow()//然后关闭窗口
                     }
                 }
             }
@@ -147,9 +155,8 @@ Window{
                     anchors.fill: parent
                     onClicked: {
                         list.openAllChatPage()//发送信号
-                        stopShakeIcon()//发送信号
                         clearModel()//先清除所有数据
-                        root.close()//然后关闭窗口
+                        root.closeWindow()//然后关闭窗口
                     }
                 }
             }
@@ -163,13 +170,11 @@ Window{
             height: 40
             property var myinfo: sender_info
             function removeMe(){
-                root.close()//关闭窗口
+                root.closeWindow()//关闭窗口
                 removeModel(index)//清除自己
                 var temp_info = getLatestInfo()
                 if(temp_info!=null){
                     setCurrentInfo(temp_info)
-                }else{
-                    stopShakeIcon()
                 }
             }
 

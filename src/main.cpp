@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<FriendInfo>("QQItemInfo", 1,0, "FriendInfo");
     qmlRegisterType<GroupInfo>("QQItemInfo", 1,0, "GroupInfo");
     qmlRegisterType<DiscuInfo>("QQItemInfo", 1,0, "DiscuInfo");
-    qmlRegisterType<QQItemInfoPrivate>("QQItemInfo", 1,0, "QQItemInfo");
+    qmlRegisterType<QQItemInfo>("QQItemInfo", 1,0, "QQItemInfo");
     qmlRegisterType<ChatMessageInfo>("QQItemInfo", 1, 0, "ChatMessageInfo");
     qmlRegisterType<ChatMessageInfoList>("QQItemInfo", 1, 0, "ChatMessageInfoList");
     qmlRegisterType<MyImage>("mywindow", 1,0, "MyImage");
@@ -67,6 +67,6 @@ int main(int argc, char *argv[])
 #endif
     engine->rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     engine->load(QUrl(QStringLiteral("qml/Login/main.qml")));
-
+    
     return app.exec();
 }

@@ -7,6 +7,18 @@ FriendInfo{
     onUinChanged: {//如果uin变了
         myqq.getFriendQQ( uin, getQQFinished )//获取好友的真实qq号
     }
+    
+    function getUserDataFinished(error, data){//获取资料完成
+        if(error){//如果出错了
+            myqq.getUserData(uin, getUserDataFinished)//去获取好友资料
+            return
+        }
+        
+        data = JSON.parse(data)
+        if( data.retcode==0 ){
+            nick = data.result.nick//设置昵称
+        }
+    }
 
     function getQQFinished(error, data){//获取好友真实qq后调用的函数
         //console.log(root.uin+"获得真实QQ结束："+data)

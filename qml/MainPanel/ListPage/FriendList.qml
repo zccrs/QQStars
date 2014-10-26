@@ -32,8 +32,13 @@ Item{
                     obj_info.alias = marknames[i].markname//储存备注信息
                 }
             }
-            var categories = data.result.categories//分组信息
+            for( i=0; i< data.result.friends.length;++i ) {
+                myqq.addFriendUin(data.result.friends[i].uin)
+                //将所有好友的uin都添加进去，为判断一个uin是否为陌生人做基础
+            }
+            myqq.getFriendListFinished()//发送获取好友列表完成的信号
             
+            var categories = data.result.categories//分组信息
             if(categories.length>0&&categories[0].index>0)//如果分组数目大于0，但是第一个分组的index不为0
                 addModel("我的好友", 0, data.result)//则将默认的"我的好友"分组加进去
             var arr = new Array
@@ -47,6 +52,8 @@ Item{
             for(i=0; i<arr.length; ++i){//遍历数组
                 addModel(arr[i].name, arr[i].index, data.result)//增加分组
             }
+        }else{
+            console.debug("好友列表获取失败："+data.retcode)
         }
     }
     Component.onCompleted: {

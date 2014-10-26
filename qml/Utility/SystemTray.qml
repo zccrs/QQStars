@@ -8,18 +8,17 @@ MySystemTrayIcon{
     visible: true
     windowIcon: "qrc:/images/avatar.png"
     menu: myqq.loginStatus == QQ.LoginFinished?menu2:menu1
-
+    property var currentInfo//当前最新消息的发送人的信息
+    signal triggered(var arg)
+    property bool hovered: false//鼠标是否悬浮在托盘上空
+    property TrayMessageWindow trayMessageWindow
+    
     toolTip: {
         if( myqq.loginStatus == QQ.LoginFinished ){
             return "QQ:"+myqq.nick+"("+myqq.userQQ+")"
         }else
             return "星辰QQ"
     }
-
-    property var currentInfo//当前最新消息的发送人的信息
-    signal triggered(var arg)
-    property bool hovered: false//鼠标是否悬浮在托盘上空
-    property TrayMessageWindow trayMessageWindow
     
     Component.onCompleted: {
         var component = Qt.createComponent("TrayMessageWindow.qml");

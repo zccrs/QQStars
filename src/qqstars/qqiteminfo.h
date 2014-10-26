@@ -63,22 +63,16 @@ public slots:
     ChatMessageInfo* dequeue();//出队
 };
 
-class QQItemInfoPrivate:public QQuickItem//为qml提供一些枚举值，并且提供数据库的操作（用于储存聊天记录）
+class DatabaseOperation:public QObject//提供数据库的操作（用于储存聊天记录）
 {
     Q_OBJECT
-    Q_ENUMS(QQItemType)
 public:
-    explicit QQItemInfoPrivate(QQuickItem *parent=0);
-    ~QQItemInfoPrivate();
-    enum QQItemType{
-        Friend,//好友
-        Group,//群
-        Discu,//讨论组
-    };
+    static DatabaseOperation* createDatabaseOperation();
 private:
     static QSqlDatabase sqlite_db;
     QThread *thread;
-    
+    DatabaseOperation();
+    ~DatabaseOperation();
     bool tableAvailable(const QString& tableName);//判断表名为tableName的表是可操作
 private slots:
     void m_openSqlDatabase(const QString& userqq);//初始化数据库
@@ -111,14 +105,21 @@ class QQItemInfo:public QQuickItem
     Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
     Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
     Q_PROPERTY(int unreadMessagesCount READ unreadMessagesCount WRITE setUnreadMessagesCount NOTIFY unreadMessagesCountChanged)//未读消息的条数
-    Q_PROPERTY(QQItemInfoPrivate::QQItemType mytype READ mytype NOTIFY mytypeChanged FINAL)
-
+    Q_PROPERTY(QQItemType mytype READ mytype NOTIFY mytypeChanged FINAL)
+    Q_ENUMS(QQItemType)
     friend class FriendInfo;
     friend class GroupInfo;
     friend class DiscuInfo;
     friend class RecentInfo;
+public:
+    explicit QQItemInfo(QQuickItem *parent=0);
+    enum QQItemType{
+        Friend,//好友
+        Group,//群
+        Discu,//讨论组
+    };
 private:
-    explicit QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent=0);
+    explicit QQItemInfo(QQItemType type, QQuickItem *parent=0);
     void initSettings();
     
 protected:
@@ -131,15 +132,15 @@ protected:
     QString m_alias;
     QString typeString;
     int m_unreadMessagesCount;
-    QQItemInfoPrivate::QQItemType m_mytype;
+    QQItemType m_mytype;
     ChatMessageInfoList *queue_chatRecords;//储存聊天记录的队列
     bool isCanUseSetting() const;//是否可以调用settings
     QTimer m_timer;//此定时器用于当聊天页面被销毁后在内存中保存聊天的时常，此定时器触发后会调用虚槽函数
 protected slots:
     virtual void clearChatRecords();//清空聊天记录
 public:
-    static const QString typeToString(QQItemInfoPrivate::QQItemType type);
-    static const QString localCachePath(QQItemInfoPrivate::QQItemType type, const QString& userqq, const QString& account);//本地缓存路径
+    static const QString typeToString(QQItemType type);
+    static const QString localCachePath(QQItemType type, const QString& userqq, const QString& account);//本地缓存路径
     QString uin() const;
     QString nick() const;
     QString alias() const;
@@ -150,7 +151,7 @@ public:
     QString aliasOrNick();
     QString userQQ() const;
     QString typeToString();
-    QQItemInfoPrivate::QQItemType mytype() const;
+    QQItemType mytype() const;
     int unreadMessagesCount() const;
 private slots:
     void updataAliasOrNick();
@@ -180,7 +181,7 @@ signals:
     void userQQChanged();
     void uinChanged();
     void settingsChanged();
-    void mytypeChanged(QQItemInfoPrivate::QQItemType arg);
+    void mytypeChanged(QQItemType arg);
     void unreadMessagesCountChanged(int arg);
 };
 
@@ -195,7 +196,7 @@ public:
     QString QQSignature();
 private:
     QString m_signature;//用来储存个性签名
-    QQItemInfoPrivate *itemInfoPrivate;//里边定义了数据库的操作，用来储存聊天记录
+    DatabaseOperation *itemInfoPrivate;//里边定义了数据库的操作，用来储存聊天记录
     bool getChatRecordsing;//记录现在是否正在请求获取本地聊天记录
 private slots:
     void onSettingsChanged();//处理settings对象改变的信号

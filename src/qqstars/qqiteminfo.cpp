@@ -57,30 +57,36 @@ void ChatMessageInfo::setTime(QTime arg)
     emit timeChanged(arg);
 }
 
-QSqlDatabase QQItemInfoPrivate::sqlite_db;
-QQItemInfoPrivate::QQItemInfoPrivate(QQuickItem *):
-    QQuickItem(0)
+QSqlDatabase DatabaseOperation::sqlite_db;
+DatabaseOperation *DatabaseOperation::createDatabaseOperation()
+{
+    static DatabaseOperation me;
+    return &me;
+}
+
+DatabaseOperation::DatabaseOperation():
+    QObject(0)
 {
     if (!sqlite_db.isValid()){//如果数据库无效，则进行初始化
         sqlite_db = QSqlDatabase::addDatabase ("QSQLITE");
     }
     
-    connect (this, &QQItemInfoPrivate::sql_open, this, &QQItemInfoPrivate::m_openSqlDatabase);
-    connect (this, &QQItemInfoPrivate::sql_insertDatas, this, &QQItemInfoPrivate::m_insertDatas);
-    connect (this, &QQItemInfoPrivate::sql_getDatas, this, &QQItemInfoPrivate::m_getDatas);
+    connect (this, &DatabaseOperation::sql_open, this, &DatabaseOperation::m_openSqlDatabase);
+    connect (this, &DatabaseOperation::sql_insertDatas, this, &DatabaseOperation::m_insertDatas);
+    connect (this, &DatabaseOperation::sql_getDatas, this, &DatabaseOperation::m_getDatas);
     thread = new QThread;
     moveToThread (thread);
     thread->start ();//启动线程
 }
 
-QQItemInfoPrivate::~QQItemInfoPrivate()
+DatabaseOperation::~DatabaseOperation()
 {
     //sqlite_db.close();//关闭数据库
     thread->quit ();
     thread->wait ();
 }
 
-bool QQItemInfoPrivate::tableAvailable(const QString &tableName)
+bool DatabaseOperation::tableAvailable(const QString &tableName)
 {
     if(tableName!=""&&sqlite_db.isOpen ()){//如果数据库已经打开
         QString temp = "create table if not exists "+tableName+
@@ -98,7 +104,7 @@ bool QQItemInfoPrivate::tableAvailable(const QString &tableName)
     return false;
 }
 
-void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)
+void DatabaseOperation::m_openSqlDatabase(const QString &userqq)
 {
     if(!sqlite_db.isOpen ()){//如果数据库未打开
         //sqlite_db = QSqlDatabase::addDatabase("QSQLITE");
@@ -113,7 +119,7 @@ void QQItemInfoPrivate::m_openSqlDatabase(const QString &userqq)
     }
 }
 
-void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoList *datas)
+void DatabaseOperation::m_insertDatas(const QString &tableName, ChatMessageInfoList *datas)
 {
     if(tableAvailable (tableName)){//判断表是否可以操作
         sqlite_db.transaction ();//开启事务操作
@@ -132,7 +138,7 @@ void QQItemInfoPrivate::m_insertDatas(const QString &tableName, ChatMessageInfoL
     }
 }
 
-void QQItemInfoPrivate::m_getDatas(const QString &tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas)
+void DatabaseOperation::m_getDatas(const QString &tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas)
 {
     if(datas!=NULL&&tableAvailable (tableName)){//判断表是否可以操作
         QString sql_code = "select myindex from "+tableName
@@ -173,19 +179,19 @@ void QQItemInfoPrivate::m_getDatas(const QString &tableName, int count, ChatMess
     }
 }
 
-void QQItemInfoPrivate::openSqlDatabase(const QString& userqq)
+void DatabaseOperation::openSqlDatabase(const QString& userqq)
 {
     emit sql_open (userqq);//发送信号打开数据库
 }
 
-void QQItemInfoPrivate::closeSqlDatabase()
+void DatabaseOperation::closeSqlDatabase()
 {
     /*if(!sqlite_db.isOpen ()){
         sqlite_db.close ();
     }*/
 }
 
-void QQItemInfoPrivate::insertData(const QString& tableName, ChatMessageInfo *data)
+void DatabaseOperation::insertData(const QString& tableName, ChatMessageInfo *data)
 {
     if(tableAvailable (tableName)){//判断表是否可以操作
         QString temp = "insert into "+tableName+
@@ -208,17 +214,17 @@ void QQItemInfoPrivate::insertData(const QString& tableName, ChatMessageInfo *da
     }
 }
 
-void QQItemInfoPrivate::insertDatas(const QString &tableName, ChatMessageInfoList* datas)
+void DatabaseOperation::insertDatas(const QString &tableName, ChatMessageInfoList* datas)
 {
     emit sql_insertDatas (tableName, datas);
 }
 
-void QQItemInfoPrivate::getDatas(const QString &tableName, int count, ChatMessageInfo *currentData, ChatMessageInfoList *datas)
+void DatabaseOperation::getDatas(const QString &tableName, int count, ChatMessageInfo *currentData, ChatMessageInfoList *datas)
 {
     emit sql_getDatas (tableName, count, currentData, datas);
 }
 
-QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
+QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QQuickItem *parent):
     QQuickItem(parent), m_mytype (type)
 {
     m_uin = "";
@@ -239,6 +245,12 @@ QQItemInfo::QQItemInfo(QQItemInfoPrivate::QQItemType type, QQuickItem *parent):
     
     typeString = typeToString (type);
     queue_chatRecords = new ChatMessageInfoList;
+}
+
+QQItemInfo::QQItemInfo(QQuickItem *parent):
+    QQuickItem(parent)
+{
+    return;
 }
 
 void QQItemInfo::initSettings()
@@ -262,7 +274,7 @@ void QQItemInfo::initSettings()
 
 bool QQItemInfo::isCanUseSetting() const
 {
-    return (mytype()!=QQItemInfoPrivate::Discu&&userQQ()!=""&&account()!=""&&mysettings);
+    return (mytype()!=Discu&&userQQ()!=""&&account()!=""&&mysettings);
 }
 
 void QQItemInfo::clearChatRecords()
@@ -319,28 +331,28 @@ QString QQItemInfo::typeToString()
     return typeString;
 }
 
-const QString QQItemInfo::typeToString(QQItemInfoPrivate::QQItemType type)
+const QString QQItemInfo::typeToString(QQItemInfo::QQItemType type)
 {
     switch (type) {
-    case QQItemInfoPrivate::Friend:
+    case Friend:
         return "Friend";
         break;
-    case QQItemInfoPrivate::Group:
+    case Group:
         return "Group";
-    case QQItemInfoPrivate::Discu:
+    case Discu:
         return "Discu";
     default:
         return "";
     }
 }
 
-const QString QQItemInfo::localCachePath(QQItemInfoPrivate::QQItemType type, const QString &userqq, const QString &account)
+const QString QQItemInfo::localCachePath(QQItemInfo::QQItemType type, const QString &userqq, const QString &account)
 {
     QString typeString = typeToString (type);
     return QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+account;
 }
 
-QQItemInfoPrivate::QQItemType QQItemInfo::mytype() const
+QQItemInfo::QQItemType QQItemInfo::mytype() const
 {
     return m_mytype;
 }
@@ -359,7 +371,7 @@ void QQItemInfo::setUin(QString arg)
 {
     if (m_uin != arg) {
         m_uin = arg;
-        if(mytype ()==QQItemInfoPrivate::Discu)//如果是讨论组
+        if(mytype ()==Discu)//如果是讨论组
             setAccount (arg);//讨论组无真实qq，所以用uin充当
         emit uinChanged ();
     }
@@ -489,13 +501,13 @@ void QQItemInfo::setUnreadMessagesCount(int arg)
 }
 
 FriendInfo::FriendInfo(QQuickItem *parent):
-    QQItemInfo(QQItemInfoPrivate::Friend, parent)
+    QQItemInfo(Friend, parent)
 {
     m_signature = "";
     connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::onSettingsChanged);
     //链接信号，处理settings对象改变的信号
     getChatRecordsing=false;//记录现在是否在请求获取聊天记录
-    itemInfoPrivate = new QQItemInfoPrivate(this);
+    itemInfoPrivate = DatabaseOperation::createDatabaseOperation ();
     connect (itemInfoPrivate, SIGNAL(getDatasFinished(ChatMessageInfoList*)), SIGNAL(getLocalChatRecordsFinished(ChatMessageInfoList*)));
     //链接信号，处理从数据库中读取聊天记录后的操作
 }
@@ -593,7 +605,7 @@ void FriendInfo::getLocalChatRecords(ChatMessageInfo *currentData, int count)
 }
 
 GroupInfo::GroupInfo(QQuickItem *parent):
-    QQItemInfo(QQItemInfoPrivate::Group, parent)
+    QQItemInfo(Group, parent)
 {
     m_code = "";
 }
@@ -614,7 +626,7 @@ void GroupInfo::setCode(QString arg)
 
 
 DiscuInfo::DiscuInfo(QQuickItem *parent):
-    QQItemInfo(QQItemInfoPrivate::Discu, parent)
+    QQItemInfo(Discu, parent)
 {
     
 }

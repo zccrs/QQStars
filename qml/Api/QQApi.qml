@@ -112,7 +112,27 @@ QQ{
             utility.httpPost(login2Finished, url, data)
         }
     }
-    
+    function reLogin(){//用于掉线后重新登录
+        var url = "http://d.web2.qq.com/channel/login2"
+        ptwebqq = utility.getCookie("ptwebqq")//储存cookie
+        var data = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
+        data = encodeURI(data)
+        utility.httpPost(reLoginFinished, url, data, true)
+    }
+    function reLoginFinished(error, data) {
+        if(error){
+            reLogin()
+            return
+        }
+        data = JSON.parse(data)
+        if( data.retcode==0 ) {
+            console.debug("重新登录完成")
+            loginReData = data.result//将数据记录下来
+            var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+            myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
+        }
+    }
+
     function login2Finished(error, data) {//二次登录，这次才是真正的登录
         if(error){//如果出错了
             login2(null)
@@ -138,7 +158,7 @@ QQ{
     
     function getUserData(uin, backFun) {//获取用户资料，登录完成后的操作
         var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+uin+"&verifysession=&code=&vfwebqq="+loginReData.vfwebqq+"&t=1407324674215"
-        utility.httpGet(backFun, url)
+        utility.httpGet(backFun, url, true)//第三个参数为true，是使用高优先级的网络请求
     }
     
     function getDataFinished(error, data) {//获取用户资料成功后
@@ -154,7 +174,8 @@ QQ{
             myqq.addLoginedQQInfo(userQQ, nick)//保存此账号的登录信息
             //getPanelSize()//获取主面板的大小
         }else{
-            myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)
+            getUserData(myqq.userQQ, getDataFinished)//再次获取自己的资料
+            //myqq.showWarningInfo("获取用户资料出错，错误代码："+list.retcode)
         }
     }
     
@@ -283,5 +304,9 @@ QQ{
         var data = 'r={"did":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
+    }
+    function getGroupMembersList(callbackFun, gcode){//获取群成员列表
+        var url = "http://s.web2.qq.com/api/get_group_info_ext2?gcode="+gcode+"&cb=undefined&vfwebqq="+loginReData.vfwebqq
+        utility.httpGet(callbackFun, url, true)
     }
 }

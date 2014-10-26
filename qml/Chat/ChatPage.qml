@@ -9,7 +9,11 @@ Item{
     id: root
     anchors.fill: parent
     property string myuin
-    //property int type
+    signal sendClicked//点击发送按钮好调用此函数
+    property alias menuBar: menu_bar
+    property alias rightBar: right_bar
+    property alias inputBox: input
+    property alias listModel: mymodel
     property var myinfo//用来储存自己的各种信息（用uin标识）
     onMyinfoChanged: {
         if(myinfo){//从缓冲区中读取数据
@@ -24,21 +28,14 @@ Item{
                     "parent_info": myinfo
                 }
                 listModel.append(data)
-                scroll_list.contentAtEnd()//将内容拉到最后
             }
+            scroll_list.contentAtEnd()//将内容拉到最后
         }
     }
-
-    signal sendClicked//点击发送按钮好调用此函数
-    property alias menuBar: menu_bar
-    property alias rightBar: right_bar
-    property alias inputBox: input
-    property alias listModel: mymodel
 
     Connections{
         target: myqq//记录自己各种信息的类对象
         onNewMessage:{
-            console.debug("qml中收到了新的消息："+fromUin)
             if(fromUin==myuin&&type == myinfo.mytype){
                 var data = {
                     "uin":info.senderUin,//发送者是谁

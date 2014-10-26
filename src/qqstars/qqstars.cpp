@@ -177,6 +177,9 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                         beginPoll2();
                     }else if(retcode==102){
                         beginPoll2();
+                    }else{
+                        qDebug()<<"qq已掉线，即将重新登录";
+                        QMetaObject::invokeMethod (this, "reLogin");//调用槽reLogin（在qml中定义）
                     }
                 }
             }else if(document.isArray ()){
@@ -337,19 +340,19 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
     {
     case GeneralMessage:{
         QString data = disposeMessage (obj);//先处理基本消息
-        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfoPrivate::Friend);
+        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfo::Friend);
         ChatMessageInfo *message_info = new ChatMessageInfo;
         message_info->setSenderUin (from_uin);
         message_info->setContentData (data);
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        if(!isChatPageExist(from_uin, QQItemInfoPrivate::Friend)){//如果聊天页面不存在
+        if(!isChatPageExist(from_uin, QQItemInfo::Friend)){//如果聊天页面不存在
             info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
             //增加未读消息的个数
         }
         //qDebug()<<"收到了好友消息："<<data;
-        emit newMessage (from_uin, (int)QQItemInfoPrivate::Friend, message_info);
+        emit newMessage (from_uin, (int)QQItemInfo::Friend, message_info);
         break;
     }
     case InputNotify:
@@ -371,7 +374,7 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
     case AvRefuse:
         break;
     case ShakeWindow://如果是窗口抖动的消息
-        addChatPage (from_uin, QQItemInfoPrivate::Friend);//现将此聊天窗口显示出来
+        addChatPage (from_uin, QQItemInfo::Friend);//现将此聊天窗口显示出来
         emit shakeWindow (from_uin);//然后发送信号告诉窗口有人抖动他
         break;
     default:
@@ -394,18 +397,18 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString data = disposeMessage (obj);
-        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfoPrivate::Group);
+        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfo::Group);
         ChatMessageInfo *message_info = new ChatMessageInfo;
         message_info->setSenderUin (send_uin);
         message_info->setContentData (data);
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        if(!isChatPageExist(from_uin, QQItemInfoPrivate::Group)){//如果聊天页面不存在
+        if(!isChatPageExist(from_uin, QQItemInfo::Group)){//如果聊天页面不存在
             info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
             //增加未读消息的个数
         }
-        emit newMessage (from_uin, (int)QQItemInfoPrivate::Group, message_info);
+        emit newMessage (from_uin, (int)QQItemInfo::Group, message_info);
         break;
     }
     default:
@@ -429,18 +432,18 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     switch (type) {
     case GeneralMessage:{
         QString data = disposeMessage (obj);
-        QQItemInfo *info = createQQItemInfo (did, QQItemInfoPrivate::Discu);
+        QQItemInfo *info = createQQItemInfo (did, QQItemInfo::Discu);
         ChatMessageInfo *message_info = new ChatMessageInfo;
         message_info->setSenderUin (send_uin);
         message_info->setContentData (data);
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        if(!isChatPageExist(did, QQItemInfoPrivate::Discu)){//如果聊天页面不存在
+        if(!isChatPageExist(did, QQItemInfo::Discu)){//如果聊天页面不存在
             info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
             //增加未读消息的个数
         }
-        emit newMessage (did, (int)QQItemInfoPrivate::Discu, message_info);
+        emit newMessage (did, (int)QQItemInfo::Discu, message_info);
         break;
     }
     default:
@@ -558,6 +561,7 @@ QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
 
 QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, const QString& typeString)
 {
+    //QThread::msleep (10);//线程休眠10毫秒
     if(uin=="")
         return NULL;
     QString name = typeString+uin;
@@ -569,9 +573,10 @@ QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, const QString& typeS
     QQmlComponent component(engine, "./qml/QQItemInfo/"+typeString+"Info.qml");
     QQItemInfo* info = qobject_cast<QQItemInfo*>(component.create ());
     if(info!=NULL){
+        map_itemInfo[name] = info;
+        info->setParent (this);
         info->setUserQQ (userQQ());
         info->setUin (uin);
-        map_itemInfo[name] = info;
     }
     return info;
 }
@@ -629,7 +634,7 @@ void QQCommand::showWarningInfo(QString message)
 
 void QQCommand::downloadImage(int senderType, QUrl url, QString account, QString imageSize, QJSValue callbackFun)
 {
-    QString path = QQItemInfo::localCachePath ((QQItemInfoPrivate::QQItemType)senderType, userQQ(), account);
+    QString path = QQItemInfo::localCachePath ((QQItemInfo::QQItemType)senderType, userQQ(), account);
     //先获取此qq为account，类型为senderType的缓存目录，将此目录传给下载图片的函数。此图片下载完成就会存入此路径
     Utility::createUtilityClass ()->downloadImage (callbackFun, url, path, "avatar-"+imageSize);
 }
@@ -675,19 +680,19 @@ void QQCommand::updataCode()
 
 FriendInfo* QQCommand::createFriendInfo(const QString uin)
 {
-    FriendInfo* info = qobject_cast<FriendInfo*>(createQQItemInfo(uin, QQItemInfoPrivate::Friend));
+    FriendInfo* info = qobject_cast<FriendInfo*>(createQQItemInfo(uin, QQItemInfo::Friend));
     return info;
 }
 
 GroupInfo* QQCommand::createGroupInfo(const QString uin)
 {
-    GroupInfo* info = qobject_cast<GroupInfo*>(createQQItemInfo(uin, QQItemInfoPrivate::Group));
+    GroupInfo* info = qobject_cast<GroupInfo*>(createQQItemInfo(uin, QQItemInfo::Group));
     return info;
 }
 
 DiscuInfo* QQCommand::createDiscuInfo(const QString uin)
 {
-    DiscuInfo* info = qobject_cast<DiscuInfo*>(createQQItemInfo(uin, QQItemInfoPrivate::Discu));
+    DiscuInfo* info = qobject_cast<DiscuInfo*>(createQQItemInfo(uin, QQItemInfo::Discu));
     return info;
 }
 
@@ -705,7 +710,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
 {
     if(uin=="")
         return;
-    QString typeStr = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);//获取此类型的字符串表达形式
+    QString typeStr = QQItemInfo::typeToString ((QQItemInfo::QQItemType)senderType);//获取此类型的字符串表达形式
     
     if(map_chatPage.contains(typeStr+uin)){//如果已经存在
         emit activeChatPageChanged (map_chatPage[typeStr+uin]);//活跃的聊天Page改变为temp
@@ -742,7 +747,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
         item->setProperty ("myuin", uin);//设置他的uin
         item->setProperty ("type", senderType);//设置他的类型
         map_chatPage[typeStr+uin] = item;//储存聊天页面
-        QQItemInfo* item_info = createQQItemInfo (uin, (QQItemInfoPrivate::QQItemType)senderType);
+        QQItemInfo* item_info = createQQItemInfo (uin, (QQItemInfo::QQItemType)senderType);
         if(item_info!=NULL){
             item_info->stopClearChatRecordsTimer ();//停止清空聊天记录的定时器
         }
@@ -755,7 +760,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
 
 void QQCommand::removeChatPage(QString uin, int senderType)
 {
-    QQItemInfoPrivate::QQItemType type = (QQItemInfoPrivate::QQItemType)senderType;
+    QQItemInfo::QQItemType type = (QQItemInfo::QQItemType)senderType;
     QString typeStr = QQItemInfo::typeToString (type);//获取此类型的字符串表达形式
     QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
     if(item!=NULL){
@@ -810,7 +815,7 @@ void QQCommand::openSqlDatabase()
 
 /*void QQCommand::saveAlias(int type, QString uin, QString alias)
 {
-    QString name = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)type)+uin;
+    QString name = QQItemInfo::typeToString ((QQItemInfo::QQItemType)type)+uin;
     map_alias[name] = alias;
 }*/
 
@@ -819,7 +824,7 @@ void QQCommand::updataApi(const QString& content)
     qDebug()<<"更新api.js"<<content;
 }
 
-QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, QQItemInfoPrivate::QQItemType type)
+QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, QQItemInfo::QQItemType type)
 {
     QString typeString = QQItemInfo::typeToString (type);
     return createQQItemInfo (uin, typeString);
@@ -827,8 +832,19 @@ QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, QQItemInfoPrivate::Q
 
 bool QQCommand::isChatPageExist(const QString& uin, int senderType)
 {
-    QString typeStr = QQItemInfo::typeToString ((QQItemInfoPrivate::QQItemType)senderType);//获取此类型的字符串表达形式
+    QString typeStr = QQItemInfo::typeToString ((QQItemInfo::QQItemType)senderType);//获取此类型的字符串表达形式
     return map_chatPage.contains(typeStr+uin);
+}
+
+void QQCommand::addFriendUin(const QString &uin)
+{
+    friendsUin.append (uin+" ");
+    //qDebug()<<"增加好友uin:"+uin<<friendsUin;
+}
+
+bool QQCommand::isStranger(const QString &uin)
+{
+    return friendsUin.indexOf (uin)<0;
 }
 
 QString QQCommand::getHash()
