@@ -55,7 +55,7 @@ MyWindow{
     Text{
         anchors.centerIn: parent
         text: "已离线"
-        visible: myqq.userStatus == QQ.Offlineing
+        visible: myqq.state == QQ.Offlineing
     }
     Rectangle{
         anchors.fill: parent
@@ -93,7 +93,7 @@ MyWindow{
         }
         MainPanelPage{
             id: panel_page
-            visible: myqq.userStatus != QQ.Offlineing
+            visible: myqq.state != QQ.Offlineing
             anchors.top: image_minimize_icon.bottom
             anchors.topMargin: 10
             anchors.bottom: parent.bottom

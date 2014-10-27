@@ -257,6 +257,7 @@ MyWindow{
                     id: avatar
                     x:10
                     width:35
+                    grayscale: my.myinfo.state==FriendInfo.Offlineing
                     source: {
                         if(my!==null)
                             return my.myinfo.avatar40

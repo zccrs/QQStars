@@ -224,8 +224,8 @@ void DatabaseOperation::getDatas(const QString &tableName, int count, ChatMessag
     emit sql_getDatas (tableName, count, currentData, datas);
 }
 
-QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QQuickItem *parent):
-    QQuickItem(parent), m_mytype (type)
+QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QObject *parent):
+    QObject(parent), m_mytype (type)
 {
     m_uin = "";
     m_account = "";
@@ -247,8 +247,8 @@ QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QQuickItem *parent):
     queue_chatRecords = new ChatMessageInfoList;
 }
 
-QQItemInfo::QQItemInfo(QQuickItem *parent):
-    QQuickItem(parent)
+QQItemInfo::QQItemInfo(QObject *parent):
+    QObject(parent)
 {
     return;
 }
@@ -500,10 +500,13 @@ void QQItemInfo::setUnreadMessagesCount(int arg)
     }
 }
 
-FriendInfo::FriendInfo(QQuickItem *parent):
+FriendInfo::FriendInfo(QObject *parent):
     QQItemInfo(Friend, parent)
 {
     m_signature = "";
+    m_state = Online;
+    m_stateToString = "online";
+    
     connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::onSettingsChanged);
     //链接信号，处理settings对象改变的信号
     getChatRecordsing=false;//记录现在是否在请求获取聊天记录
@@ -520,6 +523,16 @@ FriendInfo::~FriendInfo()
 QString FriendInfo::QQSignature()
 {
     return m_signature;
+}
+
+FriendInfo::States FriendInfo::state() const
+{
+    return m_state;
+}
+
+QString FriendInfo::stateToString() const
+{
+    return m_stateToString;
 }
 
 void FriendInfo::onSettingsChanged()
@@ -586,6 +599,40 @@ QVariant FriendInfo::getChatRecords()
     return var_list;
 }
 
+void FriendInfo::setState(FriendInfo::States arg)
+{
+    if (m_state != arg) {
+        m_state = arg;
+        switch(arg)
+        {
+        case Online:
+            m_stateToString = "online";
+            break;
+        case Callme:
+            m_stateToString = "callme";
+            break;
+        case Away:
+            m_stateToString = "away";
+            break;
+        case Busy:
+            m_stateToString = "busy";
+            break;
+        case Silent:
+            m_stateToString = "silent";
+            break;
+        case Hidden:
+            m_stateToString = "hidden";
+            break;
+        case Offlineing:
+            m_stateToString = "offline";
+            break;
+        default:break;
+        }
+        emit stateChanged(arg);
+        emit stateToStringChanged (m_stateToString);
+    }
+}
+
 void FriendInfo::saveChatMessageToLocal(ChatMessageInfo* data)
 {
     if(account ()!=""){//qq账户（qq号码）一定不能为空，因为它是消息发送者的唯一标识
@@ -604,7 +651,7 @@ void FriendInfo::getLocalChatRecords(ChatMessageInfo *currentData, int count)
     }
 }
 
-GroupInfo::GroupInfo(QQuickItem *parent):
+GroupInfo::GroupInfo(QObject *parent):
     QQItemInfo(Group, parent)
 {
     m_code = "";
@@ -625,35 +672,35 @@ void GroupInfo::setCode(QString arg)
 }
 
 
-DiscuInfo::DiscuInfo(QQuickItem *parent):
+DiscuInfo::DiscuInfo(QObject *parent):
     QQItemInfo(Discu, parent)
 {
     
 }
 
 
-RecentInfo::RecentInfo(FriendInfo *info, QQuickItem *parent):
+RecentInfo::RecentInfo(FriendInfo *info, QObject *parent):
     QObject(parent)
 {
     setInfoData (info);
     setInfoToFriend (info);
 }
 
-RecentInfo::RecentInfo(GroupInfo *info, QQuickItem *parent):
+RecentInfo::RecentInfo(GroupInfo *info, QObject *parent):
     QObject(parent)
 {
     setInfoData (info);
     setInfoToGroup (info);
 }
 
-RecentInfo::RecentInfo(DiscuInfo *info, QQuickItem *parent):
+RecentInfo::RecentInfo(DiscuInfo *info, QObject *parent):
     QObject(parent)
 {
     setInfoData (info);
     setInfoToDiscu (info);
 }
 
-QQuickItem *RecentInfo::infoData() const
+QObject *RecentInfo::infoData() const
 {
     return m_infoData;
 }
@@ -697,7 +744,7 @@ void RecentInfo::setInfoToDiscu(DiscuInfo *arg)
     }
 }
 
-void RecentInfo::setInfoData(QQuickItem *info)
+void RecentInfo::setInfoData(QObject *info)
 {
     m_infoData = info;
     emit infoDataChanged ();

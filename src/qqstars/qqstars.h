@@ -15,15 +15,13 @@ class QQCommand : public FriendInfo
     Q_OBJECT
     Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged)
     Q_PROPERTY(QString userPassword READ userPassword WRITE setUserPassword NOTIFY userPasswordChanged)
-    Q_PROPERTY(QQStatus userStatus READ userStatus WRITE setUserStatus NOTIFY userStatusChanged)
-    Q_PROPERTY(QString userStatusToString READ userStatusToString NOTIFY userStatusToStringChanged FINAL)
     Q_PROPERTY(LoginStatus loginStatus READ loginStatus WRITE setLoginStatus NOTIFY loginStatusChanged)
     Q_PROPERTY(double windowScale READ windowScale WRITE setWindowScale NOTIFY windowScaleChanged)
     Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)//是否记住密码
     Q_PROPERTY(bool autoLogin READ autoLogin WRITE setAutoLogin NOTIFY autoLoginChanged)//是否自动登录
     Q_PROPERTY(QString codeText READ codeText CONSTANT)
     
-    Q_ENUMS(QQStatus)
+    Q_ENUMS(States)
     Q_ENUMS(LoginStatus)
     Q_ENUMS(SenderType)
     Q_ENUMS(MessageType)
@@ -35,15 +33,6 @@ public:
         LoginFinished//登录完成
     };
 
-    enum QQStatus{//登录后的用户的qq状态
-        Offlineing,//离线中
-        Online,//在线
-        Callme,//Q我吧
-        Away,//离开
-        Busy,//忙碌
-        Silent,//请勿打扰
-        Hidden//隐身
-    };
     enum SenderType{//发送消息的人的类型
         Friend,//好友
         Group,//群
@@ -70,7 +59,6 @@ public:
         GroupLeave//群T人的消息
     };
     
-    QString userStatusToString() const;
     LoginStatus loginStatus() const;
     QString userQQ() const;
     QString userPassword() const;
@@ -80,17 +68,13 @@ public:
     QString codeText() const;
     
 private slots:
-    void setStatusToString();//根据当前qq状态设置statusToString
     void beginPoll2();//启动心跳包
     void poll2Finished(QNetworkReply *replys);//qq心跳包获取完成时调用
     void initUserPassword();//初始化用户密码(从QSettings中)
     void onChatMainWindowClose();//接收主聊天窗口关闭的信号
+    void onSettingsChanged();//处理settings对象改变的信号
+    void onStateChanged();//当状态改变后调用，将状态存到本地
 private:
-    QQStatus qq_status;
-    QQStatus userStatus();
-    void setUserStatus( QQStatus new_status );
-
-    QString m_userStatusToString;//储存登录状态的string类型的数据
     LoginStatus m_loginStatus;//储存当前用户的登录状态
     QByteArray poll2_data;//post心跳包的数据
     NetworkAccessManager *manager;//储存管理心跳包网络请求的对象
@@ -137,8 +121,6 @@ private:
     QString friendsUin;//用来储存所有好友的uin，陌生人不存在这里，为判断一个uin是否为陌生人做支持
     //创建一个储存信息的对象，被createFriendInfo等调用
 signals:
-    void userStatusChanged();
-    void userStatusToStringChanged();
     void loginStatusChanged();
     void poll2ReData( QString data );
     void userQQChanged();

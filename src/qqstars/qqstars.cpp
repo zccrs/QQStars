@@ -7,11 +7,7 @@
 QQCommand::QQCommand(QQuickItem *parent) :
     FriendInfo(parent)
 {
-    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::rememberPasswordChanged);
-    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::autoLoginChanged);
-    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::userStatusChanged);
-    connect (this, &QQItemInfo::settingsChanged, this, &QQCommand::initUserPassword);
-    connect (this, &QQCommand::userStatusChanged, this, &QQCommand::setStatusToString);
+    connect (this, &FriendInfo::stateChanged, this, &QQCommand::onStateChanged);
     
     Utility *utility=Utility::createUtilityClass ();
     int temp1 = utility->value ("proxyType", QNetworkProxy::NoProxy).toInt ();
@@ -22,8 +18,9 @@ QQCommand::QQCommand(QQuickItem *parent) :
     utility->setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
     
     setUserQQ (utility->value ("mainqq","").toString ());
-    m_loginStatus = Offline;
-    m_windowScale = 1;
+
+    m_loginStatus = Offline;//当前为离线
+    m_windowScale = 1;//缺省窗口比例为1
     
     request = new QNetworkRequest;
     request->setUrl (QUrl("http://d.web2.qq.com/channel/poll2"));
@@ -38,11 +35,6 @@ QQCommand::QQCommand(QQuickItem *parent) :
     
     jsEngine = new QJSEngine();//此对象用来加载js文件（为qq提供api）
     loadApi ();//加载api的js文件
-}
-
-QString QQCommand::userStatusToString() const
-{
-    return m_userStatusToString;
 }
 
 QQCommand::LoginStatus QQCommand::loginStatus() const
@@ -85,36 +77,6 @@ QString QQCommand::codeText() const
         return code_window->property ("code").toString ();
     }
     return "";
-}
-
-void QQCommand::setStatusToString()
-{
-    switch(userStatus ())
-    {
-    case Online:
-        m_userStatusToString = "online";
-        break;
-    case Callme:
-        m_userStatusToString = "callme";
-        break;
-    case Away:
-        m_userStatusToString = "away";
-        break;
-    case Busy:
-        m_userStatusToString = "busy";
-        break;
-    case Silent:
-        m_userStatusToString = "silent";
-        break;
-    case Hidden:
-        m_userStatusToString = "hidden";
-        break;
-    case Offlineing:
-        m_userStatusToString = "offline";
-        break;
-    default:break;
-    }
-    emit userStatusToStringChanged ();
 }
 
 void QQCommand::beginPoll2()
@@ -223,19 +185,17 @@ void QQCommand::onChatMainWindowClose()//如果主聊天窗口关闭，那就销
     map_chatPage.clear ();//清空所有对象
 }
 
-QQCommand::QQStatus QQCommand::userStatus()
+void QQCommand::onSettingsChanged()
 {
-    if(isCanUseSetting())
-        return (QQStatus)mysettings->value ("QQStatus", (int)Online).toInt ();
-    return Online;
+    emit rememberPasswordChanged ();
+    emit autoLoginChanged ();
+    initUserPassword ();
+    setState ((States)mysettings->value ("myState", (int)Online).toInt ());//设置自己的状态
 }
 
-void QQCommand::setUserStatus(QQCommand::QQStatus new_status)
+void QQCommand::onStateChanged()
 {
-    if( isCanUseSetting()&&userStatus()!=qq_status ) {
-        mysettings->setValue ("QQStatus", (int)new_status);
-        emit userStatusChanged ();
-    }
+    mysettings->setValue ("myState", (int)state());
 }
 
 void QQCommand::loadApi()

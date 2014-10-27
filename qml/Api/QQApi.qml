@@ -34,8 +34,8 @@ QQ{
         clientid = getClientid()//设置clientid
     }
     
-    onUserStatusChanged: {
-        editUserStatus()//改变在线状态
+    onStateChanged: {
+        editUserState()//改变在线状态
     }
     
     function random(min,max){
@@ -107,7 +107,7 @@ QQ{
             var url = "http://d.web2.qq.com/channel/login2"
             ptwebqq = utility.getCookie("ptwebqq")//储存cookie
             list_hash = getHash()//储存hash
-            var data = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
+            var data = 'r={"status":"'+myqq.stateToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
             data = encodeURI(data)
             utility.httpPost(login2Finished, url, data)
         }
@@ -115,7 +115,7 @@ QQ{
     function reLogin(){//用于掉线后重新登录
         var url = "http://d.web2.qq.com/channel/login2"
         ptwebqq = utility.getCookie("ptwebqq")//储存cookie
-        var data = 'r={"status":"'+myqq.userStatusToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
+        var data = 'r={"status":"'+myqq.stateToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
         data = encodeURI(data)
         utility.httpPost(reLoginFinished, url, data, true)
     }
@@ -253,15 +253,15 @@ QQ{
         utility.httpGet(backFun, url)
     }
     
-    function editUserStatus(){
+    function editUserState(){
         if( loginStatus == QQ.LoginFinished ) {
-            var url = "http://d.web2.qq.com/channel/change_status2?newstatus="+myqq.userStatusToString+"&clientid="+clientid+"&psessionid="+loginReData.psessionid
-            utility.httpGet(editUserStatusFinished, url)
+            var url = "http://d.web2.qq.com/channel/change_status2?newstatus="+myqq.stateToString+"&clientid="+clientid+"&psessionid="+loginReData.psessionid
+            utility.httpGet(editUserStateFinished, url)
         }
     }
-    function editUserStatusFinished(error, data){
+    function editUserStateFinished(error, data){
         if(error){
-            editUserStatus()//再次请求
+            editUserState()//再次请求
             return
         }
 

@@ -31,21 +31,7 @@ Item{
                     x: -5/220*width
                     y: -6/64*height
                     source: "qrc:/images/inputBox1.svg"
-                    /*Rectangle{
-                        anchors.fill: parent
-                        color: "blue"
-                    }*/
                 }
-                /*Rectangle{
-                    visible: qqlistopen
-                    width: (root.width-14)
-                    height: (root.height/2)
-                    x:2
-                    y:6
-                    radius: 5
-                    color: "#F3F2F2"
-                }*/
-                
             }
         }
         onTextChanged: {
@@ -186,7 +172,7 @@ Item{
                     soft_keyboard_icon.isCloseing=false
                 }else if( soft_keyboard_icon.keyboardClose){
                     soft_keyboard_icon.keyboardClose=false
-                    var component = Qt.createComponent("SoftKeyboard.qml");
+                    var component = Qt.createComponent("../../Utility/KeyboardPage/SoftKeyboard.qml");
                     if (component.status == Component.Ready){
                         var sprite = component.createObject(input_password);
                         connections.target = sprite

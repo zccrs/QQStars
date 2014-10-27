@@ -93,7 +93,7 @@ public slots:
     //获取数据库中的count条数据，将获得的数据存入datas当中
 };
 
-class QQItemInfo:public QQuickItem
+class QQItemInfo:public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString userQQ READ userQQ WRITE setUserQQ NOTIFY userQQChanged)
@@ -112,14 +112,14 @@ class QQItemInfo:public QQuickItem
     friend class DiscuInfo;
     friend class RecentInfo;
 public:
-    explicit QQItemInfo(QQuickItem *parent=0);
+    explicit QQItemInfo(QObject *parent=0);
     enum QQItemType{
         Friend,//好友
         Group,//群
         Discu,//讨论组
     };
 private:
-    explicit QQItemInfo(QQItemType type, QQuickItem *parent=0);
+    explicit QQItemInfo(QQItemType type, QObject *parent=0);
     void initSettings();
     
 protected:
@@ -189,17 +189,35 @@ class FriendInfo:public  QQItemInfo
 {
     Q_OBJECT
     Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY qQSignatureChanged)//个性签名
-    
+    Q_PROPERTY(States state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(QString stateToString READ stateToString NOTIFY stateToStringChanged FINAL)
+    Q_ENUMS(States)
 public:
-    explicit FriendInfo(QQuickItem *parent=0);
+    explicit FriendInfo(QObject *parent=0);
     ~FriendInfo();
     QString QQSignature();
+    
+    enum States{//登录后的用户的qq状态
+        Offlineing,//离线中
+        Online,//在线
+        Callme,//Q我吧
+        Away,//离开
+        Busy,//忙碌
+        Silent,//请勿打扰
+        Hidden//隐身
+    };
+    States state() const;
+    QString stateToString() const;
+    
 private:
     QString m_signature;//用来储存个性签名
     DatabaseOperation *itemInfoPrivate;//里边定义了数据库的操作，用来储存聊天记录
     bool getChatRecordsing;//记录现在是否正在请求获取本地聊天记录
+    States m_state;
+    QString m_stateToString;
+protected slots:
+    virtual void onSettingsChanged();//处理settings对象改变的信号
 private slots:
-    void onSettingsChanged();//处理settings对象改变的信号
     void clearChatRecords();//清空聊天记录
 public slots:
     void setQQSignature(QString arg);
@@ -209,10 +227,13 @@ public slots:
     void saveChatMessageToLocal(ChatMessageInfo *data);//将此消息记录保存到到本地（保存到数据库中）
     void saveChatMessageToLocal();//将当前内存中的消息记录保存到到本地（保存到数据库中）
     QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
+    void setState(States arg);
 signals:
     void qQSignatureChanged();
     void httpGetQQSignature();//发送信号告诉qml端去获取个性签名
     void getLocalChatRecordsFinished(ChatMessageInfoList* datas);//如果从数据库获取多条聊天记录完成，qml端会接收此信号
+    void stateChanged(States arg);
+    void stateToStringChanged(QString arg);
 };
 
 class GroupInfo:public  QQItemInfo
@@ -222,7 +243,7 @@ class GroupInfo:public  QQItemInfo
     QString m_code;
     
 public:
-    explicit GroupInfo(QQuickItem *parent=0);
+    explicit GroupInfo(QObject *parent=0);
     QString code() const;
 public slots:
     void setCode(QString arg);
@@ -234,22 +255,22 @@ class DiscuInfo:public  QQItemInfo
 {
     Q_OBJECT
 public:
-    explicit DiscuInfo(QQuickItem *parent=0);
+    explicit DiscuInfo(QObject *parent=0);
 };
 
 class RecentInfo:public  QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QQuickItem* infoData READ infoData NOTIFY infoDataChanged FINAL)
+    Q_PROPERTY(QObject* infoData READ infoData NOTIFY infoDataChanged FINAL)
     Q_PROPERTY(FriendInfo* infoToFriend READ infoToFriend NOTIFY infoToFriendChanged FINAL)
     Q_PROPERTY(GroupInfo* infoToGroup READ infoToGroup NOTIFY infoToGroupChanged FINAL)
     Q_PROPERTY(DiscuInfo* infoToDiscu READ infoToDiscu NOTIFY infoToDiscuChanged FINAL)
 public:
     //explicit RecentInfo(QQuickItem *parent=0);
-    explicit RecentInfo(FriendInfo *info, QQuickItem *parent=0);
-    explicit RecentInfo(GroupInfo *info, QQuickItem *parent=0);
-    explicit RecentInfo(DiscuInfo *info, QQuickItem *parent=0);
-    QQuickItem* infoData() const;
+    explicit RecentInfo(FriendInfo *info, QObject *parent=0);
+    explicit RecentInfo(GroupInfo *info, QObject *parent=0);
+    explicit RecentInfo(DiscuInfo *info, QObject *parent=0);
+    QObject* infoData() const;
     FriendInfo* infoToFriend() const;
     GroupInfo* infoToGroup() const;
     DiscuInfo* infoToDiscu() const;
@@ -259,11 +280,11 @@ signals:
     void infoToGroupChanged(GroupInfo* arg);
     void infoToDiscuChanged(DiscuInfo* arg);
 private:
-    void setInfoData(QQuickItem* info);
+    void setInfoData(QObject* info);
     void setInfoToFriend(FriendInfo* arg);
     void setInfoToGroup(GroupInfo* arg);
     void setInfoToDiscu(DiscuInfo* arg);
-    QPointer<QQuickItem> m_infoData;
+    QPointer<QObject> m_infoData;
     QPointer<FriendInfo> m_infoToFriend;
     QPointer<GroupInfo> m_infoToGroup;
     QPointer<DiscuInfo> m_infoToDiscu;

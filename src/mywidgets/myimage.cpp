@@ -7,6 +7,8 @@ MyImage::MyImage(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
     m_cache = true;
+    m_grayscale = false;
+
     pixmap = new QPixmap;
     bitmap = new QBitmap;
     connect (this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
@@ -26,6 +28,27 @@ QUrl MyImage::maskSource() const
 bool MyImage::cache() const
 {
     return m_cache;
+}
+
+bool MyImage::grayscale() const
+{
+    return m_grayscale;
+}
+
+QImage MyImage::chromaticToGrayscale(const QImage &image)
+{
+    if(image.isGrayscale ())
+        return image;
+    QImage iGray(image.size (), QImage::Format_ARGB32_Premultiplied);
+    for(int i=0;i<image.width ();++i){
+        for(int j=0;j<image.height ();++j){
+            QRgb pixel = image.pixel(i,j);
+            pixel = qGray (pixel);
+            pixel = qRgb(pixel,pixel,pixel);            
+            iGray.setPixel (i,j,pixel);
+        }
+    }
+    return iGray;
 }
 
 void MyImage::onWidthChanged()
@@ -53,9 +76,12 @@ void MyImage::setSource(QUrl arg)
             str = arg.toString ();
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
-        //if(!m_cache)
-            //pixmap->load ("");
-        if( pixmap->load (str) ){
+        QImage image;
+        if( image.load (str)){
+            if(m_grayscale){//如果为黑白
+                image = chromaticToGrayscale(image);//转换为黑白图
+            }
+            *pixmap = QPixmap::fromImage (image);
             pixmap->setMask (bitmap->scaled (pixmap->size ()));
             setImplicitSize (pixmap->size ().width (), pixmap->size ().height ());//设置默认大小
             if( width()>0 )
@@ -66,7 +92,8 @@ void MyImage::setSource(QUrl arg)
         }else{
             emit loadError ();
         }
-        emit sourceChanged(arg);
+        if(m_source != arg)
+            emit sourceChanged(arg);
     }
 }
 
@@ -87,5 +114,17 @@ void MyImage::setCache(bool arg)
     if (m_cache != arg) {
         m_cache = arg;
         emit cacheChanged(arg);
+    }
+}
+
+void MyImage::setGrayscale(bool arg)
+{
+    if(m_grayscale!=arg){
+        m_grayscale = arg;
+        bool old_cache = cache ();
+        m_cache = false;
+        setSource (source ());
+        m_cache = old_cache;
+        emit grayscaleChanged(arg);
     }
 }

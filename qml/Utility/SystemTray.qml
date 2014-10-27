@@ -136,49 +136,49 @@ MySystemTrayIcon{
             text: "我在线上"
             icon: "qrc:/images/imonline.png"
             onTriggered: {
-                myqq.userStatus = QQ.Online
+                myqq.state = QQ.Online
             }
         }
         MyMenuItem{
             text: "Q我吧"
             icon: "qrc:/images/Qme.png"
             onTriggered: {
-                myqq.userStatus = QQ.Callme
+                myqq.state = QQ.Callme
             }
         }
         MyMenuItem{
             text: "离开"
             icon: "qrc:/images/away.png"
             onTriggered: {
-                myqq.userStatus = QQ.Away
+                myqq.state = QQ.Away
             }
         }
         MyMenuItem{
             text: "忙碌"
             icon: "qrc:/images/busy.png"
             onTriggered: {
-                myqq.userStatus = QQ.Busy
+                myqq.state = QQ.Busy
             }
         }
         MyMenuItem{
             text: "请勿打扰"
             icon: "qrc:/images/mute.png"
             onTriggered: {
-                myqq.userStatus = QQ.Silent
+                myqq.state = QQ.Silent
             }
         }
         MyMenuItem{
             text: "隐身"
             icon: "qrc:/images/invisible.png"
             onTriggered: {
-                myqq.userStatus = QQ.Hidden
+                myqq.state = QQ.Hidden
             }
         }
         MyMenuItem{
             text: "离线"
             icon: "qrc:/images/imoffline.png"
             onTriggered: {
-                myqq.userStatus = QQ.Offlineing
+                myqq.state = QQ.Offlineing
             }
         }
         MenuSeparator{}

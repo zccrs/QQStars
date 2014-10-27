@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import mywindow 1.0
 import QtQuick.Window 2.1
+import QtQuick.Particles 2.0
 
 MyQuickWindow{
     id: root
@@ -279,7 +280,37 @@ MyQuickWindow{
         cached: glow.cached
         visible: windowGlow&&(!root.windowActive)
     }
-    
+    ParticleSystem {//粒子系统
+        id: particles
+        anchors.centerIn: parent
+        width: root.actualWidth
+        height: root.actualHeight
+        //running: true
+        ImageParticle {
+            source: "qrc:/images/blueStar.png"
+            alpha: 0.2
+            alphaVariation: 0.1
+            colorVariation: 2
+            autoRotation: true
+            rotationVariation: 360
+            rotationVelocity: 30
+        }
+        Emitter {
+            id: pulseEmitter
+            anchors.centerIn: parent
+            emitRate: 20
+            lifeSpan: 4000
+            velocityFromMovement: 20
+            velocity: PointDirection { xVariation: 50; yVariation: 50;}
+            acceleration: PointDirection { xVariation:50; yVariation: 50;}
+            size: 20
+            sizeVariation: 10
+        }
+        Turbulence {// 最后添加一些气流效果  
+            anchors.fill: parent  
+            strength: 2  
+        }  
+    }
     MouseArea{
         id: mouse_main
         enabled: removable

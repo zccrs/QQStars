@@ -2,12 +2,14 @@ import QtQuick 2.2
 import utility 1.0
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
+import QtQuick.Particles 2.0
 import mywindow 1.0
 import "../../Utility"
 import "../"
 
 Item{
     property alias contentItem: effect
+    
     width: effect.actualWidth
     height: effect.actualHeight
     function reLogin(){
@@ -15,7 +17,7 @@ Item{
         animation_avatar.stop()//停止动画
         avatar_image.x = -30/77*avatar_image.width//将头像位置复原
     }
-
+    
     MyRectangularGlow{
         id: effect
         glowRadius: 50
@@ -28,7 +30,7 @@ Item{
        
         item:SvgView {
             id: root
-            source: "qrc:/images/login-panel.svg"
+            source: "qrc:/images/login-panel2.svg"
             width: defaultSize.width*myqq.windowScale
             
             Connections{
@@ -38,20 +40,43 @@ Item{
                         animation_avatar.start()
                 }
             }
-            
+            ParticleSystem {
+                id: particles
+                anchors.fill: parent
+                //running: true
+                ImageParticle {
+                    source: "qrc:/images/未标题-1.png"
+                }
+                Emitter {
+                    id: pulseEmitter
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 120
+                    emitRate: 10
+                    lifeSpan: 2000
+                    velocity: AngleDirection{
+                        magnitude: 35; 
+                        magnitudeVariation: 20
+                        angle: -90
+                        angleVariation: 45
+                    }
+                    size: 5
+                    sizeVariation: 20
+                }
+            }
             MyImage{
                 id:avatar_image
                 maskSource: "qrc:/images/bit.bmp"
                 width: 80*myqq.windowScale
-                source: myqq.avatar240//myqq.value("avatar-240", "qrc:/images/avatar.png")
+                source: myqq.avatar240
                 x:-30/80*width
                 anchors.verticalCenter: inputarea.verticalCenter
-
+                
                 onLoadError:{
                     console.log("头像加载出错:"+myqq.avatar240)
                     source = "qrc:/images/avatar.png"
                 }
-        
+                
                 SvgView{
                     id: rect_border
                     source: "qrc:/images/avatar-border.svg"
@@ -84,9 +109,9 @@ Item{
                     //sourceSize.width: width
                     //width: 5/16*avatar_image.width
                     enabled: myqq.loginStatus == QQ.Offline
-                    source: "qrc:/images/status-"+myqq.userStatusToString+"-1.svg"
+                    source: "qrc:/images/status-"+myqq.stateToString+"-1.svg"
                     MyMenu{
-                        id: menu_userStatus
+                        id: menu_state
                         styleSheet: "QMenu::item:selected {
                  background: #F07000;
                  color:#E6FFFF;
@@ -113,49 +138,49 @@ Item{
                             text: "我在线上"
                             icon: "qrc:/images/imonline.png"
                             onTriggered: {
-                                myqq.userStatus = QQ.Online
+                                myqq.state = QQ.Online
                             }
                         }
                         MyMenuItem{
                             text: "Q我吧"
                             icon: "qrc:/images/Qme.png"
                             onTriggered: {
-                                myqq.userStatus = QQ.Callme
+                                myqq.state = QQ.Callme
                             }
                         }
                         MyMenuItem{
                             text: "离开"
                             icon: "qrc:/images/away.png"
                             onTriggered: {
-                                myqq.userStatus = QQ.Away
+                                myqq.state = QQ.Away
                             }
                         }
                         MyMenuItem{
                             text: "忙碌"
                             icon: "qrc:/images/busy.png"
                             onTriggered: {
-                                myqq.userStatus = QQ.Busy
+                                myqq.state = QQ.Busy
                             }
                         }
                         MyMenuItem{
                             text: "请勿打扰"
                             icon: "qrc:/images/mute.png"
                             onTriggered: {
-                                myqq.userStatus = QQ.Silent
+                                myqq.state = QQ.Silent
                             }
                         }
                         MyMenuItem{
                             text: "隐身"
                             icon: "qrc:/images/invisible.png"
                             onTriggered: {
-                                myqq.userStatus = QQ.Hidden
+                                myqq.state = QQ.Hidden
                             }
                         }
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            menu_userStatus.popup()
+                            menu_state.popup()
                         }
                     }
                 }
@@ -240,10 +265,8 @@ Item{
             Connections{
                 target: myqq
                 onUserQQChanged:{
-                    //avatar_image.source = myqq.value("avatar-240", "qrc:/images/avatar.png")
                     checkbox_rememberpassword.checked = myqq.rememberPassword//myqq.value("rememberpassword", 0)==1
                     checkbox_autologin.checked = myqq.autoLogin//myqq.value("autologin", 0)==1
-                    //myqq.userStatus = Number(myqq.value("status", QQ.Online))//设置用户的登录状态
                 }
             }
             Item{
@@ -306,9 +329,6 @@ Item{
                             myqq.autoLogin = checkbox_autologin.checked
                             myqq.rememberPassword = checkbox_rememberpassword.checked
                             myqq.saveUserPassword()//保存密码
-                            //myqq.setValue("autologin", Number(checkbox_autologin.checked))
-                            //myqq.setValue("rememberpassword", Number(checkbox_rememberpassword.checked))
-                            //myqq.setValue("status", myqq.userStatus)//设置下次登录的状态
                             utility.setValue("mainqq", myqq.userQQ)//设置当前活动qq为myqq.userQQ
                         }
                     }else if( myqq.loginStatus == QQ.Logining ){
@@ -322,8 +342,6 @@ Item{
                 width: defaultSize.width*myqq.windowScale
                 source: "qrc:/images/button-settings.svg"
                 anchors.right: parent.right
-                //anchors.bottom: parent.bottom
-                //anchors.bottomMargin: defaultSize.height/250*root.height-height/2
                 anchors.verticalCenter: button_login.verticalCenter
                 visible: myqq.loginStatus == QQ.Offline
                 MouseArea{

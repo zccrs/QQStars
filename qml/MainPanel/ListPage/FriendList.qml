@@ -184,6 +184,7 @@ Item{
                 id: avatar
                 x:10
                 width:40
+                grayscale: myinfo.state==FriendInfo.Offlineing
                 maskSource: "qrc:/images/bit.bmp"
                 cache: false
                 source: myinfo.avatar40
