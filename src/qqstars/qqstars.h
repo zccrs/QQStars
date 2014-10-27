@@ -105,7 +105,7 @@ private:
     QMap<QString, QQItemInfo*> map_itemInfo;//储存每个好友或群讨论组的Info
     //QMap<QString, QString> map_alias;//储存备注名
     QPointer<MyWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
-    QQuickItem* mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
+    QPointer<QQuickItem> mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
     QMap<QString, QQuickItem*> map_chatPage;//储存备已经打开的聊天页面
     
     struct FontStyle{

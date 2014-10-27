@@ -6,6 +6,10 @@ import "../Utility"
 
 MyWindow{
     id: root
+    
+    property ChatPage currentShowPage//记录当前显示中的聊天页面
+    property int chatPageWidth: myqq.value("chatPageWidth", 600)//获取聊天页面的width, 初始化为600，聊天也的width
+    
     visible: true
     minimumHeight: 500
     minimumWidth: item_chatPage.minWidth+left_bar.width//设置最小宽度
@@ -42,8 +46,6 @@ MyWindow{
         else
             return "qrc:/images/avatar.png"
     }
-    property ChatPage currentShowPage//记录当前显示中的聊天页面
-    property int chatPageWidth: myqq.value("chatPageWidth", 600)//获取聊天页面的width, 初始化为600，聊天也的width
     
     function setCurrentShowPage(page){
         //console.log(page+","+currentShowPage)
@@ -59,13 +61,15 @@ MyWindow{
 
     Item{
         id: item_chatPage
+        
+        property int maxWidth: 99999
+        property int minWidth: 500
+        
         objectName: "ChatWindowCommandItem"
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: left_bar.right
         width: chatPageWidth
-        property int maxWidth: 99999
-        property int minWidth: 500
 
         function setPageWidth(arg){
             if(arg<=maxWidth&&arg>=minWidth){
@@ -87,33 +91,21 @@ MyWindow{
             setCurrentShowPage(item)//设置当前显示的页面为item
         }
     }
-    Rectangle{
-        anchors.left: left_bar.right
-        color: "#eee"
-        width: left_bar.radius
-        height: width
-        visible: left_bar.width>0
-    }
-    Rectangle{
-        anchors.bottom: left_bar.bottom
-        anchors.left: left_bar.right
-        color: "#eee"
-        width: left_bar.radius
-        height: width
-        visible: left_bar.width>0
-    }
     
     Rectangle{//用来管理当前聊天窗口内聊天页面的左栏
         id:left_bar
+        
+        property bool isOpen: false//记录此栏是否处于打开状态
+        property int maxWidth:200
+        property int minWidth:70
+        property int defaultWidth: myqq.value("chatWindowLeftBarWidth", 150)//获取上次储存的值
+        
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         color:"#ddd"
         radius:10
-        property bool isOpen: false//记录此栏是否处于打开状态
-        property int maxWidth:200
-        property int minWidth:70
-        property int defaultWidth: myqq.value("chatWindowLeftBarWidth", 150)//获取上次储存的值
+        
         onDefaultWidthChanged: {
             if(isOpen){//如果是打开状态
                 setBarWidth(defaultWidth)//如果默认宽度改变就设置此栏的当前width
@@ -121,14 +113,6 @@ MyWindow{
         }
         onWidthChanged: {
             root.width = width+chatPageWidth//设置窗口的大小
-        }
-
-        NumberAnimation{//动画控件
-            id: animation_width
-            target: left_bar
-            running: false
-            duration: 300
-            property: "width"
         }
 
         function openBar(){
@@ -168,7 +152,28 @@ MyWindow{
                 width = arg
             }
         }
-        
+        NumberAnimation{//动画控件
+            id: animation_width
+            target: left_bar
+            running: false
+            duration: 300
+            property: "width"
+        }
+        Rectangle{
+            anchors.right: parent.right
+            color: "#eee"
+            width: parent.radius
+            height: width
+            visible: parent.isOpen
+        }
+        Rectangle{
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            color: "#eee"
+            width: parent.radius
+            height: width
+            visible: parent.isOpen
+        }
         Rectangle{
             anchors.right: parent.right
             color: parent.color

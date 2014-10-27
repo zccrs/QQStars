@@ -141,7 +141,7 @@ Window{
                     anchors.fill: parent
                     onClicked: {
                         clearModel()//先清除所有数据
-                        root.closeWindow()//然后关闭窗口
+                        root.close()//然后关闭窗口
                     }
                 }
             }
@@ -156,7 +156,7 @@ Window{
                     onClicked: {
                         list.openAllChatPage()//发送信号
                         clearModel()//先清除所有数据
-                        root.closeWindow()//然后关闭窗口
+                        root.close()//然后关闭窗口
                     }
                 }
             }
@@ -170,7 +170,7 @@ Window{
             height: 40
             property var myinfo: sender_info
             function removeMe(){
-                root.closeWindow()//关闭窗口
+                root.close()//关闭窗口
                 removeModel(index)//清除自己
                 var temp_info = getLatestInfo()
                 if(temp_info!=null){

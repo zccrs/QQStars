@@ -742,7 +742,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
     QString qmlName = "./qml/Chat/"+typeStr+"ChatPage.qml";
     QQmlComponent component(engine, qmlName);
     QQuickItem *item = qobject_cast<QQuickItem*>(component.create ());//新建聊天页面
-    if(item){
+    if(item&&mainChatWindowCommand_item){
         item->setParentItem (mainChatWindowCommand_item);//设置聊天页面的父对象
         item->setProperty ("myuin", uin);//设置他的uin
         item->setProperty ("type", senderType);//设置他的类型
@@ -751,7 +751,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
         if(item_info!=NULL){
             item_info->stopClearChatRecordsTimer ();//停止清空聊天记录的定时器
         }
-        emit addChatPageToWindow (item);//发送信号告知qml
+        //emit addChatPageToWindow (item);//发送信号告知qml
     }else{
         qDebug()<<"创建"+qmlName+"出错";
     }
