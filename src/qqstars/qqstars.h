@@ -25,7 +25,10 @@ class QQCommand : public FriendInfo
     Q_ENUMS(LoginStatus)
     Q_ENUMS(SenderType)
     Q_ENUMS(MessageType)
+private:
+    static QQCommand *firstQQCommand;
 public:
+    static QQCommand *getFirstQQCommand();
     explicit QQCommand(QQuickItem *parent = 0);
     enum LoginStatus{//登录状态
         Offline,//离线
@@ -134,11 +137,10 @@ signals:
     void friendInputNotify(QString fromUin);//好友正在输入的信号
     void newMessage(QString fromUin, int type, ChatMessageInfo* info);//新的聊天消息信号,qml中的聊天页面会接收此消息
     void shakeWindow(QString fromUin);//窗口抖动信号
-    void friendStatusChanged(QString fromUin, QString newStatus);//好友状态改变的信号
+    //void friendStatusChanged(QString fromUin, QString newStatus);//好友状态改变的信号
     void addChatPageToWindow(QQuickItem* item);//增加聊天页面的信号,此信号被聊天页面所在的window接收
     void activeChatPageChanged(QQuickItem* item);//将item这个page变为活跃的page
-    
-    void getFriendListFinished();//获取好友列表完成，这个信号将被所有FriendInfo接收，然后判断自己是不是陌生人，是的话就去获取陌生人的资料
+    void addRecentContacts(QQItemInfo* info);//发送信号告诉qml的最近联系人列表添加item
 public slots:
     void setRememberPassword(bool arg);
     void setAutoLogin(bool arg);

@@ -30,7 +30,7 @@ class Utility : public QObject
 {
     Q_OBJECT
 public:
-    static Utility *createUtilityClass(  );
+    static Utility *createUtilityClass();
     
 private:
     explicit Utility(QObject *parent = 0);

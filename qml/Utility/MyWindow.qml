@@ -306,10 +306,6 @@ MyQuickWindow{
             size: 20
             sizeVariation: 10
         }
-        Turbulence {// 最后添加一些气流效果  
-            anchors.fill: parent  
-            strength: 2  
-        }  
     }
     MouseArea{
         id: mouse_main

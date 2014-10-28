@@ -4,9 +4,18 @@
 #include <QSettings>
 #include "mywindow.h"
 
+QQCommand *QQCommand::firstQQCommand = NULL;
+QQCommand *QQCommand::getFirstQQCommand()
+{
+    return firstQQCommand;
+}
+
 QQCommand::QQCommand(QQuickItem *parent) :
     FriendInfo(parent)
 {
+    if(firstQQCommand==NULL)
+        firstQQCommand = this;
+    
     connect (this, &FriendInfo::stateChanged, this, &QQCommand::onStateChanged);
     
     Utility *utility=Utility::createUtilityClass ();
@@ -18,8 +27,7 @@ QQCommand::QQCommand(QQuickItem *parent) :
     utility->setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
     
     setUserQQ (utility->value ("mainqq","").toString ());
-
-    m_loginStatus = Offline;//当前为离线
+    m_loginStatus = Offline;//当前为离线(还未登录)
     m_windowScale = 1;//缺省窗口比例为1
     
     request = new QNetworkRequest;
@@ -280,10 +288,8 @@ void QQCommand::disposeFriendStatusChanged(QJsonObject &obj)
     QString uin = doubleToString (obj, "uin");
     QString status = obj["status"].toString ();
     //int client_type = obj["client_type"].toInt ();
-    
-    emit friendStatusChanged (uin, status);
-    //qDebug()<<"是好友状态改变的信息"<<getValue (uin+"nick", uin).toString ()<<"状态改变为"<<status<<"客户端类型:"<<client_type;
-    //emit messageArrive (SystemMessage, uin, "{\"type\":"+QString::number (FriendStatusChanged)+",\"status\":\""+status+"\"}");
+    //emit friendStatusChanged (uin, status);
+    createFriendInfo (uin)->setStateToString (status);//设置好友状态
 }
 
 void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType type)
@@ -307,10 +313,7 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        if(!isChatPageExist(from_uin, QQItemInfo::Friend)){//如果聊天页面不存在
-            info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
-            //增加未读消息的个数
-        }
+        
         //qDebug()<<"收到了好友消息："<<data;
         emit newMessage (from_uin, (int)QQItemInfo::Friend, message_info);
         break;
@@ -364,10 +367,6 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        if(!isChatPageExist(from_uin, QQItemInfo::Group)){//如果聊天页面不存在
-            info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
-            //增加未读消息的个数
-        }
         emit newMessage (from_uin, (int)QQItemInfo::Group, message_info);
         break;
     }
@@ -399,10 +398,6 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
-        if(!isChatPageExist(did, QQItemInfo::Discu)){//如果聊天页面不存在
-            info->setUnreadMessagesCount (info->unreadMessagesCount ()+1);
-            //增加未读消息的个数
-        }
         emit newMessage (did, (int)QQItemInfo::Discu, message_info);
         break;
     }
@@ -711,7 +706,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
         if(item_info!=NULL){
             item_info->stopClearChatRecordsTimer ();//停止清空聊天记录的定时器
         }
-        //emit addChatPageToWindow (item);//发送信号告知qml
+        emit addChatPageToWindow (item);//发送信号告知qml增加了聊天页
     }else{
         qDebug()<<"创建"+qmlName+"出错";
     }
@@ -725,7 +720,6 @@ void QQCommand::removeChatPage(QString uin, int senderType)
     QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
     if(item!=NULL){
         item->deleteLater ();//销毁此对象
-        map_chatPage.remove (typeStr+uin);//如果对象已经为空则移除此对象
         QQItemInfo* item_info = createQQItemInfo (uin, type);
         if(item_info!=NULL){
             item_info->startClearChatRecordsTimer ();//启动清空聊天记录的定时器
@@ -734,6 +728,7 @@ void QQCommand::removeChatPage(QString uin, int senderType)
     }else{
         qDebug()<<typeStr+uin<<"page已经为NULL";
     }
+    map_chatPage.remove (typeStr+uin);//移除此对象
     //qDebug()<<item;
     foreach (QQuickItem *temp, map_chatPage) {//改变当前活跃页面为首先找到的第一个不为空的chatPage
         if(temp){

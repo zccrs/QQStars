@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
+import QQItemInfo 1.0
 import "../"
 import "../../QQItemInfo"
 import "../../Utility"
@@ -21,14 +22,31 @@ Item{
         if( data.retcode==0 ) {
             data = data.result
             for(var i=0;i<data.length;++i){
-                addModel(data[i])//添加最近联系人
+                var info
+                switch(data[i].type) {
+                case 0://0为好友
+                    info=myqq.createFriendInfo(data[i].uin)
+                    break
+                case 1://1为群
+                    info=myqq.createGroupInfo(data[i].uin)
+                    break
+                case 2://2为讨论组
+                    info=myqq.createDiscuInfo(data[i].uin)
+                    break
+                default:break
+                }
+                mymodel.addEnd(info)//添加最近联系人
             }
         }
     }
-    function addModel( info ){
-        mymodel.append({"obj_info": info})
-    }
     
+    Connections{
+        target: myqq
+        onAddRecentContacts:{//收到增加最近联系人的信号
+            mymodel.addBegin(info)
+        }
+    }
+
     MyScrollView{
         anchors.fill: parent
         Item{
@@ -39,12 +57,30 @@ Item{
             
             ListView{
                id: list
+               
                anchors.fill: parent
                interactive: false
                model: ListModel{
                    id:mymodel
+                   function addEnd(item_info){
+                       for(var i=0; i<mymodel.count; ++i)
+                           if(mymodel.get(i).obj_info == item_info){
+                               return
+                           }
+                       mymodel.append({"obj_info": item_info})
+                   }
+
+                   function addBegin(item_info){//判断一个对象是否存在于list中，是的话返回他的index
+                       for(var i=0; i<mymodel.count; ++i)
+                           //console.debug(mymodel.get(i).obj_info+","+item_info)
+                           if(mymodel.get(i).obj_info == item_info){
+                               mymodel.move(i,0,1)
+                               return
+                           }
+                       mymodel.append({"obj_info": item_info})
+                   }
                }
-               spacing :10
+               //spacing :10
                delegate: component
             }
         }
@@ -52,29 +88,31 @@ Item{
     Component{
         id: component
         Item{
-            width: parent.width
-            height: avatar.height
-            property var myinfo: {
-                switch(obj_info.type) {
-                case 0://0为好友
-                    return myqq.createFriendInfo(obj_info.uin)
-                case 1://1为群
-                    return myqq.createGroupInfo(obj_info.uin)
-                case 2://2为讨论组
-                    return myqq.createDiscuInfo(obj_info.uin)
-                }
-            }
+            id: item_root
+            property QQItemInfo myinfo: obj_info
             
+            width: parent.width
+            height: avatar.height+16
+            
+
             MyImage{
                 id: avatar
                 x:10
                 width:40
+                anchors.verticalCenter: parent.verticalCenter
                 cache: false
+                grayscale: myinfo.mytype == QQItemInfo.Friend&&myinfo.state==FriendInfo.Offlineing//是否为黑白图
                 maskSource: "qrc:/images/bit.bmp"
-                source: myinfo.avatar40//myqq.value(info.uin+"avatar-40", "qrc:/images/avatar.png")
+                source: myinfo.avatar40
                 onLoadError: {
                     myinfo.avatar40 = "qrc:/images/avatar.png"
                 }
+                
+                /*Image{
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                    source: myinfo.mytype == QQItemInfo.Friend?"qrc:/images/im"+myinfo.stateToString+".png":""
+                }*/
             }
             Text{
                 id:text_nick
@@ -84,10 +122,40 @@ Item{
                 font.pointSize: 14
                 text: myinfo.aliasOrNick
             }
+            Rectangle{
+                id: rect_message_count
+                width: text_message_count.implicitWidth+10
+                height: text_message_count.implicitHeight+10
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.rightMargin: 15
+                anchors.bottomMargin: 5
+                color: "red"
+                radius: height
+                visible: myinfo.unreadMessagesCount>0
+                Text{
+                    id: text_message_count
+                    anchors.centerIn: parent
+                    text: myinfo.unreadMessagesCount//未读消息的个数
+                    color: "white"
+                    onTextChanged: {
+                        if(text == "100"){
+                            text = "99+"
+                        }
+                    }
+                }
+            }
+            Rectangle{
+                height: 1
+                anchors.left: avatar.left
+                anchors.right: rect_message_count.right
+                anchors.bottom: parent.bottom
+                color: "#ddd"
+            }
+
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    //console.log("双击了最近联系人")
                     myqq.addChatPage(myinfo.uin, myinfo.mytype)
                 }
             }

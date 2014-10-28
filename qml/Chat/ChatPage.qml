@@ -14,7 +14,7 @@ Item{
     property alias rightBar: right_bar
     property alias inputBox: input
     property alias listModel: mymodel
-    property var myinfo//用来储存自己的各种信息（用uin标识）
+    property QQItemInfo myinfo//用来储存自己的各种信息（用uin标识）
     onMyinfoChanged: {
         if(myinfo){//从缓冲区中读取数据
             var message_list = myinfo.getChatRecords()//获取内存中的所有聊天记录

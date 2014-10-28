@@ -29,7 +29,10 @@ Item{
 
             var list_info = data.result.gnamelist
             for( i=0; i< list_info.length;++i ) {
-                mymodel.append({"obj_info": list_info[i]})
+                var info = myqq.createGroupInfo(list_info[i].gid)
+                info.nick = list_info[i].name
+                info.code = list_info[i].code
+                mymodel.append({"obj_info": info})
             }
         }
     }
@@ -62,11 +65,7 @@ Item{
             id: item_root
             width: parent.width
             height: avatar.height
-            property var myinfo: myqq.createGroupInfo(obj_info.gid)
-            Component.onCompleted: {
-                myinfo.code = obj_info.code
-                myinfo.nick = obj_info.name
-            }
+            property var myinfo: obj_info
 
             MyImage{
                 id: avatar

@@ -22,6 +22,8 @@ MyWindow{
     noNotifyIcon:false//隐藏任务栏图标
     color: "transparent"
     windowGlowItem.color: "black"//"#f07000"
+    windowIcon: currentShowPage?currentShowPage.myinfo.avatar40:"qrc:/images/avatar.png"
+    
     setLeftBorder: function(arg){
         if(left_bar.isOpen&&left_bar.setBarDefaultWidth(left_bar.defaultWidth+arg)){//如果窗口大小设置成功
             root.mySetLeftBorder(arg)//设置窗口位置
@@ -40,22 +42,18 @@ MyWindow{
         if(visible)
             root.showFront()//显示到最屏幕最前端
     }
-    windowIcon: {
-        if(currentShowPage)
-            return currentShowPage.myinfo.avatar40
-        else
-            return "qrc:/images/avatar.png"
-    }
+    
     
     function setCurrentShowPage(page){
         //console.log(page+","+currentShowPage)
         if(currentShowPage!==page&&page){//判断是否page就是当前活动页面
+            page.myinfo.isActiveChatPage=true//将他信息中是否为活跃页面的属性设置为true
             page.visible = true
-            if(currentShowPage)
+            if(currentShowPage){
                 currentShowPage.visible = false//先将旧的page设置为隐藏
+                currentShowPage.myinfo.isActiveChatPage=false//将他信息中是否为活跃页面的属性设置为false
+            }
             currentShowPage = page//
-            currentShowPage.myinfo.unreadMessagesCount = 0//将未读消息的条数设为0
-            //console.log(page+","+currentShowPage)
         }
     }
 
@@ -78,6 +76,22 @@ MyWindow{
             }else{
                 return false
             }
+        }
+        
+        Rectangle{
+            anchors.left: parent.left
+            color: "#eee"
+            width: 10
+            height: width
+            visible: left_bar.width>0
+        }
+        Rectangle{
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            color: "#eee"
+            width: 10
+            height: width
+            visible: left_bar.width>0
         }
     }
     Connections{
@@ -105,6 +119,7 @@ MyWindow{
         anchors.bottom: parent.bottom
         color:"#ddd"
         radius:10
+        clip: true
         
         onDefaultWidthChanged: {
             if(isOpen){//如果是打开状态
@@ -161,33 +176,18 @@ MyWindow{
         }
         Rectangle{
             anchors.right: parent.right
-            color: "#eee"
+            color: left_bar.color
             width: parent.radius
             height: width
-            visible: parent.isOpen
+            visible: parent.width>0
         }
         Rectangle{
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            color: "#eee"
+            color: left_bar.color
             width: parent.radius
             height: width
-            visible: parent.isOpen
-        }
-        Rectangle{
-            anchors.right: parent.right
-            color: parent.color
-            width: parent.radius
-            height: width
-            visible: left_bar.width>0
-        }
-        Rectangle{
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            color: parent.color
-            width: parent.radius
-            height: width
-            visible: left_bar.width>0
+            visible: parent.width>0
         }
 
         MyScrollView{
@@ -257,7 +257,12 @@ MyWindow{
                     id: avatar
                     x:10
                     width:35
-                    grayscale: my.myinfo.state==FriendInfo.Offlineing
+                    grayscale: {
+                        if(my)
+                            return my.myinfo.state == FriendInfo.Offlineing
+                        return false
+                    }
+
                     source: {
                         if(my!==null)
                             return my.myinfo.avatar40
@@ -273,12 +278,7 @@ MyWindow{
                     anchors.left: avatar.right
                     anchors.leftMargin: 10
                     //font.pointSize: 14
-                    text: {
-                        if(my!=null)
-                            return my.myinfo.aliasOrNick
-                        else
-                            return ""
-                    }
+                    text: my?my.myinfo.aliasOrNick:""
                 }
                 Rectangle{
                     width: image_clost_page.width+16
@@ -288,6 +288,27 @@ MyWindow{
                     radius: 5
                     opacity: 0.75
                     visible: image_clost_page.visible&&root.currentShowPage!=my
+                }
+                Rectangle{
+                    width: text_message_count.implicitWidth+10
+                    height: image_clost_page.width
+                    anchors.right: rect_hover.right
+                    anchors.rightMargin: 5
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: "red"
+                    radius: height
+                    visible: my?my.myinfo.unreadMessagesCount>0:false
+                    Text{
+                        id: text_message_count
+                        anchors.centerIn: parent
+                        text: my?my.myinfo.unreadMessagesCount:"0"//未读消息的个数
+                        color: "white"
+                        onTextChanged: {
+                            if(text == "100"){
+                                text = "99+"
+                            }
+                        }
+                    }
                 }
                 SvgView{
                     id:image_clost_page

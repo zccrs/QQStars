@@ -5,13 +5,14 @@ import QQItemInfo 1.0
 
 MySystemTrayIcon{
     id: root
+    property QQItemInfo currentInfo//当前最新消息的发送人的信息
+    property bool hovered: false//鼠标是否悬浮在托盘上空
+    property TrayMessageWindow trayMessageWindow
+    signal triggered(var arg)
+    
     visible: true
     windowIcon: "qrc:/images/avatar.png"
     menu: myqq.loginStatus == QQ.LoginFinished?menu2:menu1
-    property var currentInfo//当前最新消息的发送人的信息
-    signal triggered(var arg)
-    property bool hovered: false//鼠标是否悬浮在托盘上空
-    property TrayMessageWindow trayMessageWindow
     
     toolTip: {
         if( myqq.loginStatus == QQ.LoginFinished ){
@@ -20,19 +21,30 @@ MySystemTrayIcon{
             return "星辰QQ"
     }
     
-    Component.onCompleted: {
-        var component = Qt.createComponent("TrayMessageWindow.qml");
-        if (component.status == Component.Ready){
-            trayMessageWindow = component.createObject(null, {});
-        }
-    }
-
     function iconShakeStart(){//开启图标闪动
         timer_shake.start()
     }
     function iconShakeStop(){//停止鼠标闪动
         timer_shake.stop()
         windowIcon = "qrc:/images/avatar.png"
+    }
+    
+    onCurrentInfoChanged: {
+        if(timer_shake.running)
+            windowIcon = currentInfo.avatar40//设置图标
+    }
+    Connections{
+        target: timer_shake.running?currentInfo:null
+        onAvatar40Changed:{
+            windowIcon = currentInfo.avatar40//设置图标
+        }
+    }
+
+    Component.onCompleted: {
+        var component = Qt.createComponent("TrayMessageWindow.qml");
+        if (component.status == Component.Ready){
+            trayMessageWindow = component.createObject(null, {});
+        }
     }
     
     onMessageClicked:{
@@ -52,7 +64,6 @@ MySystemTrayIcon{
         }
         onSetCurrentInfo:{
             currentInfo = info
-            root.windowIcon = currentInfo.avatar40//设置图标
         }
     }
 
@@ -82,19 +93,17 @@ MySystemTrayIcon{
         target: myqq
         onNewMessage:{
             if(!myqq.isChatPageExist(fromUin, type)){//判断聊天页面是否存在，如果存在的话 不用提示新消息
+                //console.debug("收到了新的未读消息："+currentInfo)
                 if(type==QQItemInfo.Friend){//如果是qq消息
                     currentInfo = myqq.createFriendInfo(fromUin)
-                    //root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
                 }else if(type==QQItemInfo.Group){//如果是群消息
                     currentInfo = myqq.createGroupInfo(fromUin)
-                    //root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
                 }else if(type==QQItemInfo.Discu){//如果是讨论组消息
                     currentInfo = myqq.createDiscuInfo(fromUin)
-                    //root.showMessage("来自："+currentInfo.aliasOrNick+"的消息", info.contentData)
                 }
-                root.windowIcon = currentInfo.avatar40
                 trayMessageWindow.appendModel(currentInfo)
                 iconShakeStart()//开始闪动
+                //console.debug(currentInfo)
             }
         }
     }

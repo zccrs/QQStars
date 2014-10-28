@@ -309,4 +309,8 @@ QQ{
         var url = "http://s.web2.qq.com/api/get_group_info_ext2?gcode="+gcode+"&cb=undefined&vfwebqq="+loginReData.vfwebqq
         utility.httpGet(callbackFun, url, true)
     }
+    function getOnlineFriends(callbackFun){//获取在线好友列表
+        var url = "http://d.web2.qq.com/channel/get_online_buddies2?clientid="+clientid+"&psessionid="+loginReData.psessionid
+        utility.httpGet(callbackFun, url, true)
+    }
 }

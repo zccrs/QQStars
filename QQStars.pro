@@ -101,7 +101,6 @@ OTHER_FILES += \
     qml/Chat/GroupChatPage.qml \
     qml/Chat/DiscuChatPage.qml \
     qml/Chat/ChatPage.qml \
-    qml/Utility/TrayMessageWindow.qml \
-    qml/Utility/ImageColorCleaner.qml
+    qml/Utility/TrayMessageWindow.qml
             
 FORMS +=

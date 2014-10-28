@@ -9,7 +9,7 @@ Component{
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
         property var myinfo: myqq.createFriendInfo(uin)
         property string sendUin: send_uin//将此消息发送给谁
-        property var parentInfo: parent_info//如果消息发送成功就回调此函数
+        property QQItemInfo parentInfo: parent_info//消息属主的info
         
         property var sendMessage: {
             if(!parentInfo)

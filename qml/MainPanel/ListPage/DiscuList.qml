@@ -18,7 +18,9 @@ Item{
         if(data.retcode ==0 ) {
             var list_info = data.result.dnamelist
             for( var i=0; i< list_info.length;++i ) {
-                mymodel.append({"obj_info": list_info[i]})
+                var info = myqq.createDiscuInfo(list_info[i].did) 
+                info.nick = list_info[i].name//设置昵称
+                mymodel.append({"obj_info": info})
             }
         }
     }
@@ -51,10 +53,7 @@ Item{
             id: item_root
             width: parent.width
             height: avatar.height
-            property var myinfo: myqq.createDiscuInfo(obj_info.did) 
-            Component.onCompleted: {
-                myinfo.nick = obj_info.name
-            }
+            property DiscuInfo myinfo: obj_info
 
             MyImage{
                 id: avatar

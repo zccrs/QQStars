@@ -1,5 +1,6 @@
 #include "qqiteminfo.h"
 #include "utility.h"
+#include "qqstars.h"
 
 QString ChatMessageInfo::senderUin() const
 {
@@ -239,6 +240,7 @@ QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QObject *parent):
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar240Changed);
     connect (this, &QQItemInfo::nickChanged, this, &QQItemInfo::updataAliasOrNick);
     connect (this, &QQItemInfo::aliasChanged, this, &QQItemInfo::updataAliasOrNick);
+    connect (this, &QQItemInfo::isActiveChatPageChanged, this, &QQItemInfo::clearUnreadMessages);
     
     m_timer.setSingleShot (true);//设为单发射器
     connect (&m_timer, &QTimer::timeout, this, &QQItemInfo::clearChatRecords);
@@ -247,8 +249,7 @@ QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QObject *parent):
     queue_chatRecords = new ChatMessageInfoList;
 }
 
-QQItemInfo::QQItemInfo(QObject *parent):
-    QObject(parent)
+QQItemInfo::QQItemInfo(QObject *)
 {
     return;
 }
@@ -362,6 +363,11 @@ int QQItemInfo::unreadMessagesCount() const
     return m_unreadMessagesCount;
 }
 
+bool QQItemInfo::isActiveChatPage() const
+{
+    return m_isActiveChatPage;
+}
+
 QString QQItemInfo::account() const
 {
     return m_account;
@@ -374,6 +380,7 @@ void QQItemInfo::setUin(QString arg)
         if(mytype ()==Discu)//如果是讨论组
             setAccount (arg);//讨论组无真实qq，所以用uin充当
         emit uinChanged ();
+        setIsActiveChatPage (false);//默认为false
     }
 }
 
@@ -464,14 +471,9 @@ QVariant QQItemInfo::getChatRecords()
         }
     }
     queue_chatRecords->clear ();//清空所有聊天记录
-    //qDebug()<<"调用了QQItemInfo中的获取所有聊天记录，条数为："<<var_list.size ()<<var_list;
+    clearUnreadMessages();//将未读消息清空
     return var_list;
 }
-
-/*const ChatMessageInfoList *QQItemInfo::getChatRecordsList()
-{
-    return queue_chatRecords;
-}*/
 
 void QQItemInfo::addChatRecord(ChatMessageInfo *data)
 {
@@ -479,6 +481,12 @@ void QQItemInfo::addChatRecord(ChatMessageInfo *data)
         stopClearChatRecordsTimer ();//停止定时器，不然如果消息是一条未读消息的话定时器触发就会删除此消息
         queue_chatRecords->append (data);//将此条记录加到队列当中
         //qDebug()<<"现在缓冲区中消息的条数为："<<queue_chatRecords->size ();
+        QQCommand* command = QQCommand::getFirstQQCommand ();
+        if(data->senderUin ()!=command->uin ()&&!isActiveChatPage ()){
+            //如果发送人不是自己，并且聊天页面不是活跃的，//增加未读消息的个数
+            setUnreadMessagesCount (unreadMessagesCount ()+1);
+        }
+        command->addRecentContacts (this);//将自己添加到最近联系人列表
     }
 }
 
@@ -490,6 +498,19 @@ void QQItemInfo::startClearChatRecordsTimer()
 void QQItemInfo::stopClearChatRecordsTimer()
 {
     m_timer.stop ();//停止定时器
+}
+
+void QQItemInfo::clearUnreadMessages()
+{
+    setUnreadMessagesCount (0);
+}
+
+void QQItemInfo::setIsActiveChatPage(bool arg)
+{
+    if (m_isActiveChatPage != arg) {
+        m_isActiveChatPage = arg;
+        emit isActiveChatPageChanged(arg);
+    }
 }
 
 void QQItemInfo::setUnreadMessagesCount(int arg)
@@ -504,8 +525,8 @@ FriendInfo::FriendInfo(QObject *parent):
     QQItemInfo(Friend, parent)
 {
     m_signature = "";
-    m_state = Online;
-    m_stateToString = "online";
+    m_state = Offlineing;
+    m_stateToString = "offline";
     
     connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::onSettingsChanged);
     //链接信号，处理settings对象改变的信号
@@ -596,6 +617,7 @@ QVariant FriendInfo::getChatRecords()
         }
     }
     saveChatMessageToLocal ();//先将聊天记录保存到数据库，储存完毕后数据库会自动清除数据
+    clearUnreadMessages();//将未读消息清空
     return var_list;
 }
 
@@ -630,6 +652,27 @@ void FriendInfo::setState(FriendInfo::States arg)
         }
         emit stateChanged(arg);
         emit stateToStringChanged (m_stateToString);
+    }
+}
+
+void FriendInfo::setStateToString(const QString &str)
+{
+    if(str!=m_stateToString){
+        if(str=="online"){
+            setState (Online);
+        }else if(str=="callme"){
+            setState (Callme);
+        }else if(str=="away"){
+            setState (Away);
+        }else if(str=="busy"){
+            setState (Busy);
+        }else if(str=="silent"){
+            setState (Silent);
+        }else if(str=="hidden"){
+            setState (Hidden);
+        }else if(str=="offline"){
+            setState (Offlineing);
+        }
     }
 }
 

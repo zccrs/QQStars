@@ -69,6 +69,6 @@ int main(int argc, char *argv[])
 #endif
     engine->rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     engine->load(QUrl(QStringLiteral("qml/Login/main.qml")));
-
+    
     return app.exec();
 }

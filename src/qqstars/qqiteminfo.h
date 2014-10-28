@@ -104,8 +104,10 @@ class QQItemInfo:public QObject
     Q_PROPERTY(QString avatar40 READ avatar40 WRITE setAvatar40 NOTIFY avatar40Changed)
     Q_PROPERTY(QString avatar240 READ avatar240 WRITE setAvatar240 NOTIFY avatar240Changed)
     Q_PROPERTY(QString account READ account WRITE setAccount NOTIFY accountChanged)
-    Q_PROPERTY(int unreadMessagesCount READ unreadMessagesCount WRITE setUnreadMessagesCount NOTIFY unreadMessagesCountChanged)//未读消息的条数
+    Q_PROPERTY(int unreadMessagesCount READ unreadMessagesCount NOTIFY unreadMessagesCountChanged FINAL)//未读消息的条数
     Q_PROPERTY(QQItemType mytype READ mytype NOTIFY mytypeChanged FINAL)
+    Q_PROPERTY(bool isActiveChatPage READ isActiveChatPage WRITE setIsActiveChatPage NOTIFY isActiveChatPageChanged)
+    
     Q_ENUMS(QQItemType)
     friend class FriendInfo;
     friend class GroupInfo;
@@ -121,6 +123,8 @@ public:
 private:
     explicit QQItemInfo(QQItemType type, QObject *parent=0);
     void initSettings();
+    void setUnreadMessagesCount(int arg);//设置未读消息的个数
+    bool m_isActiveChatPage;
     
 protected:
     QString m_uin;//uin，为此qq的唯一标识
@@ -153,8 +157,11 @@ public:
     QString typeToString();
     QQItemType mytype() const;
     int unreadMessagesCount() const;
+    bool isActiveChatPage() const;
+    
 private slots:
     void updataAliasOrNick();
+    void clearUnreadMessages();//清空未读消息
 public slots:
     void setUin(QString arg);
     void setNick(QString arg);
@@ -170,7 +177,8 @@ public slots:
     void addChatRecord(ChatMessageInfo *data);//增加聊天记录，记录在内存当中
     void startClearChatRecordsTimer();//启动清空聊天记录的定时器
     void stopClearChatRecordsTimer();//停止情况聊天记录的定时器
-    void setUnreadMessagesCount(int arg);
+    void setIsActiveChatPage(bool arg);
+    
 signals:
     void nickChanged();
     void aliasChanged();
@@ -183,6 +191,7 @@ signals:
     void settingsChanged();
     void mytypeChanged(QQItemType arg);
     void unreadMessagesCountChanged(int arg);
+    void isActiveChatPageChanged(bool arg);
 };
 
 class FriendInfo:public  QQItemInfo
@@ -190,7 +199,7 @@ class FriendInfo:public  QQItemInfo
     Q_OBJECT
     Q_PROPERTY(QString QQSignature READ QQSignature WRITE setQQSignature NOTIFY qQSignatureChanged)//个性签名
     Q_PROPERTY(States state READ state WRITE setState NOTIFY stateChanged)
-    Q_PROPERTY(QString stateToString READ stateToString NOTIFY stateToStringChanged FINAL)
+    Q_PROPERTY(QString stateToString READ stateToString WRITE setStateToString NOTIFY stateToStringChanged)
     Q_ENUMS(States)
 public:
     explicit FriendInfo(QObject *parent=0);
@@ -228,6 +237,7 @@ public slots:
     void saveChatMessageToLocal();//将当前内存中的消息记录保存到到本地（保存到数据库中）
     QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
     void setState(States arg);
+    void setStateToString(const QString &str);
 signals:
     void qQSignatureChanged();
     void httpGetQQSignature();//发送信号告诉qml端去获取个性签名

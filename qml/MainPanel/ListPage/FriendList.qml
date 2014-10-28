@@ -22,7 +22,6 @@ Item{
             myqq.getFriendList(getFriendListFinished) //获取好友列表
             return
         }
-
         data = JSON.parse(data)
         if( data.retcode == 0) {
             var marknames = data.result.marknames//备注信息
@@ -36,7 +35,6 @@ Item{
                 myqq.addFriendUin(data.result.friends[i].uin)
                 //将所有好友的uin都添加进去，为判断一个uin是否为陌生人做基础
             }
-            myqq.getFriendListFinished()//发送获取好友列表完成的信号
             
             var categories = data.result.categories//分组信息
             if(categories.length>0&&categories[0].index>0)//如果分组数目大于0，但是第一个分组的index不为0
@@ -49,6 +47,7 @@ Item{
                 //console.log("调用了排序,"+(a.sort>b.sort))
                 return a.sort>b.sort?1:-1//将数组按照里边的sort属性排序
             })
+
             for(i=0; i<arr.length; ++i){//遍历数组
                 addModel(arr[i].name, arr[i].index, data.result)//增加分组
             }
@@ -56,7 +55,21 @@ Item{
             console.debug("好友列表获取失败："+data.retcode)
         }
     }
+    function getOnlineFriendsFinished(error, data){//获取在线好友完成
+        if(error){
+            myqq.getOnlineFriends(getOnlineFriendsFinished)//再去获取
+        }
+        data = JSON.parse(data)
+        if(data.retcode == 0){
+            for(var i in data.result){
+                var info = myqq.createFriendInfo(data.result[i].uin)
+                info.stateToString = data.result[i].status//设置状态
+            }
+        }
+    }
+
     Component.onCompleted: {
+        myqq.getOnlineFriends(getOnlineFriendsFinished)//获取在线好友
         myqq.getFriendList(getFriendListFinished) //获取好友列表
     }
 
@@ -92,7 +105,10 @@ Item{
                 var friends_info = friendListData.info//好友信息
                 for( var i=0; i< friends.length;++i ) {
                     if( friends[i].categories==groupingIndex ){//判断是否是本分组的内容
-                        mymodel2.append({"obj_friends": friends[i], "obj_info": friends_info[i]})//增加好友 
+                        var info = myqq.createFriendInfo(friends_info[i].uin)
+                        info.nick = friends_info[i].nick//设置昵称
+                        var data = {"obj_info": info}
+                        mymodel2.append(data)//增加好友 
                     }
                 }
             }
@@ -159,6 +175,21 @@ Item{
                 interactive: false
                 model: ListModel{
                     id:mymodel2
+                    
+                    property int onlineIndex: 0//在线好友的序列，初始为0
+                    
+                    function stateToOnline(index){
+                        //当序列为index的model项调用此函数后，会将他前移到onlineIndex尾部
+                        if(index>=onlineIndex)
+                            move(index, onlineIndex++, 1)//移动此项
+                    }
+                    function stateToOffline(index){
+                        //当序列为index的model项调用此函数后，会将他前移到尾部
+                        if(index<=count-1){
+                            --onlineIndex
+                            move(index, count-1, 1)
+                        }
+                    }
                 }
                 spacing: 10
                 delegate: component2
@@ -167,50 +198,68 @@ Item{
                 width: parent.width
                 height: parent.height
             }
-        }
-    }
-    Component{
-        id: component2
-        Item{
-            width: parent.width
-            height: avatar.height
-            property var friends: obj_friends
-            property var myinfo: myqq.createFriendInfo(obj_info.uin)
-            Component.onCompleted: {
-                myinfo.nick = obj_info.nick
-            }
-
-            MyImage{
-                id: avatar
-                x:10
-                width:40
-                grayscale: myinfo.state==FriendInfo.Offlineing
-                maskSource: "qrc:/images/bit.bmp"
-                cache: false
-                source: myinfo.avatar40
-                onLoadError: {
-                    myinfo.avatar40 = "qrc:/images/avatar.png"
-                }
-            }
-            Text{
-                id:text_nick
-                anchors.top: avatar.top
-                anchors.left: avatar.right
-                anchors.leftMargin: 10
-                font.pointSize: 14
-                text: myinfo.aliasOrNick//myqq.value(info.uin+"alias", info.nick)
-            }
-            Text{
-                id:text_signature//个性签名
-                anchors.left: text_nick.left
-                anchors.bottom: avatar.bottom
-                font.pointSize: 8
-                text: myinfo.QQSignature//myqq.value(info.uin+"signature", "获取中...")
-            }
-            MouseArea{
-                anchors.fill: parent
-                onDoubleClicked: {
-                    myqq.addChatPage(myinfo.uin, QQItemInfo.Friend)
+            Component{
+                id: component2
+                Item{
+                    width: parent.width
+                    height: avatar.height
+                    property FriendInfo myinfo: obj_info
+                    
+                    Component.onCompleted: {
+                        if(myinfo.state != FriendInfo.Offlineing){//如果不是离线状态
+                            mymodel2.stateToOnline(index)//将自己移动到前面
+                        }
+                    }
+                    Connections{
+                        target: myinfo
+                        onStateChanged:{//如果状态改变
+                            if(myinfo.state == FriendInfo.Offlineing){//如果是离线状态
+                                mymodel2.stateToOffline(index)//将自己移动到最后
+                            }else{
+                                mymodel2.stateToOnline(index)//否则就往上移动
+                            }
+                        }
+                    }
+        
+                    MyImage{
+                        id: avatar
+                        x:10
+                        width:40
+                        grayscale: myinfo.state==FriendInfo.Offlineing
+                        maskSource: "qrc:/images/bit.bmp"
+                        cache: false
+                        source: myinfo.avatar40
+                        onLoadError: {
+                            myinfo.avatar40 = "qrc:/images/avatar.png"
+                        }
+                        
+                        /*Image{
+                            anchors.bottom: parent.bottom
+                            anchors.right: parent.right
+                            source: "qrc:/images/im"+myinfo.stateToString+".png"
+                        }*/
+                    }
+                    Text{
+                        id:text_nick
+                        anchors.top: avatar.top
+                        anchors.left: avatar.right
+                        anchors.leftMargin: 10
+                        font.pointSize: 14
+                        text: myinfo.aliasOrNick//myqq.value(info.uin+"alias", info.nick)
+                    }
+                    Text{
+                        id:text_signature//个性签名
+                        anchors.left: text_nick.left
+                        anchors.bottom: avatar.bottom
+                        font.pointSize: 8
+                        text: myinfo.QQSignature//myqq.value(info.uin+"signature", "获取中...")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onDoubleClicked: {
+                            myqq.addChatPage(myinfo.uin, QQItemInfo.Friend)
+                        }
+                    }
                 }
             }
         }
