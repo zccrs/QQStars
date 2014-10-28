@@ -21,16 +21,14 @@ Window{
         }
         mymodel.append({"sender_info": senderInfo})
         infosQueue.push(senderInfo)//加到队列里边
-        //root.height = infosQueue.length*40+user_nick.implicitHeight+item_button.height+30//设置窗口高度
     }
     function removeModel(index){
         if(index>=0){
             mymodel.remove(index)
             infosQueue.splice(index, 1)
-            console.debug(mymodel.count+","+infosQueue.length)
+            //console.debug(mymodel.count+","+infosQueue.length)
             if(mymodel.count==0)
                 stopShakeIcon()//停止闪动
-            //root.height = infosQueue.length*40+user_nick.implicitHeight+item_button.height+30//设置窗口高度
         }
     }
     function clearModel(){
@@ -45,21 +43,35 @@ Window{
             return null
     }
     function showWindow(trayX, trayY, trayWidth, trayHeight){
-        x = trayX-width/2+trayWidth/2
-        y = trayY-height
+        var tempx = trayX-width/2+trayWidth/2
+        if(tempx<0)
+            x=trayX+trayWidth
+        else if(tempx+width>Screen.desktopAvailableWidth)
+            x=trayX-width
+        else
+            x=tempx
+        var tempy = trayY-height/2+trayHeight/2
+        if(tempy<0)
+            y=trayY+trayHeight
+        else if(tempy+height>Screen.desktopAvailableHeight)
+            y=trayY-height
+        else
+            y=tempy
+        console.debug(x+","+y)
         timer_close.stop()//先停止动画
         root.opacity = 1
         root.show()
     }
     function closeWindow(){
-        timer_close.start()//启动动画定时器
+        if(!mouse_area.hovered)//如果当前鼠标没有在自己区域
+            timer_close.start()//启动动画定时器
     }
     NumberAnimation{
         id: timer_close
         target: root
         property: "opacity"
         running: false
-        duration: 600
+        duration: 800
         from: 1
         to: 0
         onStopped: {//当动画结束后
@@ -70,6 +82,7 @@ Window{
     }
 
     MouseArea{
+        id: mouse_area
         anchors.fill: parent
         property bool hovered: false
         hoverEnabled: true
@@ -77,15 +90,17 @@ Window{
             hovered = true
             timer_close.stop()//停止关闭窗口的动画
             root.opacity = 1
+            //console.debug("进入了区域")
         }
         onExited: {
-            hovered = false
             var globalX = utility.mouseDesktopPos().x
             var globalY = utility.mouseDesktopPos().y
             //console.log("x:"+root.x+","+width+","+globalX)
             //console.log("y:"+root.y+","+height+","+globalY)
             if(globalX<root.x||globalX>root.x+root.width||globalY<root.y||globalY>root.y+root.height){
+                hovered = false
                 root.closeWindow()
+                //console.debug("离开了区域")
             }
         }
     }

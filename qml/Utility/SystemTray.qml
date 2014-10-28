@@ -79,11 +79,7 @@ MySystemTrayIcon{
                 }
             }else if(hovered){
                 hovered = false
-                //console.debug("离开了托盘区域")
-                if(arg.x<root.x||arg.x>root.x+root.width){
-                    trayMessageWindow.closeWindow()//隐藏消息通知栏
-                    //console.debug("即将隐藏消息通知栏")
-                }
+                trayMessageWindow.closeWindow()//隐藏消息通知栏
                 root.toolTip = "QQ:"+myqq.nick+"("+myqq.userQQ+")"
             }
         }
