@@ -142,6 +142,7 @@ public slots:
     void setMousePenetrate(bool arg);
     
     void close();
+    void deleteWindow();
 };
 
 #endif // MYWINDOW_H

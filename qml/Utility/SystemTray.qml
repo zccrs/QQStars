@@ -146,35 +146,35 @@ MySystemTrayIcon{
         }
         MyMenuItem{
             text: "Q我吧"
-            icon: "qrc:/images/Qme.png"
+            icon: "qrc:/images/imcallme.png"
             onTriggered: {
                 myqq.state = QQ.Callme
             }
         }
         MyMenuItem{
             text: "离开"
-            icon: "qrc:/images/away.png"
+            icon: "qrc:/images/imaway.png"
             onTriggered: {
                 myqq.state = QQ.Away
             }
         }
         MyMenuItem{
             text: "忙碌"
-            icon: "qrc:/images/busy.png"
+            icon: "qrc:/images/imbusy.png"
             onTriggered: {
                 myqq.state = QQ.Busy
             }
         }
         MyMenuItem{
             text: "请勿打扰"
-            icon: "qrc:/images/mute.png"
+            icon: "qrc:/images/imsilent.png"
             onTriggered: {
                 myqq.state = QQ.Silent
             }
         }
         MyMenuItem{
             text: "隐身"
-            icon: "qrc:/images/invisible.png"
+            icon: "qrc:/images/imhidden.png"
             onTriggered: {
                 myqq.state = QQ.Hidden
             }

@@ -23,6 +23,9 @@ Utility::Utility(QObject *parent) :
     mouse_timer = new QTimer(this);
     connect (mouse_timer, SIGNAL(timeout()), SLOT(emitDesktopPosChanged()));//连接定时器
     mouse_timer->start (20);//启动定时器，用来定时判断鼠标位置是否改变
+    
+    connect (&networkConfigurationManager, &QNetworkConfigurationManager::onlineStateChanged,
+             this, &Utility::networkOnlineStateChanged);
 }
 
 Utility::~Utility()
@@ -125,6 +128,11 @@ QQmlApplicationEngine *Utility::qmlEngine()
 MyHttpRequest *Utility::getHttpRequest()
 {
     return http_request;
+}
+
+bool Utility::networkIsOnline() const
+{
+    return networkConfigurationManager.isOnline ();
 }
 
 void Utility::setQmlEngine(QQmlApplicationEngine *new_engine)

@@ -285,27 +285,72 @@ MyQuickWindow{
         anchors.centerIn: parent
         width: root.actualWidth
         height: root.actualHeight
-        //running: true
+        Age{
+            system: particles
+            anchors.left: parent.left
+            height: parent.height
+            width: 80
+            once: true
+            lifeLeft: 3000
+            advancePosition: false
+            
+        }
+        Age{
+            system: particles
+            anchors.right: parent.right
+            height: parent.height
+            width: 80
+            once: true
+            lifeLeft: 3000
+            advancePosition: false
+            
+        }
+        
+        Age{
+            system: particles
+            anchors.bottom: parent.bottom
+            height: 80
+            width: parent.width
+            once: true
+            lifeLeft: 3000
+            advancePosition: false
+            
+        }
+        
         ImageParticle {
-            source: "qrc:/images/blueStar.png"
+            source: "qrc:/images/star.png"
+            groups: ['star']
             alpha: 0.2
             alphaVariation: 0.1
             colorVariation: 2
             autoRotation: true
             rotationVariation: 360
-            rotationVelocity: 30
+            rotationVelocity: 40
         }
         Emitter {
             id: pulseEmitter
-            anchors.centerIn: parent
-            emitRate: 20
-            lifeSpan: 4000
+            anchors.top: parent.top
+            width: parent.width
+            group: 'star'
+            emitRate: 8
+            lifeSpan: parent.height*1000/40
             velocityFromMovement: 20
-            velocity: PointDirection { xVariation: 50; yVariation: 50;}
-            acceleration: PointDirection { xVariation:50; yVariation: 50;}
+            velocity: AngleDirection{
+                angle: 90
+                angleVariation: 50
+                magnitude: 90
+                magnitudeVariation: 10
+            }
+            acceleration: AngleDirection{
+                angle: -90
+                magnitude: 5
+                magnitudeVariation: 2
+            }
             size: 20
-            sizeVariation: 10
+            sizeVariation: 5
+            endSize: 0
         }
+        
     }
     MouseArea{
         id: mouse_main

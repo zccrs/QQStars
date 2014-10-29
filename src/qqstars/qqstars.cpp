@@ -43,6 +43,16 @@ QQCommand::QQCommand(QQuickItem *parent) :
     
     jsEngine = new QJSEngine();//此对象用来加载js文件（为qq提供api）
     loadApi ();//加载api的js文件
+    
+    reply = NULL;
+    poll2Timerout_count=0;//记录网络请求的连续超时次数
+    poll2Error_count=0;//记录网络请求连续出错的次数
+    connect (utility, &Utility::networkOnlineStateChanged, this, &QQCommand::onNetworkOnlineStateChanged);
+    poll2_timer = new QTimer(this);
+    poll2_timer->setSingleShot (true);//设置为单发射器
+    connect (poll2_timer, &QTimer::timeout, this, &QQCommand::onPoll2Timeout);
+    abortPoll_timer = new QTimer(this);
+    abortPoll_timer->setSingleShot (true);//设置为单发射器
 }
 
 QQCommand::LoginStatus QQCommand::loginStatus() const
@@ -89,11 +99,18 @@ QString QQCommand::codeText() const
 
 void QQCommand::beginPoll2()
 {
-    manager->post (*request, poll2_data);
+    disconnect (abortPoll_timer, &QTimer::timeout, reply, &QNetworkReply::abort);
+    //qDebug()<<"reply1:"<<reply;
+    reply=manager->post (*request, poll2_data);
+    //qDebug()<<"reply2:"<<reply;
+    connect (abortPoll_timer, &QTimer::timeout, reply, &QNetworkReply::abort);
+    poll2_timer->start (100000);//网络请求超时定时器
 }
 
 void QQCommand::poll2Finished(QNetworkReply *replys)
 {
+    poll2_timer->stop ();//停止计算请求是否超时的计时器
+    //qDebug()<<"网络请求完成"<<replys->error ()<<replys->errorString ();
     if(replys->error ()==QNetworkReply::NoError) {
         QByteArray array = replys->readAll ();
         emit poll2ReData (array);
@@ -154,11 +171,17 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                 }
             }else if(document.isArray ()){
                 QJsonArray arr = document.array ();
-                qDebug()<<arr.count ();
+                qDebug()<<"心跳包收到的是一个数组"<<arr.count ();
             }
         }
-    }else{
-        beginPoll2();//重新post
+    }else if(replys->error ()!=QNetworkReply::OperationCanceledError){//如果不是手动取消的
+        ++poll2Error_count;
+        if(poll2Error_count>1){
+            qDebug()<<"网络请求连续出错"<<poll2Error_count<<"次，将重新登录";
+            poll2Error_count=0;
+            QMetaObject::invokeMethod (this, "reLogin");//调用槽reLogin重新登录（在qml中定义）
+        }else
+            beginPoll2();//重新post
     }
 }
 
@@ -204,6 +227,37 @@ void QQCommand::onSettingsChanged()
 void QQCommand::onStateChanged()
 {
     mysettings->setValue ("myState", (int)state());
+}
+
+void QQCommand::onPoll2Timeout()
+{
+    ++poll2Timerout_count;//记录网络请求的连续超时次数
+    qDebug()<<"网络请求超时："<<poll2Timerout_count;
+    if(reply){
+        reply->abort ();//取消网络请求
+    }
+    beginPoll2 ();//再次开始网络请求
+    /*if(poll2Timerout_count>1){
+        poll2Timerout_count=0;
+        qDebug()<<"网络请求连续超时"<<poll2Error_count<<"次";
+        beginPoll2 ();//再次开始网络请求
+        //QMetaObject::invokeMethod (this, "reLogin");//调用槽reLogin重新登录（在qml中定义）
+    }else
+        beginPoll2 ();//再次开始网络请求*/
+}
+
+void QQCommand::onNetworkOnlineStateChanged(bool isOnline)
+{
+    qDebug()<<"网络在线状态改变为："<<isOnline;
+    if(isOnline){
+        abortPoll_timer->stop ();//停止计时器
+        if(!reply||!reply->isRunning ()){//如果心跳包没有在进行
+            qDebug()<<"由于断网影响，将重新登录qq";
+            QMetaObject::invokeMethod (this, "reLogin");//调用槽reLogin重新登录（在qml中定义）
+        }
+    }else{
+        abortPoll_timer->start (60000);//启动取消心跳包的定时器
+    }
 }
 
 void QQCommand::loadApi()
@@ -766,6 +820,12 @@ void QQCommand::shakeChatMainWindow(QQuickItem *item)
 void QQCommand::openSqlDatabase()
 {
     FriendInfo::openSqlDatabase (userQQ());//打开数据库
+}
+
+void QQCommand::closeChatWindow()
+{
+    if(!mainChatWindowCommand.isNull ())
+        mainChatWindowCommand->close ();
 }
 
 /*void QQCommand::saveAlias(int type, QString uin, QString alias)

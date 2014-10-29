@@ -14,6 +14,8 @@ QQ{
     property string list_hash//获取好友列表时需要的hash
     property string ptwebqq//登录后返回的cookie
 
+    signal closeMainPanel//如果需要从头重新登录就关闭主面板
+    
     windowScale: {
         var dosktopWidth = Screen.desktopAvailableWidth
         if(dosktopWidth<=1366)
@@ -130,6 +132,12 @@ QQ{
             loginReData = data.result//将数据记录下来
             var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
             myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
+        }else{
+            console.debug("重新登录失败")
+            showWarningInfo("QQ已掉线，请重新登录")
+            root.closeChatWindow();//关闭聊天窗口
+            root.closeMainPanel();//关闭主面板
+            utility.loadQml("qml/Login/main.qml")//打开登录面板
         }
     }
 
@@ -265,11 +273,9 @@ QQ{
             return
         }
 
-        if( loginStatus == QQ.LoginFinished ) {
-            data = JSON.parse(data)
-            if( data.retcode==0&&data.result=="ok" ){
-                console.log("状态改变成功")
-            }
+        data = JSON.parse(data)
+        if( data.retcode==0&&data.result=="ok" ){
+            console.log("状态改变成功")
         }
     }
     

@@ -450,3 +450,8 @@ void MyWindow::close()
     QQuickWindow::close ();
 }
 
+void MyWindow::deleteWindow()
+{
+    deleteLater ();//销毁自己
+}
+

@@ -77,11 +77,14 @@ private slots:
     void onChatMainWindowClose();//接收主聊天窗口关闭的信号
     void onSettingsChanged();//处理settings对象改变的信号
     void onStateChanged();//当状态改变后调用，将状态存到本地
+    void onPoll2Timeout();//如果心跳包超时
+    void onNetworkOnlineStateChanged(bool isOnline);
 private:
     LoginStatus m_loginStatus;//储存当前用户的登录状态
     QByteArray poll2_data;//post心跳包的数据
     NetworkAccessManager *manager;//储存管理心跳包网络请求的对象
     QNetworkRequest *request;//储存发送心跳包的网络请求对象
+    QNetworkReply *reply;//储存进行网络请求的应答对象
     QString m_userQQ;//储存当前用户qq号码
     QString m_userPassword;//储存当前用户密码
     QPointer<MyWindow> code_window;//储存指向输入验证码窗口的指针
@@ -94,6 +97,10 @@ private:
     QPointer<MyWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
     QPointer<QQuickItem> mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
     QMap<QString, QQuickItem*> map_chatPage;//储存备已经打开的聊天页面
+    QTimer* poll2_timer;//心跳包的计时器，如果超时就中断当前心跳包，然后重新重新心跳
+    QTimer* abortPoll_timer;//中断心跳包的定时器（为中断心跳包提供一个延时）
+    int poll2Timerout_count;//记录网络请求的连续超时次数
+    int poll2Error_count;//记录网络请求连续出错的次数
     
     struct FontStyle{
         int size;//字体大小
@@ -181,5 +188,7 @@ public slots:
     void setValue(const QString & key, const QVariant & value);
     void shakeChatMainWindow (QQuickItem *item);//抖动聊天窗口
     void openSqlDatabase();//打开数据库（储存聊天记录等消息）
+    
+    void closeChatWindow();//关闭聊天窗口
 };
 #endif // QQCommand_H

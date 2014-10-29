@@ -52,6 +52,14 @@ MyWindow{
         }
     }
     
+    Connections{
+        target: myqq
+        onCloseMainPanel:{//如果需要重新登录
+            main.close()
+            main.deleteWindow();//销毁自己
+        }
+    }
+    
     Text{
         anchors.centerIn: parent
         text: "已离线"
@@ -75,7 +83,10 @@ MyWindow{
             anchors.margins: 10
             MouseArea{
                 anchors.fill: parent
-                onClicked: Qt.quit()
+                onClicked: {
+                    myqq.state = QQ.Offlineing//将状态改为离线
+                    Qt.quit()
+                }
             }
         }
         SvgView{
