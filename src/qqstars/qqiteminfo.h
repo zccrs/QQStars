@@ -21,29 +21,41 @@ class ChatMessageInfo:public QObject//用来储存聊天消息的各种信息
     Q_PROPERTY(QString contentData READ contentData WRITE setContentData NOTIFY contentDataChanged)//储存消息内容
     Q_PROPERTY(QDate date READ date WRITE setDate NOTIFY dateChanged)//储存收到此条信息的日期
     Q_PROPERTY(QTime time READ time WRITE setTime NOTIFY timeChanged)//储存收到此条信息的时间
+    Q_PROPERTY(int messageId READ messageId)
+    Q_PROPERTY(int messageId2 READ messageId2 WRITE setMessageId2 NOTIFY messageId2Changed)
+    
 public:
+    ChatMessageInfo(QObject* parent = 0);
+    ChatMessageInfo(int messageID, QObject* parent = 0);
+    
     QString senderUin() const;
     QString contentData() const;
     QDate date() const;
     QTime time() const;
+    int messageId() const;
+    int messageId2() const;
     
 private:
     QString m_senderUin;
     QString m_contentData;
     QDate m_date;
     QTime m_time;
+    int m_messageId;
+    int m_messageId2;
     
 signals:
     void senderUinChanged(QString arg);
     void contentDataChanged(QString arg);
     void dateChanged(QDate arg);
     void timeChanged(QTime arg);
+    void messageId2Changed(int arg);
 
 public slots:
     void setSenderUin(QString arg);
     void setContentData(QString arg);
     void setDate(QDate arg);
     void setTime(QTime arg);
+    void setMessageId2(int arg);
 };
 
 class ChatMessageInfoList:public QObject
@@ -61,6 +73,7 @@ public slots:
     void destroy();
     void clear();//清除储存的聊天记录
     ChatMessageInfo* dequeue();//出队
+    ChatMessageInfo *find(int messageID);
 };
 
 class DatabaseOperation:public QObject//提供数据库的操作（用于储存聊天记录）
@@ -115,6 +128,7 @@ class QQItemInfo:public QObject
     friend class RecentInfo;
 public:
     explicit QQItemInfo(QObject *parent=0);
+    ~QQItemInfo();
     enum QQItemType{
         Friend,//好友
         Group,//群
@@ -125,6 +139,7 @@ private:
     void initSettings();
     void setUnreadMessagesCount(int arg);//设置未读消息的个数
     bool m_isActiveChatPage;
+    int messageID;//为自己个好友发送的消息的id（为此消息的唯一标识）
     
 protected:
     QString m_uin;//uin，为此qq的唯一标识
@@ -171,14 +186,15 @@ public slots:
     void setAvatar240(QString arg);
     void setUserQQ(QString arg);
     void clearSettings();
-    const QString localCachePath();//本地缓存路径
+    const QString localCachePath() const;//本地缓存路径
     virtual QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
     //const ChatMessageInfoList* getChatRecordsList();//将储存聊天记录的队列返回
     void addChatRecord(ChatMessageInfo *data);//增加聊天记录，记录在内存当中
     void startClearChatRecordsTimer();//启动清空聊天记录的定时器
     void stopClearChatRecordsTimer();//停止情况聊天记录的定时器
     void setIsActiveChatPage(bool arg);
-    
+    ChatMessageInfo* createChatMessageInfo(int messageID);//创建一个储存聊天记录的信息的对象
+    int getMessageIndex();//返回一个本次在线中的一个唯一的数字，用于收到或者发送的消息的id
 signals:
     void nickChanged();
     void aliasChanged();

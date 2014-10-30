@@ -22,6 +22,27 @@ QTime ChatMessageInfo::time() const
     return m_time;
 }
 
+int ChatMessageInfo::messageId() const
+{
+    return m_messageId;
+}
+
+int ChatMessageInfo::messageId2() const
+{
+    return m_messageId2;
+}
+
+ChatMessageInfo::ChatMessageInfo(QObject *parent)
+{
+    ChatMessageInfo(-1, parent);
+}
+
+ChatMessageInfo::ChatMessageInfo(int messageID, QObject *parent):
+    QObject(parent)
+{
+    m_messageId=messageID;
+}
+
 void ChatMessageInfo::setSenderUin(QString arg)
 {
     if (m_senderUin == arg)
@@ -56,6 +77,14 @@ void ChatMessageInfo::setTime(QTime arg)
     
     m_time = arg;
     emit timeChanged(arg);
+}
+
+void ChatMessageInfo::setMessageId2(int arg)
+{
+    if (m_messageId2 != arg) {
+        m_messageId2 = arg;
+        emit messageId2Changed(arg);
+    }
 }
 
 QSqlDatabase DatabaseOperation::sqlite_db;
@@ -235,6 +264,7 @@ QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QObject *parent):
     m_nick = "";
     m_alias = "";
     m_unreadMessagesCount = 0;
+    messageID = 0;
     
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar40Changed);
     connect (this, &QQItemInfo::settingsChanged, this, &QQItemInfo::avatar240Changed);
@@ -252,6 +282,11 @@ QQItemInfo::QQItemInfo(QQItemInfo::QQItemType type, QObject *parent):
 QQItemInfo::QQItemInfo(QObject *)
 {
     return;
+}
+
+QQItemInfo::~QQItemInfo()
+{
+    queue_chatRecords->clear ();
 }
 
 void QQItemInfo::initSettings()
@@ -451,7 +486,7 @@ void QQItemInfo::clearSettings()
     }
 }
 
-const QString QQItemInfo::localCachePath()
+const QString QQItemInfo::localCachePath() const
 {
     return QDir::homePath ()+"/webqq/"+userQQ()+"/"+typeString+"_"+account();
 }
@@ -464,9 +499,7 @@ QVariant QQItemInfo::getChatRecords()
         if(data!=NULL){
             QVariantMap map;
             map["senderUin"] = data->senderUin ();
-            map["date"] = data->date ();
-            map["time"] = data->time ();
-            map["contentData"] = data->contentData ();
+            map["messageID"] = data->messageId ();
             var_list<<map;
         }
     }
@@ -511,6 +544,20 @@ void QQItemInfo::setIsActiveChatPage(bool arg)
         m_isActiveChatPage = arg;
         emit isActiveChatPageChanged(arg);
     }
+}
+
+ChatMessageInfo *QQItemInfo::createChatMessageInfo(int messageID)
+{
+    ChatMessageInfo* info = queue_chatRecords->find (messageID);//先查找这条消息是否存在
+    if(info==NULL){//为空证明没有找到
+        info = new ChatMessageInfo(messageID);
+    }
+    return info;
+}
+
+int QQItemInfo::getMessageIndex()
+{
+    return messageID++;
 }
 
 void QQItemInfo::setUnreadMessagesCount(int arg)
@@ -610,9 +657,7 @@ QVariant FriendInfo::getChatRecords()
         if(data!=NULL){
             QVariantMap map;
             map["senderUin"] = data->senderUin ();
-            map["date"] = data->date ();
-            map["time"] = data->time ();
-            map["contentData"] = data->contentData ();
+            map["messageID"] = data->messageId ();
             var_list<<map;
         }
     }
@@ -837,4 +882,13 @@ void ChatMessageInfoList::clear()
 ChatMessageInfo *ChatMessageInfoList::dequeue()
 {
     return list.dequeue ();
+}
+
+ChatMessageInfo* ChatMessageInfoList::find(int messageID)
+{
+    foreach (ChatMessageInfo* info, list) {
+        if(info!=NULL&&info->messageId ()==messageID)
+            return info;
+    }
+    return NULL;
 }

@@ -4,7 +4,7 @@ import QtQuick.Window 2.1
 import utility 1.0
 import "../Utility"
 import "../Chat"
-import Qt.labs.settings 1.0
+//import Qt.labs.settings 1.0
 
 MyWindow{
     id:main

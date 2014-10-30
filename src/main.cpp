@@ -12,10 +12,9 @@
 #include "mywindow.h"
 #include "qqstars.h"
 #include "myimage.h"
-#include "threaddownloadimage.h"
 #include "mysvgview.h"
 #include "myshortcut.h"
-#include "httprequestid.h"
+#include "myhttprequest.h"
 #include <QDirModel>
 #include <QTreeView>
 
@@ -68,7 +67,7 @@ int main(int argc, char *argv[])
     systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题
 #endif
     engine->rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
-    engine->load(QUrl(QStringLiteral("qml/Login/main.qml")));
+    qqapi->loadLoginWindow ();//加载登录窗口
     
     return app.exec();
 }

@@ -3,7 +3,8 @@
 #include <QtConcurrent>
 #include <QApplication>
 #include "mynetworkaccessmanagerfactory.h"
-#include "threaddownloadimage.h"
+#include "downloadimage.h"
+#include "myhttprequest.h"
 
 Utility *Utility::createUtilityClass()
 {
@@ -17,7 +18,7 @@ Utility::Utility(QObject *parent) :
     qmlRegisterType<UtilityPrivate>("utility", 1, 0, "Utility");
 
     http_request = new MyHttpRequest(this);
-    download_image = new ThreadDownloadImage(this);
+    download_image = new DownloadImage(http_request, this);
     old_pos = QPoint(-1,-1);
     
     mouse_timer = new QTimer(this);
@@ -195,6 +196,11 @@ void Utility::loadQml(QUrl url)
 void Utility::downloadImage(QJSValue callbackFun, QUrl url, QString savePath, QString saveName)
 {
     download_image->getImage (callbackFun, url, savePath, saveName);
+}
+
+void Utility::downloadImage(QObject *caller, QByteArray slotName, QUrl url, QString savePath, QString saveName)
+{
+    download_image->getImage (caller, slotName, url, savePath, saveName);
 }
 
 void Utility::httpGet(QObject *caller, QByteArray slotName, QUrl url, bool highRequest)

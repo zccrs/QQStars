@@ -13,6 +13,7 @@ QQ{
     property var friendListData//储存好友列表
     property string list_hash//获取好友列表时需要的hash
     property string ptwebqq//登录后返回的cookie
+    property string psessionid: loginReData?loginReData.psessionid:""//登录后返回的数据
 
     signal closeMainPanel//如果需要从头重新登录就关闭主面板
     
@@ -134,8 +135,8 @@ QQ{
             myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
         }else{
             console.debug("重新登录失败")
+            root.loginStatus = QQ.Offline//将登录状态设置为离线
             showWarningInfo("QQ已掉线，请重新登录")
-            root.closeChatWindow();//关闭聊天窗口
             root.closeMainPanel();//关闭主面板
             utility.loadQml("qml/Login/main.qml")//打开登录面板
         }

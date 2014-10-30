@@ -12,7 +12,6 @@ import "../Utility"
 import "../MainPanel"
 import "LoginPanel"
 import "../Chat"
-//import QtWebKit 3.0
 
 MyWindow{
     id:main
@@ -32,7 +31,15 @@ MyWindow{
     noNotifyIcon: true//隐藏任务栏图标
     windowGlow: false//是否开启阴影
     color: "transparent"
-
+    
+    function openSettingPage() {//进行设置
+        settings_page.enabled = true
+        flipable.flipped = false
+    }
+    function openLoginPage() {//打开登录面板
+        login_page.enabled = true
+        flipable.flipped = true
+    }
     Connections{
         target: myqq
         onError:{
@@ -63,14 +70,6 @@ MyWindow{
                 main.showFront()
             }
         }
-    }
-    function openSettingPage() {//进行设置
-        settings_page.enabled = true
-        flipable.flipped = false
-    }
-    function openLoginPage() {//打开登录面板
-        login_page.enabled = true
-        flipable.flipped = true
     }
     
     Flipable {

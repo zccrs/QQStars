@@ -4,12 +4,12 @@
 #include <QObject>
 #include <QString>
 #include <QByteArray>
-#include "mynetworkaccessmanagerfactory.h"
-#include "threaddownloadimage.h"
-#include "myhttprequest.h"
 #include <QTimer>
 #include <QPoint>
 #include <QSettings>
+#include <QNetworkConfigurationManager>
+#include <QQmlApplicationEngine>
+#include <QPointer>
 
 class UtilityPrivate : public QObject
 {
@@ -26,6 +26,8 @@ public:
     };
 };
 
+class MyHttpRequest;
+class DownloadImage;
 class Utility : public QObject
 {
     Q_OBJECT
@@ -41,7 +43,7 @@ private:
     QPointer<QSettings> mysettings;
     
     MyHttpRequest *http_request;
-    ThreadDownloadImage *download_image;
+    DownloadImage *download_image;
 
     QNetworkConfigurationManager networkConfigurationManager;
     
@@ -72,6 +74,7 @@ public slots:
     
     void loadQml( QUrl url );
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
+    void downloadImage( QObject *caller, QByteArray slotName, QUrl url, QString savePath, QString saveName );
     void httpGet(QObject *caller, QByteArray slotName, QUrl url, bool highRequest=false);
     void httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, bool highRequest=false);
     void httpGet(QJSValue callbackFun, QUrl url, bool highRequest=false );

@@ -3,6 +3,9 @@ import QtQuick 2.2
 
 FriendInfo{
     id: root
+    
+    property bool getImageing: false//记录是否正在获取图片
+    
     userQQ: myqq.userQQ
     onUinChanged: {//如果uin变了
         myqq.getFriendQQ( uin, getQQFinished )//获取好友的真实qq号
@@ -35,6 +38,7 @@ FriendInfo{
         }
     }
     function getAvatarFinished( path ,name){
+        getImageing = false//获取图像结束
         var imageName = path+"/"+name+".png"
         avatar40 = imageName//保存自己头像的地址
         //console.log(nick+"获取头像完成："+imageName)
@@ -54,7 +58,8 @@ FriendInfo{
         myqq.getQQSignature( uin, getQQSignatureFinished )//获取个性签名
     }
     function getAvatar(size){
-        if(account!=""){
+        if(account!=""&&!getImageing){
+            getImageing = true//正在获取头像
             myqq.downloadImage(QQItemInfo.Friend
                                , "http://q.qlogo.cn/headimg_dl?spec="+String(size)+"&dst_uin="+account
                                , account, String(size), getAvatarFinished)//下载头像

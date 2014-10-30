@@ -71,7 +71,13 @@ Item{
                 source: myqq.avatar240
                 x:-30/80*width
                 anchors.verticalCenter: inputarea.verticalCenter
-                
+                Connections{
+                    target: myqq
+                    onUserQQChanged:{
+                        avatar_image.source = myqq.avatar240
+                    }
+                }
+
                 onLoadError:{
                     console.log("头像加载出错:"+myqq.avatar240)
                     source = "qrc:/images/avatar.png"

@@ -2,6 +2,9 @@ import QtQuick 2.2
 import QQItemInfo 1.0
 
 GroupInfo{
+    id: root
+    property bool getImageing: false//记录是否正在获取图片
+    
     userQQ: myqq.userQQ
     onCodeChanged: {
         //console.log(nick+"将要获取真实qq")
@@ -30,11 +33,13 @@ GroupInfo{
         }
     }
     function getAvatarFinished( path ,name){
+        getImageing=false//将正在获取头像置为false
         var imageName = path+"/"+name+".png"
         avatar40 = imageName
     }
     function getAvatar(size){
-        if(account!=""){
+        if(account!=""&&!getImageing){
+            getImageing = true//置为true，不然可能会多次请求头像
             myqq.downloadImage(QQItemInfo.Group
                                , "http://p.qlogo.cn/gh/"+account+"/"+account+"/"+String(size)
                                , account, String(size), getAvatarFinished)//下载头像

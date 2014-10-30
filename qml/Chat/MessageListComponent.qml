@@ -7,9 +7,13 @@ Component{
         id: root
         width: parent.width
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
-        property var myinfo: myqq.createFriendInfo(uin)
+        property FriendInfo myinfo: myqq.createFriendInfo(uin)
+        //这条消息的发送者的信息，好友里面就是你的好友本身，群里边就是此条群消息的发送者
         property string sendUin: send_uin//将此消息发送给谁
-        property QQItemInfo parentInfo: parent_info//消息属主的info
+        property QQItemInfo parentInfo: parent_info
+        //消息属主的info，好友里面就是你的好友本身，群里边就是群本身
+        property ChatMessageInfo messageInfo: message_info
+        //这条消息自身的信息，千万不要和parentInfo和myinfo搞混了
         
         property var sendMessage: {
             if(!parentInfo)
@@ -30,7 +34,7 @@ Component{
         Component.onCompleted: {
             //console.log(message)//输出消息内容
             if(sendUin!=""&&sendMessage&&mode=="right"){//如果为模式right代表是要发送消息
-                sendMessage(sendMessageFinished, sendUin, message)//发送消息
+                sendMessage(sendMessageFinished, sendUin, messageInfo.contentData)//发送消息
             }
         }
         function sendMessageFinished(error, data){//如果这个Item发送信息，此函数用来接收发送结果
@@ -38,8 +42,10 @@ Component{
             if(!error){//如果没有出错
                 data = JSON.parse(data)
                 if(data.retcode==0&&data.result=="ok"){
-                    var message_info = myqq.createChatMessageInfo(myqq.userQQ, mytext.text)
-                    parentInfo.addChatRecord(message_info)//将聊天记录保存到内存当中
+                    var date_time = new Date
+                    messageInfo.date = date_time.getDate()
+                    messageInfo.time = date_time.getTime()
+                    parentInfo.addChatRecord(messageInfo)//将聊天记录保存到内存当中
                     console.debug("消息发送成功")
                 }else{
                     console.log("发送失败")
@@ -93,7 +99,7 @@ Component{
                 }
 
                 wrapMode: TextEdit.Wrap
-                text: message
+                text: root.messageInfo.contentData
                 onTextChanged: {
                     if(text[text.length-1]=="\n"){
                         text = text.substr(0, text.length-1)

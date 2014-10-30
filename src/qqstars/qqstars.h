@@ -78,8 +78,11 @@ private slots:
     void onSettingsChanged();//处理settings对象改变的信号
     void onStateChanged();//当状态改变后调用，将状态存到本地
     void onPoll2Timeout();//如果心跳包超时
-    void onNetworkOnlineStateChanged(bool isOnline);
+    void onNetworkOnlineStateChanged(bool isOnline);//如果网络在线状态改变
+    void downImageFinished(const QString& path, const QString& name);//下载图片完成
 private:
+    QPointer<MyWindow> window_login, window_mainPanel;//记录登录窗口的指针
+    
     LoginStatus m_loginStatus;//储存当前用户的登录状态
     QByteArray poll2_data;//post心跳包的数据
     NetworkAccessManager *manager;//储存管理心跳包网络请求的对象
@@ -93,14 +96,15 @@ private:
     QString m_codeText;//储存输入验证码
     QPointer<MyWindow> warning_info_window;//储存指向警告窗口的指针
     QMap<QString, QQItemInfo*> map_itemInfo;//储存每个好友或群讨论组的Info
-    //QMap<QString, QString> map_alias;//储存备注名
     QPointer<MyWindow> mainChatWindowCommand;//储存所有聊天窗口的主管理窗口
     QPointer<QQuickItem> mainChatWindowCommand_item;//储存每一个聊天页面的父对象(聊天窗口anchors.fill此父对象)
     QMap<QString, QQuickItem*> map_chatPage;//储存备已经打开的聊天页面
+    QString friendsUin;//用来储存所有好友的uin，陌生人不存在这里，为判断一个uin是否为陌生人做支持
     QTimer* poll2_timer;//心跳包的计时器，如果超时就中断当前心跳包，然后重新重新心跳
     QTimer* abortPoll_timer;//中断心跳包的定时器（为中断心跳包提供一个延时）
     int poll2Timerout_count;//记录网络请求的连续超时次数
     int poll2Error_count;//记录网络请求连续出错的次数
+    int chatImageID;//聊天过程中收到的图片的id编号
     
     struct FontStyle{
         int size;//字体大小
@@ -112,7 +116,7 @@ private:
     };
 
     void loadApi();
-    QString disposeMessage( QJsonObject &obj );//解析基本消息
+    QString disposeMessage(QJsonObject &obj , const QQItemInfo *info, int messageID);//解析基本消息
     //void disposeInputNotify( QJsonObject &obj );//处理好友正在输入消息
     void disposeFriendStatusChanged( QJsonObject &obj );//处理好友状态改变
     void disposeFriendMessage( QJsonObject &obj, MessageType type=GeneralMessage );//处理好友消息
@@ -128,8 +132,8 @@ private:
     
     QQItemInfo* createQQItemInfo(const QString& uin ,const QString& typeString);
     QQItemInfo* createQQItemInfo(const QString& uin, QQItemInfo::QQItemType type);
-    QString friendsUin;//用来储存所有好友的uin，陌生人不存在这里，为判断一个uin是否为陌生人做支持
-    //创建一个储存信息的对象，被createFriendInfo等调用
+    int getChatImageIndex();//返回一个本次在线中的一个唯一的数字，用于给接收到的图片编码
+    void clearQQItemInfos();//清空保存的所有的好友信息
 signals:
     void loginStatusChanged();
     void poll2ReData( QString data );
@@ -149,6 +153,9 @@ signals:
     void activeChatPageChanged(QQuickItem* item);//将item这个page变为活跃的page
     void addRecentContacts(QQItemInfo* info);//发送信号告诉qml的最近联系人列表添加item
 public slots:
+    void loadLoginWindow();//加载登录窗口
+    void loadMainPanelWindow();//加载qq主面板窗口
+    
     void setRememberPassword(bool arg);
     void setAutoLogin(bool arg);
     void saveUserPassword();
@@ -175,7 +182,6 @@ public slots:
     FriendInfo* createFriendInfo(const QString uin);//创建一个储存好友信息的对象
     GroupInfo* createGroupInfo(const QString uin);//创建一个储存群信息的对象
     DiscuInfo* createDiscuInfo(const QString uin);//创建一个储存讨论组信息的对象
-    ChatMessageInfo* createChatMessageInfo(const QString senderUin, const QString data);//创建一个储存聊天记录的信息的对象
     
     void addChatPage(QString uin, int senderType/*QQItemType类型*/);//新增聊天窗口
     void removeChatPage(QString uin, int senderType/*QQItemType类型*/);//移除已有的聊天Page

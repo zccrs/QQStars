@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QtNetwork>
 #include <QQueue>
-#include "mynetworkaccessmanagerfactory.h"
+#include <QJSValue>
 
+class NetworkAccessManager;
 class MyHttpRequest : public QObject
 {
     Q_OBJECT
@@ -13,7 +14,7 @@ class MyHttpRequest : public QObject
     Q_ENUMS(RequestStatus)
     Q_ENUMS(Priority)
 public:
-    explicit MyHttpRequest(QObject *parent = 0, QNetworkRequest *m_request = new QNetworkRequest);
+    explicit MyHttpRequest(QObject *parent = 0);
     enum RequestStatus{
         Idle,//初始状态
         Busy//请求中
@@ -23,14 +24,14 @@ public:
     QNetworkRequest *getNetworkRequest();
 protected:
     NetworkAccessManager *manager;
-    QNetworkRequest *request;
+    QNetworkRequest request;
     QPointer<QNetworkReply> m_reply;
     
     RequestStatus m_status;
     RequestStatus status();
     void setStatus( RequestStatus new_status );
     
-    enum ReplyType{
+    enum ReplyType{//回调的几种方式
         CallbackFun,
         ConnectSlot
     };
@@ -68,8 +69,8 @@ class MyHttpRequestPrivate : public MyHttpRequest
 {
     Q_OBJECT
 private:
-    explicit MyHttpRequestPrivate(QNetworkRequest *request, QJSValue callbackFun, QUrl url, QByteArray data);
-    explicit MyHttpRequestPrivate(QNetworkRequest *request, QObject *caller, QByteArray slotName, QUrl url, QByteArray data);
+    explicit MyHttpRequestPrivate(QNetworkRequest request, QJSValue callbackFun, QUrl url, QByteArray data);
+    explicit MyHttpRequestPrivate(QNetworkRequest request, QObject *caller, QByteArray slotName, QUrl url, QByteArray data);
     friend class MyHttpRequest;
 private slots:
     void finished( QNetworkReply *reply );

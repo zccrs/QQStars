@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QPainterPath>
+#include <QScreen>
 #ifdef Q_OS_WIN
 #include <winuser.h>
 #elif defined(Q_OS_LINUX)

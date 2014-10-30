@@ -57,7 +57,6 @@ Window{
             y=trayY-height
         else
             y=tempy
-        console.debug(x+","+y)
         timer_close.stop()//先停止动画
         root.opacity = 1
         root.show()

@@ -15,12 +15,12 @@ SOURCES += src/main.cpp \
     src/mywidgets/mywindow.cpp \
     src/qqstars/qqstars.cpp \
     src/mywidgets/systemtrayicon.cpp \
-    src/utility/threaddownloadimage.cpp \
     src/mywidgets/mysvgview.cpp \ 
     src/mywidgets/myimage.cpp \
     src/mywidgets/mymessagebox.cpp \
     src/utility/myhttprequest.cpp \
-    src/qqstars/qqiteminfo.cpp
+    src/qqstars/qqiteminfo.cpp \
+    src/utility/downloadimage.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc \
@@ -48,12 +48,12 @@ HEADERS += \
     src/mywidgets/mywindow.h \
     src/qqstars/qqstars.h \
     src/mywidgets/systemtrayicon.h \
-    src/utility/threaddownloadimage.h \
     src/mywidgets/mysvgview.h \ 
     src/mywidgets/myimage.h \
     src/mywidgets/mymessagebox.h \
     src/utility/myhttprequest.h \
-    src/qqstars/qqiteminfo.h
+    src/qqstars/qqiteminfo.h \
+    src/utility/downloadimage.h
 
 OTHER_FILES += \
     qml/Utility/CodeInput.qml \
