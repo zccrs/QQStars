@@ -18,7 +18,7 @@ Utility::Utility(QObject *parent) :
     qmlRegisterType<UtilityPrivate>("utility", 1, 0, "Utility");
 
     http_request = new MyHttpRequest(this);
-    download_image = new DownloadImage(http_request, this);
+    download_image = new DownloadImage(this);
     old_pos = QPoint(-1,-1);
     
     mouse_timer = new QTimer(this);
@@ -129,6 +129,11 @@ QQmlApplicationEngine *Utility::qmlEngine()
 MyHttpRequest *Utility::getHttpRequest()
 {
     return http_request;
+}
+
+DownloadImage *Utility::getDownloadImage()
+{
+    return download_image;
 }
 
 bool Utility::networkIsOnline() const

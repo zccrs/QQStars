@@ -7,8 +7,8 @@
 #include <QAction>
 #include <QQuickItem>
 #include <QShortcut>
-#include "qxtglobalshortcut.h"
 
+class QxtGlobalShortcut;
 class MenuPrivate: public QMenu
 {
     Q_OBJECT

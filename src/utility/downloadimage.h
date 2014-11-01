@@ -18,6 +18,7 @@ class DownloadImage : public QObject
 public:
     explicit DownloadImage(QObject *parent = 0);
     explicit DownloadImage(MyHttpRequest* http, QObject *parent = 0);
+    MyHttpRequest *getHttpRequest();
 private:
     enum ReplyType{//回调的几种方式
         CallbackFun,

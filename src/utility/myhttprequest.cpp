@@ -6,7 +6,6 @@ MyHttpRequest::MyHttpRequest(QObject *parent) :
     QObject(parent)
 {
     m_status = Idle;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     manager = new NetworkAccessManager(this);
     connect (manager, SIGNAL(finished(QNetworkReply*)), SLOT(finished(QNetworkReply*)));
 }

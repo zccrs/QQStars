@@ -20,13 +20,12 @@ Item{
         if(myinfo){//从缓冲区中读取数据
             var message_list = myinfo.getChatRecords()//获取内存中的所有聊天记录
             for(var i=0;i<message_list.length;++i){
-                var message = message_list[i]//读取第i条消息
-                var messageInfo = myinfo.createChatMessageInfo(message.messageID)
+                var messageInfo = message_list[i]//读取第i条消息
                 var data = {
-                    "uin":messageInfo.senderUin,//发送者是谁
-                    "send_uin":"",//如果mode为right才需要此值(为发送给谁)
-                    "mode": message.senderUin==myqq.userQQ?"right":"left",//要判断发送者是不是自己（这条消息是发送的还是接收的）
-                    "message_info": messageInfo,//消息内容
+                    "sender_info":myqq.createFriendInfo(messageInfo.senderUin),//发送者的info
+                    "to_uin":"",//如果mode为right才需要此值(为发送给谁)
+                    "mode": messageInfo.senderUin==myqq.userQQ?"right":"left",//要判断发送者是不是自己（这条消息是发送的还是接收的）
+                    "message_info": messageInfo,//此消息的各种信息
                     "parent_info": myinfo
                 }
                 listModel.append(data)
@@ -40,8 +39,7 @@ Item{
         onNewMessage:{
             if(fromUin==myuin&&type == myinfo.mytype){
                 var data = {
-                    "uin":info.senderUin,//发送者是谁
-                    "send_uin":"",//如果mode为right才需要此值(为发送给谁)
+                    "sender_info":myqq.createFriendInfo(info.senderUin),//发送者的info
                     "mode": "left",//要判断发送者是不是自己（这条消息是发送的还是接收的）
                     "message_info": info,//消息内容
                     "parent_info": myinfo
@@ -123,12 +121,13 @@ Item{
             
             onClicked: {
                 inputBox.selectAll()//先选中全部
-                var messageInfo = myinfo.createChatMessageInfo(myqq.getMessageIndex())
-                messageInfo.contentData = inputBox.selectedText//选中的文本
+                var messageInfo = {
+                    "contentData": inputBox.selectedText//选中的文本
+                }
                 //创建一个新的聊天储存聊天内容各种信息的对象（例如发送时间等等）
                 var data = {
-                    "uin":myqq.userQQ,//发送者是当前登录的用户qq
-                    "send_uin":myuin,//发送给自己（这里的自己代表对当前登录的用户qq来说是他的好友或者群，讨论组）
+                    "sender_info":myqq,//发送者是当前登录的用户qq
+                    "to_uin":myuin,//发送给当前聊天页的好友或群
                     "mode": "right",
                     "message_info": messageInfo,
                     "parent_info": myinfo

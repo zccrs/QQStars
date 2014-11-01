@@ -32,9 +32,13 @@ GroupInfo{
                 getAvatar(40)
         }
     }
-    function getAvatarFinished( path ,name){
+    function getAvatarFinished( error, path ,name){
         getImageing=false//将正在获取头像置为false
-        var imageName = path+"/"+name+".png"
+        if(error){//如果出错了
+            getAvatar(40)//重新获取
+            return
+        }
+        var imageName = path+"/"+name
         avatar40 = imageName
     }
     function getAvatar(size){

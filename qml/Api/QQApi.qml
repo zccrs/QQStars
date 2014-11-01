@@ -14,8 +14,7 @@ QQ{
     property string list_hash//获取好友列表时需要的hash
     property string ptwebqq//登录后返回的cookie
     property string psessionid: loginReData?loginReData.psessionid:""//登录后返回的数据
-
-    signal closeMainPanel//如果需要从头重新登录就关闭主面板
+    property string vfwebqq: loginReData?loginReData.vfwebqq:""//登录后返回的数据
     
     windowScale: {
         var dosktopWidth = Screen.desktopAvailableWidth
@@ -135,10 +134,8 @@ QQ{
             myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
         }else{
             console.debug("重新登录失败")
-            root.loginStatus = QQ.Offline//将登录状态设置为离线
             showWarningInfo("QQ已掉线，请重新登录")
-            root.closeMainPanel();//关闭主面板
-            utility.loadQml("qml/Login/main.qml")//打开登录面板
+            root.loginStatus = QQ.WaitLogin//将登录状态设置为离线
         }
     }
 
@@ -153,7 +150,6 @@ QQ{
                 loginReData = list.result//将数据记录下来
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
                 myqq.openSqlDatabase();//登录完成后，打开数据库(用来储存聊天记录)
-                utility.loadQml("qml/MainPanel/main.qml")//登录成功后加载主面板
                 myqq.loginStatus = QQ.LoginFinished//设置为登录成功
                 var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
                 myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
@@ -166,7 +162,7 @@ QQ{
     }
     
     function getUserData(uin, backFun) {//获取用户资料，登录完成后的操作
-        var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+uin+"&verifysession=&code=&vfwebqq="+loginReData.vfwebqq+"&t=1407324674215"
+        var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+uin+"&verifysession=&code=&vfwebqq="+vfwebqq+"&t=1407324674215"
         utility.httpGet(backFun, url, true)//第三个参数为true，是使用高优先级的网络请求
     }
     
@@ -218,47 +214,51 @@ QQ{
         //myqq.setValue( "nick", userData.nick)//保存昵称
     }
     function getQQSignature(uin, backFun){//获取好友个性签名 backFun为签名获取成功后调用
-        var url = "http://s.web2.qq.com/api/get_single_long_nick2?tuin="+uin+"&vfwebqq="+loginReData.vfwebqq
+        var url = "http://s.web2.qq.com/api/get_single_long_nick2?tuin="+uin+"&vfwebqq="+vfwebqq
         utility.httpGet(backFun, url)
     }
     function getFriendList(backFun) {//获取好友列表
         var url = "http://s.web2.qq.com/api/get_user_friends2"
-        var data = 'r={"h":"hello","hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
+        var data = 'r={"h":"hello","hash":"'+getHash()+'","vfwebqq":"'+vfwebqq+'"}'
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
     
     function getGroupList(backFun) {//获取群列表
         var url = "http://s.web2.qq.com/api/get_group_name_list_mask2"
-        var data = 'r={"hash":"'+getHash()+'","vfwebqq":"'+loginReData.vfwebqq+'"}'
+        var data = 'r={"hash":"'+getHash()+'","vfwebqq":"'+vfwebqq+'"}'
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
     
     function getRecentList(backFun) {//获取最近联系人
         var url = "http://d.web2.qq.com/channel/get_recent_list2"
-        var data = 'r={"vfwebqq":"'+loginReData.vfwebqq+'","clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+        var data = 'r={"vfwebqq":"'+vfwebqq+'","clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
     
     function getDiscusList(backFun) {//讨论组列表
-        var url = "http://s.web2.qq.com/api/get_discus_list?clientid="+clientid+"&psessionid="+loginReData.psessionid+"&vfwebqq="+loginReData.vfwebqq
+        var url = "http://s.web2.qq.com/api/get_discus_list?clientid="+clientid+"&psessionid="+loginReData.psessionid+"&vfwebqq="+vfwebqq
         utility.httpGet(backFun, url, true)
     }
     
     function getFriendQQ( tuin, backFun ) {//获得好友真实的qq
-        var url = "http://s.web2.qq.com/api/get_friend_uin2?tuin="+tuin+"&verifysession=&type=1&code=&vfwebqq="+loginReData.vfwebqq
+        var url = "http://s.web2.qq.com/api/get_friend_uin2?tuin="+tuin+"&verifysession=&type=1&code=&vfwebqq="+vfwebqq
         utility.httpGet(backFun, url)
     }
     
-    function getAvatarFinished( path, name ){//获得自己头像完成
-        //myqq.setValue(name, path+"/"+name+".png")//保存自己头像的地址
-        myqq.avatar240 = path+"/"+name+".png";
+    function getAvatarFinished( error, path, name ){//获得自己头像完成
+        if(error){//如果出错
+            downloadImage(QQItemInfo.Friend, url, myqq.userQQ, "240", getAvatarFinished)//重新获取头像
+            return
+        }
+
+        myqq.avatar240 = path+"/"+name
     }
     
     function getFriendInfo( tuin,backFun ) {//获取好友资料
-        var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+tuin+"&verifysession=&code=&vfwebqq="+loginReData.vfwebqq
+        var url = "http://s.web2.qq.com/api/get_friend_info2?tuin="+tuin+"&verifysession=&code=&vfwebqq="+vfwebqq
         utility.httpGet(backFun, url)
     }
     
@@ -277,6 +277,9 @@ QQ{
         data = JSON.parse(data)
         if( data.retcode==0&&data.result=="ok" ){
             console.log("状态改变成功")
+            if(root.state==QQ.Offline){//如果状态变为离线
+                root.loginStatus = QQ.WaitLogin//改变登录状态
+            }
         }
     }
     
@@ -313,7 +316,7 @@ QQ{
         utility.httpPost(backFun, url, data, true)
     }
     function getGroupMembersList(callbackFun, gcode){//获取群成员列表
-        var url = "http://s.web2.qq.com/api/get_group_info_ext2?gcode="+gcode+"&cb=undefined&vfwebqq="+loginReData.vfwebqq
+        var url = "http://s.web2.qq.com/api/get_group_info_ext2?gcode="+gcode+"&cb=undefined&vfwebqq="+vfwebqq
         utility.httpGet(callbackFun, url, true)
     }
     function getOnlineFriends(callbackFun){//获取在线好友列表

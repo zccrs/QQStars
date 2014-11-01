@@ -4,7 +4,7 @@ import "../QQItemInfo"
 
 ChatPage{
     id: root
-    myinfo: myqq.createFriendInfo(myuin)
+    myinfo: myuin!=""?myqq.createFriendInfo(myuin):null
    
     Connections{
         target: myqq

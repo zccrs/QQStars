@@ -3,5 +3,5 @@ import utility 1.0
 
 ChatPage{
     id: root
-    myinfo: myqq.createDiscuInfo(myuin)
+    myinfo: myuin!=""?myqq.createDiscuInfo(myuin):null
 }

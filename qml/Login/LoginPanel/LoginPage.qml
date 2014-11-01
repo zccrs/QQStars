@@ -13,7 +13,7 @@ Item{
     width: effect.actualWidth
     height: effect.actualHeight
     function reLogin(){
-        myqq.loginStatus = QQ.Offline
+        myqq.loginStatus = QQ.WaitLogin
         animation_avatar.stop()//停止动画
         avatar_image.x = -30/77*avatar_image.width//将头像位置复原
     }
@@ -114,7 +114,7 @@ Item{
                     anchors.margins: -0.02*avatar_image.width
                     //sourceSize.width: width
                     //width: 5/16*avatar_image.width
-                    enabled: myqq.loginStatus == QQ.Offline
+                    enabled: myqq.loginStatus == QQ.WaitLogin
                     source: "qrc:/images/status-"+myqq.stateToString+"-1.svg"
                     MyMenu{
                         id: menu_state
@@ -227,7 +227,7 @@ Item{
                 id: inputarea
                 width: 220*myqq.windowScale
                 height: 64*myqq.windowScale
-                visible: myqq.loginStatus == QQ.Offline
+                visible: myqq.loginStatus == QQ.WaitLogin
                 anchors.left: avatar_image.right
                 anchors.leftMargin: 30
                 anchors.top: image_qq_for_ubuntu.bottom
@@ -325,11 +325,11 @@ Item{
                 width: defaultSize.width*myqq.windowScale
 
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: myqq.loginStatus != QQ.Offline?"取    消":"登    录"
+                text: myqq.loginStatus != QQ.WaitLogin?"取    消":"登    录"
                 font.pointSize: width/15
                 
                 onClicked: {
-                    if( myqq.loginStatus == QQ.Offline ){
+                    if( myqq.loginStatus == QQ.WaitLogin ){
                         if( myqq.userQQ!=""&&myqq.userPassword!="" ){
                             myqq.loginStatus = QQ.Logining
                             myqq.autoLogin = checkbox_autologin.checked
@@ -339,7 +339,7 @@ Item{
                         }
                     }else if( myqq.loginStatus == QQ.Logining ){
                         reLogin()//调用重新登录
-                        myqq.loginStatus = QQ.Offline
+                        myqq.loginStatus = QQ.WaitLogin
                     }
                 }
             }
@@ -349,7 +349,7 @@ Item{
                 source: "qrc:/images/button-settings.svg"
                 anchors.right: parent.right
                 anchors.verticalCenter: button_login.verticalCenter
-                visible: myqq.loginStatus == QQ.Offline
+                visible: myqq.loginStatus == QQ.WaitLogin
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {

@@ -6,7 +6,6 @@
 #include <QPoint>
 #include <QQuickItem>
 #include <QPixmap>
-//#include <private/qshortcutmap_p.h>
 #include <QQueue>
 
 class MyWindow : public QQuickWindow

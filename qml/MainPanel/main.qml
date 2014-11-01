@@ -52,19 +52,6 @@ MyWindow{
         }
     }
     
-    Connections{
-        target: myqq
-        onCloseMainPanel:{//如果需要重新登录
-            main.close()
-            main.deleteWindow();//销毁自己
-        }
-    }
-    
-    Text{
-        anchors.centerIn: parent
-        text: "已离线"
-        visible: myqq.state == QQ.Offlineing
-    }
     Rectangle{
         anchors.fill: parent
         radius: 10
@@ -84,7 +71,7 @@ MyWindow{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    myqq.state = QQ.Offlineing//将状态改为离线
+                    myqq.state = QQ.Offline//将状态改为离线
                     Qt.quit()
                 }
             }
@@ -104,7 +91,6 @@ MyWindow{
         }
         MainPanelPage{
             id: panel_page
-            visible: myqq.state != QQ.Offlineing
             anchors.top: image_minimize_icon.bottom
             anchors.topMargin: 10
             anchors.bottom: parent.bottom

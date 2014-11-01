@@ -37,9 +37,14 @@ FriendInfo{
                 getAvatar(40)//去获取头像
         }
     }
-    function getAvatarFinished( path ,name){
+    function getAvatarFinished( error, path ,name){
         getImageing = false//获取图像结束
-        var imageName = path+"/"+name+".png"
+        if(error){//如果出错了
+            getAvatar(40)//重新获取
+            return
+        }
+
+        var imageName = path+"/"+name
         avatar40 = imageName//保存自己头像的地址
         //console.log(nick+"获取头像完成："+imageName)
     }

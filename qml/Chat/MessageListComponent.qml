@@ -7,12 +7,11 @@ Component{
         id: root
         width: parent.width
         height: nick.implicitHeight+backgound.height+backgound.anchors.topMargin
-        property FriendInfo myinfo: myqq.createFriendInfo(uin)
-        //这条消息的发送者的信息，好友里面就是你的好友本身，群里边就是此条群消息的发送者
-        property string sendUin: send_uin//将此消息发送给谁
+        property FriendInfo myinfo: sender_info
+        //这条消息的发送者的信息，好友发送的话就是你的好友本身，群里边就是此条群消息的发送者
         property QQItemInfo parentInfo: parent_info
         //消息属主的info，好友里面就是你的好友本身，群里边就是群本身
-        property ChatMessageInfo messageInfo: message_info
+        property var messageInfo: message_info
         //这条消息自身的信息，千万不要和parentInfo和myinfo搞混了
         
         property var sendMessage: {
@@ -33,8 +32,8 @@ Component{
 
         Component.onCompleted: {
             //console.log(message)//输出消息内容
-            if(sendUin!=""&&sendMessage&&mode=="right"){//如果为模式right代表是要发送消息
-                sendMessage(sendMessageFinished, sendUin, messageInfo.contentData)//发送消息
+            if(sendMessage&&mode=="right"&&to_uin!=""){//如果为模式right代表是要发送消息
+                sendMessage(sendMessageFinished, to_uin, messageInfo.contentData)//发送消息
             }
         }
         function sendMessageFinished(error, data){//如果这个Item发送信息，此函数用来接收发送结果
@@ -42,10 +41,14 @@ Component{
             if(!error){//如果没有出错
                 data = JSON.parse(data)
                 if(data.retcode==0&&data.result=="ok"){
+                    var temp_info = parentInfo.getChatMessageInfoById(parentInfo.getMessageIndex())
+                    //新建一个消息对象用来储存消息
                     var date_time = new Date
-                    messageInfo.date = date_time.getDate()
-                    messageInfo.time = date_time.getTime()
-                    parentInfo.addChatRecord(messageInfo)//将聊天记录保存到内存当中
+                    temp_info.date = date_time.getDate()
+                    temp_info.time = date_time.getTime()
+                    temp_info.contentData=messageInfo.contentData
+                    temp_info.senderUin=myqq.uin
+                    parentInfo.addChatRecord(temp_info)//将聊天记录保存到内存当中
                     console.debug("消息发送成功")
                 }else{
                     console.log("发送失败")
@@ -61,7 +64,7 @@ Component{
             x:mode=="left"?0:root.width-width
             width:40
             maskSource: "qrc:/images/bit.bmp"
-            source: myinfo.avatar40
+            source: root.myinfo.avatar40
             onLoadError: {
                 avatar.source = "qrc:/images/avatar.png"
             }
@@ -70,7 +73,7 @@ Component{
             id: nick
             x: mode=="left"?avatar.x+avatar.width+5:avatar.x-implicitWidth-5
             anchors.top: avatar.top
-            text: myinfo.aliasOrNick
+            text: root.myinfo.aliasOrNick
         }
 
         BorderImage {
@@ -101,6 +104,7 @@ Component{
                 wrapMode: TextEdit.Wrap
                 text: root.messageInfo.contentData
                 onTextChanged: {
+                    //console.debug(text)
                     if(text[text.length-1]=="\n"){
                         text = text.substr(0, text.length-1)
                     }

@@ -22,6 +22,7 @@ MySystemTrayIcon{
     }
     
     function iconShakeStart(){//开启图标闪动
+        windowIcon = currentInfo.avatar40//设置图标
         timer_shake.start()
     }
     function iconShakeStop(){//停止鼠标闪动
@@ -183,7 +184,7 @@ MySystemTrayIcon{
             text: "离线"
             icon: "qrc:/images/imoffline.png"
             onTriggered: {
-                myqq.state = QQ.Offlineing
+                myqq.state = QQ.Offline
             }
         }
         MenuSeparator{}

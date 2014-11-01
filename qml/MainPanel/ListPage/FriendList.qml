@@ -201,6 +201,7 @@ Item{
             Component{
                 id: component2
                 Item{
+                    id: item_root
                     width: parent.width
                     height: avatar.height
                     property FriendInfo myinfo: obj_info
@@ -228,7 +229,7 @@ Item{
                         grayscale: myinfo.state==FriendInfo.Offlineing
                         maskSource: "qrc:/images/bit.bmp"
                         cache: false
-                        source: myinfo.avatar40
+                        source: item_root.myinfo.avatar40
                         onLoadError: {
                             myinfo.avatar40 = "qrc:/images/avatar.png"
                         }

@@ -32,12 +32,17 @@ int ChatMessageInfo::messageId2() const
     return m_messageId2;
 }
 
-ChatMessageInfo::ChatMessageInfo(QObject *parent)
+const QQItemInfo *ChatMessageInfo::getParent()
+{
+    return qobject_cast<QQItemInfo *>(parent());
+}
+
+ChatMessageInfo::ChatMessageInfo(QQItemInfo *parent)
 {
     ChatMessageInfo(-1, parent);
 }
 
-ChatMessageInfo::ChatMessageInfo(int messageID, QObject *parent):
+ChatMessageInfo::ChatMessageInfo(int messageID, QQItemInfo *parent):
     QObject(parent)
 {
     m_messageId=messageID;
@@ -499,7 +504,9 @@ QVariant QQItemInfo::getChatRecords()
         if(data!=NULL){
             QVariantMap map;
             map["senderUin"] = data->senderUin ();
-            map["messageID"] = data->messageId ();
+            map["contentData"] = data->contentData ();
+            map["date"] = data->date ();
+            map["time"] = data->time ();
             var_list<<map;
         }
     }
@@ -546,11 +553,11 @@ void QQItemInfo::setIsActiveChatPage(bool arg)
     }
 }
 
-ChatMessageInfo *QQItemInfo::createChatMessageInfo(int messageID)
+ChatMessageInfo *QQItemInfo::getChatMessageInfoById(int messageID)
 {
     ChatMessageInfo* info = queue_chatRecords->find (messageID);//先查找这条消息是否存在
     if(info==NULL){//为空证明没有找到
-        info = new ChatMessageInfo(messageID);
+        info = new ChatMessageInfo(messageID, this);
     }
     return info;
 }
@@ -572,7 +579,7 @@ FriendInfo::FriendInfo(QObject *parent):
     QQItemInfo(Friend, parent)
 {
     m_signature = "";
-    m_state = Offlineing;
+    m_state = Offline;
     m_stateToString = "offline";
     
     connect (this, &QQItemInfo::settingsChanged, this, &FriendInfo::onSettingsChanged);
@@ -657,7 +664,9 @@ QVariant FriendInfo::getChatRecords()
         if(data!=NULL){
             QVariantMap map;
             map["senderUin"] = data->senderUin ();
-            map["messageID"] = data->messageId ();
+            map["contentData"] = data->contentData ();
+            map["date"] = data->date ();
+            map["time"] = data->time ();
             var_list<<map;
         }
     }
@@ -690,7 +699,7 @@ void FriendInfo::setState(FriendInfo::States arg)
         case Hidden:
             m_stateToString = "hidden";
             break;
-        case Offlineing:
+        case Offline:
             m_stateToString = "offline";
             break;
         default:break;
@@ -716,7 +725,7 @@ void FriendInfo::setStateToString(const QString &str)
         }else if(str=="hidden"){
             setState (Hidden);
         }else if(str=="offline"){
-            setState (Offlineing);
+            setState (Offline);
         }
     }
 }

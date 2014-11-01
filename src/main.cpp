@@ -15,6 +15,8 @@
 #include "mysvgview.h"
 #include "myshortcut.h"
 #include "myhttprequest.h"
+#include "mymessagebox.h"
+#include "downloadimage.h"
 #include <QDirModel>
 #include <QTreeView>
 
@@ -53,8 +55,14 @@ int main(int argc, char *argv[])
    
     //QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
-    utility->getHttpRequest ()->getNetworkRequest ()->setRawHeader (
-                "Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");//qq登录需要
+    QNetworkRequest* request = utility->getHttpRequest ()->getNetworkRequest ();
+    request->setRawHeader ("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");//和腾讯服务器打交道需要设置这个
+    request->setHeader (QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    
+    request = utility->getDownloadImage ()->getHttpRequest ()->getNetworkRequest ();
+    request->setRawHeader ("Referer", "http://web2.qq.com/webqq.html");//需要设置这个，不然腾讯服务器不响应你的请求
+    request->setRawHeader ("Accept", "image/webp,*/*;q=0.8");
+    
     utility->initUtility (new QSettings, engine);
     
     QQmlComponent component0(engine, "./qml/Api/QQApi.qml");

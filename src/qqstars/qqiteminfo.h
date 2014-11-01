@@ -14,6 +14,7 @@
 #include <QString>
 #include <QDir>
 
+class QQItemInfo;
 class ChatMessageInfo:public QObject//用来储存聊天消息的各种信息
 {
     Q_OBJECT
@@ -25,8 +26,8 @@ class ChatMessageInfo:public QObject//用来储存聊天消息的各种信息
     Q_PROPERTY(int messageId2 READ messageId2 WRITE setMessageId2 NOTIFY messageId2Changed)
     
 public:
-    ChatMessageInfo(QObject* parent = 0);
-    ChatMessageInfo(int messageID, QObject* parent = 0);
+    ChatMessageInfo(QQItemInfo* parent=0);
+    ChatMessageInfo(int messageID, QQItemInfo* parent);
     
     QString senderUin() const;
     QString contentData() const;
@@ -34,7 +35,7 @@ public:
     QTime time() const;
     int messageId() const;
     int messageId2() const;
-    
+    const QQItemInfo* getParent();//获取此条消息所属的ItemInfo对象
 private:
     QString m_senderUin;
     QString m_contentData;
@@ -134,17 +135,14 @@ public:
         Group,//群
         Discu,//讨论组
     };
+    
 private:
     explicit QQItemInfo(QQItemType type, QObject *parent=0);
     void initSettings();
     void setUnreadMessagesCount(int arg);//设置未读消息的个数
-    bool m_isActiveChatPage;
-    int messageID;//为自己个好友发送的消息的id（为此消息的唯一标识）
     
-protected:
     QString m_uin;//uin，为此qq的唯一标识
     QString m_account;//qq账号
-    QPointer<QSettings> mysettings;
     QString m_aliasOrNick;
     QString m_userQQ;
     QString m_nick;//储存昵称
@@ -152,9 +150,14 @@ protected:
     QString typeString;
     int m_unreadMessagesCount;
     QQItemType m_mytype;
-    ChatMessageInfoList *queue_chatRecords;//储存聊天记录的队列
-    bool isCanUseSetting() const;//是否可以调用settings
+    bool m_isActiveChatPage;
     QTimer m_timer;//此定时器用于当聊天页面被销毁后在内存中保存聊天的时常，此定时器触发后会调用虚槽函数
+    int messageID;//为自己个好友发送的消息的id（为此消息的唯一标识）
+protected:
+    ChatMessageInfoList *queue_chatRecords;//储存聊天记录的队列
+    QPointer<QSettings> mysettings;
+    
+    bool isCanUseSetting() const;//是否可以调用settings
 protected slots:
     virtual void clearChatRecords();//清空聊天记录
 public:
@@ -193,8 +196,9 @@ public slots:
     void startClearChatRecordsTimer();//启动清空聊天记录的定时器
     void stopClearChatRecordsTimer();//停止情况聊天记录的定时器
     void setIsActiveChatPage(bool arg);
-    ChatMessageInfo* createChatMessageInfo(int messageID);//创建一个储存聊天记录的信息的对象
+    ChatMessageInfo* getChatMessageInfoById(int messageID);//创建一个储存聊天记录的信息的对象
     int getMessageIndex();//返回一个本次在线中的一个唯一的数字，用于收到或者发送的消息的id
+    
 signals:
     void nickChanged();
     void aliasChanged();
@@ -223,7 +227,7 @@ public:
     QString QQSignature();
     
     enum States{//登录后的用户的qq状态
-        Offlineing,//离线中
+        Offline,//离线中
         Online,//在线
         Callme,//Q我吧
         Away,//离开

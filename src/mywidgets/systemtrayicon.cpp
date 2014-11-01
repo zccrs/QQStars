@@ -3,6 +3,7 @@
 #include <QKeySequence>
 #include <QFile>
 #include "utility.h"
+#include "qxtglobalshortcut.h"
 
 SystemTrayIcon::SystemTrayIcon(QQuickItem *parent) :
     QQuickItem(parent)

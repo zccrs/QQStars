@@ -4,7 +4,8 @@ import utility 1.0
 ChatPage{
     id: root
     property bool existMembers: false
-    myinfo: myqq.createGroupInfo(myuin)
+    myinfo: myuin!=""?myqq.createGroupInfo(myuin):null
+    
     onMyinfoChanged: {
         if(!existMembers&&myinfo&&myinfo.code!=""){
             myqq.getGroupMembersList(getMembersListFinished, myinfo.code)

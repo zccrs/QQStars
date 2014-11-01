@@ -58,6 +58,7 @@ public:
     Q_INVOKABLE QString getCookie( QString cookieName );
     QQmlApplicationEngine *qmlEngine();
     MyHttpRequest *getHttpRequest();
+    DownloadImage *getDownloadImage();
     bool networkIsOnline() const;
 signals:
     void mouseDesktopPosChanged(QPoint arg);

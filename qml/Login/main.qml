@@ -50,12 +50,6 @@ MyWindow{
                 myqq.updataCode()//刷新验证码
             }
         }
-        onLoginStatusChanged:{
-            if(myqq.loginStatus == QQ.LoginFinished){
-                main.close()
-                main.deleteWindow();//销毁自己
-            }
-        }
     }
 
     Connections{

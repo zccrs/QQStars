@@ -5,11 +5,13 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QTimer>
-#include "mymessagebox.h"
-#include "mynetworkaccessmanagerfactory.h"
-#include "mywindow.h"
 #include "qqiteminfo.h"
 
+class MyWindow;
+class MyHttpRequest;
+class NetworkAccessManager;
+class QNetworkRequest;
+class QNetworkReply;
 class QQCommand : public FriendInfo
 {
     Q_OBJECT
@@ -28,10 +30,10 @@ class QQCommand : public FriendInfo
 private:
     static QQCommand *firstQQCommand;
 public:
-    static QQCommand *getFirstQQCommand();
+    static QQCommand *getFirstQQCommand();//返回第一个被创建的QQCommand对象
     explicit QQCommand(QQuickItem *parent = 0);
     enum LoginStatus{//登录状态
-        Offline,//离线
+        WaitLogin,//离线
         Logining,//登录中
         LoginFinished//登录完成
     };
@@ -79,10 +81,25 @@ private slots:
     void onStateChanged();//当状态改变后调用，将状态存到本地
     void onPoll2Timeout();//如果心跳包超时
     void onNetworkOnlineStateChanged(bool isOnline);//如果网络在线状态改变
-    void downImageFinished(const QString& path, const QString& name);//下载图片完成
+    void downImageFinished(bool error, const QString& path, const QString& name);
+    //下载图片完成时调用，下载的图片是好友发送过来的
+    void getImageUrlFinished(QNetworkReply *replys);//获取图片真实的下载地址完成
 private:
-    QPointer<MyWindow> window_login, window_mainPanel;//记录登录窗口的指针
+    struct FontStyle{
+        int size;//字体大小
+        QString color;//字体颜色
+        bool bold;//加黑
+        bool italic;//斜体
+        bool underline;//下划线
+        QString family;//字体
+    };
+    struct ImageInfo{
+        int imageID;//图片的编号
+        ChatMessageInfo* messageInfo;//所属消息的信息
+        QString filePath;//能获取图片真实下载地址的url地址
+    };
     
+    QPointer<MyWindow> window_login, window_mainPanel;//记录登录窗口的指针
     LoginStatus m_loginStatus;//储存当前用户的登录状态
     QByteArray poll2_data;//post心跳包的数据
     NetworkAccessManager *manager;//储存管理心跳包网络请求的对象
@@ -104,19 +121,15 @@ private:
     QTimer* abortPoll_timer;//中断心跳包的定时器（为中断心跳包提供一个延时）
     int poll2Timerout_count;//记录网络请求的连续超时次数
     int poll2Error_count;//记录网络请求连续出错的次数
-    int chatImageID;//聊天过程中收到的图片的id编号
     
-    struct FontStyle{
-        int size;//字体大小
-        QString color;//字体颜色
-        bool bold;//加黑
-        bool italic;//斜体
-        bool underline;//下划线
-        QString family;//字体
-    };
+    MyHttpRequest* http_image;//下载图片专用的网络请求对象
+    int chatImageID;//聊天过程中收到的图片的id编号
+    QMap<int, QString> map_imageUrl;//图片的id和真实下载地址之间的映射
+    QQueue<ImageInfo> queue_imageInfo;
+    
 
     void loadApi();
-    QString disposeMessage(QJsonObject &obj , const QQItemInfo *info, int messageID);//解析基本消息
+    QString disposeMessage(QJsonObject &obj , ChatMessageInfo *message_info);//解析基本消息
     //void disposeInputNotify( QJsonObject &obj );//处理好友正在输入消息
     void disposeFriendStatusChanged( QJsonObject &obj );//处理好友状态改变
     void disposeFriendMessage( QJsonObject &obj, MessageType type=GeneralMessage );//处理好友消息
@@ -132,8 +145,13 @@ private:
     
     QQItemInfo* createQQItemInfo(const QString& uin ,const QString& typeString);
     QQItemInfo* createQQItemInfo(const QString& uin, QQItemInfo::QQItemType type);
-    int getChatImageIndex();//返回一个本次在线中的一个唯一的数字，用于给接收到的图片编码
+    
     void clearQQItemInfos();//清空保存的所有的好友信息
+    QString disposeImageMessage(ChatMessageInfo* message_info, QString file_path);
+    //获取qq中好友发过来的图片的真实url（需要先get一下某个url，然后返回的数据中有真实的url地址）
+    int getImageIndex();//返回一个本次在线中的一个唯一的数字，用于给接收到的图片编码
+    QString getImageUrlById(int image_id);
+    void setImageUrlById(int image_id, const QString &url);
 signals:
     void loginStatusChanged();
     void poll2ReData( QString data );
@@ -148,7 +166,6 @@ signals:
     void friendInputNotify(QString fromUin);//好友正在输入的信号
     void newMessage(QString fromUin, int type, ChatMessageInfo* info);//新的聊天消息信号,qml中的聊天页面会接收此消息
     void shakeWindow(QString fromUin);//窗口抖动信号
-    //void friendStatusChanged(QString fromUin, QString newStatus);//好友状态改变的信号
     void addChatPageToWindow(QQuickItem* item);//增加聊天页面的信号,此信号被聊天页面所在的window接收
     void activeChatPageChanged(QQuickItem* item);//将item这个page变为活跃的page
     void addRecentContacts(QQItemInfo* info);//发送信号告诉qml的最近联系人列表添加item
@@ -167,7 +184,7 @@ public slots:
     
     QString getHash();//获取请求好友列表需要的hsah
     QString encryptionPassword(const QString &uin, const QString &code);//加密密码，用来登录
-    QVariant getLoginedQQInfo();//获取所有登录过的qq
+    QVariant getLoginedQQInfo();//获取所有在此电脑上登录过的qq的信息
     void removeLoginedQQInfo(const QString account, bool rmLocalCache=false);//移除qq号码为account的账号信息
     void addLoginedQQInfo(const QString account, const QString nick);//增加一个登录过的qq的记录
     

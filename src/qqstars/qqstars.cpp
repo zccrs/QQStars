@@ -3,6 +3,9 @@
 #include <QJsonDocument>
 #include <QSettings>
 #include "mywindow.h"
+#include "myhttprequest.h"
+#include "mymessagebox.h"
+#include "mynetworkaccessmanagerfactory.h"
 
 QQCommand *QQCommand::firstQQCommand = NULL;
 QQCommand *QQCommand::getFirstQQCommand()
@@ -26,9 +29,9 @@ QQCommand::QQCommand(QQuickItem *parent) :
     utility->setApplicationProxy (temp1, temp2, temp3, temp4, temp5);
     
     setUserQQ (utility->value ("mainqq","").toString ());
-    m_loginStatus = Offline;//当前为离线(还未登录)
+    m_loginStatus = WaitLogin;//当前为离线(还未登录)
     m_windowScale = 1;//缺省窗口比例为1
-    chatImageID=0;//聊天过程中收到的图片的id编号
+    chatImageID = 0;//初始化为0
     
     request = new QNetworkRequest;
     request->setUrl (QUrl("http://d.web2.qq.com/channel/poll2"));
@@ -53,6 +56,10 @@ QQCommand::QQCommand(QQuickItem *parent) :
     connect (poll2_timer, &QTimer::timeout, this, &QQCommand::onPoll2Timeout);
     abortPoll_timer = new QTimer(this);
     abortPoll_timer->setSingleShot (true);//设置为单发射器
+    
+    http_image = new MyHttpRequest(this);//此网络请求对象专门用来获取聊天中收到图片的真实下载地址
+    http_image->getNetworkRequest ()->setRawHeader (
+                "Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");//必须设置，不然请求腾讯的数据会返回出错
 }
 
 QQCommand::LoginStatus QQCommand::loginStatus() const
@@ -163,6 +170,8 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                         beginPoll2();
                     }else if(retcode==102){
                         beginPoll2();
+                    }else if(retcode==116){
+                        
                     }else{
                         qDebug()<<"QQCommand:qq已掉线，即将重新登录";
                         QMetaObject::invokeMethod (this, "reLogin");//调用槽reLogin（在qml中定义）
@@ -252,28 +261,69 @@ void QQCommand::onNetworkOnlineStateChanged(bool isOnline)
     }
 }
 
-void QQCommand::downImageFinished(const QString &path, const QString &name)
+void QQCommand::downImageFinished(bool error, const QString &path, const QString &name)
 {
-    qDebug()<<"QQCommand:图片下载完成，保存路径为："<<path+name;
-    QStringList list = name.split ("_");
-    int messageID = list[0].toInt ();
-    int imageID = list[1].toInt ();
+    QStringList list = name.split ("_");//分割字符串
+    QString rootUin=list[0];//图片发送者本身或者图片发送者所在群的uin
+    int messageID = list[1].toInt ();//分离出messageID
+    int imageID = list[2].toInt ();//分离出imageID
     
-    QString senderType, senderUin;
-    QRegExp reg("[A-Z][a-z]+_[0-9]+}");
-    if(reg.indexIn (path)>=0){
+    QString senderType;
+    QRegExp reg("[A-Z][a-z]+_[0-9]+");//符合条件的字符串，例如Friend_826169080
+    if(reg.indexIn (path)>=0){//如果找到了
         senderType = reg.cap (0);
-        QStringList list = senderType.split ("/");
-        senderType=list[0];
-        senderUin=list[1];
+        QStringList list = senderType.split ("_");
+        senderType=list[0];//图片所有者的类型（如果是好友发送的就是Friend，如果是群成员发送的就是Group）
+    }else{
+        qDebug()<<"QQCommand:从下载路径中提取uin和消息发送者类型出错";
+        return;
     }
-    QQItemInfo* info = createQQItemInfo (senderUin, senderType);
-    ChatMessageInfo* message_info = info->createChatMessageInfo (messageID);
-    QString content = message_info->contentData ();
-    QString old_img = "<img id=\"img"+QString::number (imageID)+"\" alt=\"[加载中...]\">";
-    QString new_img = "<img src=\""+path+name+"\">";
-    content.replace (old_img, new_img);
-    message_info->setContentData (content);//替换内容
+    QQItemInfo* info = createQQItemInfo (rootUin, senderType);
+    //获取图片所有者的信息
+    if(error){//如果出错
+        qDebug()<<"QQCommand:图片"<<name<<"下载出错";
+        QString image_url = getImageUrlById (imageID);//通过图片id获得储存的图片真实下载地址
+        QString save_name = name.mid (0, name.size ()-4);//去除末尾的图片后缀才是要保存的图片名字
+        Utility::createUtilityClass ()->//重新去下载图片
+                downloadImage (this, SLOT(downImageFinished(bool,QString,QString)), 
+                               QUrl(image_url), path, save_name);//重新下载图片
+        return;
+    }
+    ChatMessageInfo* message_info = info->getChatMessageInfoById (messageID);
+    //通过图片所在消息的id获取储存消息信息的对象
+    QString content = message_info->contentData ();//获得消息储存的内容
+    QString old_img = "<img src=\"qrc:/images/loading.png\" imageID="+QString::number (imageID)+">";//旧的img标签中的内容
+    QString new_img = "<img src=\"file:///"+path+name+"\">";//新img标签内容
+    content.replace (old_img, new_img);//将old_img标签替换为新的内容
+    message_info->setContentData (content);//替换消息内容，qml端会自动刷新消息
+}
+
+void QQCommand::getImageUrlFinished(QNetworkReply *replys)
+{
+    ImageInfo image_info = queue_imageInfo.dequeue ();//从列队中取出队首
+    if(replys->error() == QNetworkReply::NoError)//如果网络请求没有出错
+    {
+        QString image_url = replys->rawHeader ("Location");//从返回的http头部中取出图片的真实下载地址
+        if(image_url==""){//如果真实下载地址为空
+            qDebug()<<"QQCommand:获取图片"<<image_info.imageID<<"的真实下载地址失败，网络返回内容为："<<replys->readAll ();
+            return;
+        }
+        const QQItemInfo* root_info = image_info.messageInfo->getParent ();
+        //获取图片所有者信息的对象（如果图片为好友发送，那就是那个好友的info，如果是群，那就是群的ifno）
+        QString save_path = root_info->localCachePath ()+"/cacheImage/";//获取图片的缓存路径
+        QString save_name = root_info->uin ()+"_"+
+                QString::number (image_info.messageInfo->messageId ())+"_"+
+                QString::number (image_info.imageID)+"_"+
+                QDateTime::currentDateTime ().toString (Qt::ISODate).replace (QRegExp("\\D"),"");//设置要保存的图片名（不加后缀）
+        setImageUrlById (image_info.imageID, image_url);//将图片id和真实下载链接的对应关系储存起来
+        Utility::createUtilityClass ()->//启动网络请求获取图片
+                downloadImage (this, SLOT(downImageFinished(bool,QString,QString)), 
+                               QUrl(image_url), save_path, save_name);
+    }else{//如果获取图片的真实下载地址出错
+        queue_imageInfo<<image_info;//不要忘了把图片信息重新加到列队
+        http_image->get (this, SLOT(getImageUrlFinished(QNetworkReply*)), image_info.filePath);
+        //重新去获取图片的真实下载地址
+    }
 }
 
 void QQCommand::loadApi()
@@ -287,7 +337,7 @@ void QQCommand::loadApi()
     jsEngine->evaluate(contents, fileName);
 }
 
-QString QQCommand::disposeMessage(QJsonObject &obj, const QQItemInfo *info, int messageID)
+QString QQCommand::disposeMessage(QJsonObject &obj, ChatMessageInfo* message_info)
 {
     QString result;
     FontStyle font_style;
@@ -313,31 +363,44 @@ QString QQCommand::disposeMessage(QJsonObject &obj, const QQItemInfo *info, int 
         if(temp2.isArray ()){
             QJsonArray array = temp2.toArray ();
             QString array_name = array[0].toString ();
-            if(array_name=="cface"){//为表情消息
+            if(array_name=="cface"){//为群图片消息
                 foreach (QJsonValue temp3, array) {
                     if(temp3.isObject ()){
                         obj = temp3.toObject ();
-                        result.append (textToHtml (font_style, "[[此处为表情]]"));//添加纯文本消息
-                        //QString file_id = doubleToString (obj, "file_id");
+                        QString file_id = doubleToString (obj, "file_id");
                         //QString key = obj["key"].toString ();
-                        //QString name = obj["name"].toString ();
-                        //QString server = obj["server"].toString ();
-                        //qDebug()<<"收到了文件"<<"file_id:"+file_id<<"key:"+key<<"name:"+name<<"server:"+server;
-                        //data.append (QString("{")+"\"type\":"+QString::number (Image)+",\"file_id\":\""+file_id+"\",\"name\":\""+name+"\",\"key\":\""+key+"\",\"server\":\""+server+"\"},");
+                        QString name = obj["name"].toString ();
+                        name.replace ("{", "%7B");
+                        name.replace ("}", "%7D");
+                        QString server = obj["server"].toString ();
+                        QStringList tem_list = server.split (":");
+                        server = tem_list[0];
+                        QString port = tem_list[1];
+                        
+                        GroupInfo* root_info = qobject_cast<GroupInfo*>(const_cast<QQItemInfo*>(message_info->getParent ()));
+                        if(root_info==NULL){
+                            qDebug()<<"QQCommand:将消息对象从QQItemInfo转换为GroupInfo失败";
+                            result.append (textToHtml (font_style, "[图片加载失败...]"));
+                        }else{
+                            QString file_path = "http://web2.qq.com/cgi-bin/get_group_pic?type=0&gid="+
+                                    root_info->code ()+"&uin="+message_info->senderUin ()+
+                                    "&rip="+server+"&rport="+port+"&fid="+file_id+
+                                    "&pic="+name+"&vfwebqq="+property ("vfwebqq").toString ();
+                            result.append (disposeImageMessage(message_info, file_path));
+                        }
                     }
                 }
             }else if(array_name=="offpic"){//为图片消息
                 foreach (QJsonValue temp3, array) {
                     if(temp3.isObject ()){
                         obj = temp3.toObject ();
-                        QString imageID = QString::number (getChatImageIndex());
-                        result.append ("<img id=\"img"+imageID+"\" alt=\"[加载中...]\">");//添加纯文本消息
                         QString file_path = obj["file_path"].toString ();
-                        file_path.replace (0,1,"%2F");
-                        QString image_url = "http://d.web2.qq.com/channel/get_offpic2?file_path="+file_path+"&f_uin="+info->uin ()+"&clientid="+property ("clientid").toString ()+"&psessionid="+property ("psessionid").toString ();
-                        QString downloadPath = info->localCachePath ()+"/cacheImage/";
-                        Utility::createUtilityClass ()->//去下载图片
-                                downloadImage (this, SLOT(downImageFinished(QString,QString)), QUrl(image_url), downloadPath, QString::number (messageID)+"_"+imageID+"_"+file_path);
+                        file_path.replace ("/", "%2F");
+                        file_path = "http://d.web2.qq.com/channel/get_offpic2?file_path="+file_path+"&f_uin="+message_info->senderUin ()
+                                +"&clientid="+property ("clientid").toString ()
+                                +"&psessionid="+property ("psessionid").toString ();
+                        result.append (disposeImageMessage(message_info, file_path));
+                        //处理图片消息，并将处理的结果添加到result
                     }
                 }
             }else if(array_name=="face"){//为表情消息
@@ -375,20 +438,21 @@ void QQCommand::disposeFriendMessage(QJsonObject &obj, QQCommand::MessageType ty
     switch (type) 
     {
     case GeneralMessage:{
-        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfo::Friend);
-        int msg_id = info->getMessageIndex();
-        QString data = disposeMessage (obj, info, msg_id);//先处理基本消息
+        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfo::Friend);//先获取消息发送者的信息
+        int msg_id = info->getMessageIndex();//为新消息获取一个id
         
-        ChatMessageInfo *message_info = info->createChatMessageInfo (msg_id);
-        message_info->setSenderUin (from_uin);
-        message_info->setContentData (data);
-        message_info->setDate (QDate::currentDate ());
-        message_info->setTime (QTime::currentTime ());
+        ChatMessageInfo *message_info = info->getChatMessageInfoById (msg_id);
+        //通过消息id获得一个储存消息各种信息的对象
+        message_info->setSenderUin (from_uin);//将消息的信息存进去
+        message_info->setDate (QDate::currentDate ());//将消息发送日期存进去
+        message_info->setTime (QTime::currentTime ());//将消息发送时间存进去
+        QString data = disposeMessage (obj, message_info);//处理这条消息的内容（一定要放在SenderUin之后）
+        message_info->setContentData (data);//将处理后的内容设置给消息对象
         
-        info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
+        info->addChatRecord (message_info);//将消息加到发送者info对象中
         
         //qDebug()<<"收到了好友消息："<<data;
-        emit newMessage (from_uin, (int)QQItemInfo::Friend, message_info);
+        emit newMessage (from_uin, (int)QQItemInfo::Friend, message_info);//发送信号告诉qml有新的消息
         break;
     }
     case InputNotify:
@@ -427,19 +491,19 @@ void QQCommand::disposeGroupMessage(QJsonObject &obj, QQCommand::MessageType typ
     //QString msg_type = doubleToString (obj, "msg_type");
     //QString reply_ip = doubleToString (obj, "reply_ip");
     //QString to_uin = doubleToString (obj, "to_uin");
-    QString send_uin = doubleToString (obj, "send_uin");
+    QString send_uin = doubleToString (obj, "send_uin");//发送者的uin
 
     switch (type) {
     case GeneralMessage:{
-        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfo::Group);
-        int msg_id = info->getMessageIndex();
-        QString data = disposeMessage (obj, info, msg_id);//先处理基本消息
+        QQItemInfo *info = createQQItemInfo (from_uin, QQItemInfo::Group);//先获取储存群信息的对象
+        int msg_id = info->getMessageIndex();//同好友消息
         
-        ChatMessageInfo *message_info = info->createChatMessageInfo (msg_id);
-        message_info->setSenderUin (send_uin);
-        message_info->setContentData (data);
+        ChatMessageInfo *message_info = info->getChatMessageInfoById (msg_id);
+        message_info->setSenderUin (send_uin);//注意！！！此处的发送者uin不是群的uin，而是将消息发到群的成员的uin
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
+        QString data = disposeMessage (obj, message_info);//先处理消息内容
+        message_info->setContentData (data);
         
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
         emit newMessage (from_uin, (int)QQItemInfo::Group, message_info);
@@ -467,13 +531,13 @@ void QQCommand::disposeDiscuMessage(QJsonObject &obj, QQCommand::MessageType typ
     case GeneralMessage:{
         QQItemInfo *info = createQQItemInfo (did, QQItemInfo::Discu);
         int msg_id = info->getMessageIndex();
-        QString data = disposeMessage (obj, info, msg_id);
         
-        ChatMessageInfo *message_info = info->createChatMessageInfo (msg_id);
-        message_info->setSenderUin (send_uin);
-        message_info->setContentData (data);
+        ChatMessageInfo *message_info = info->getChatMessageInfoById (msg_id);
+        message_info->setSenderUin (send_uin);//注意！！！此处的发送者uin不是群的uin，而是将消息发到讨论组的成员的uin
         message_info->setDate (QDate::currentDate ());
         message_info->setTime (QTime::currentTime ());
+        QString data = disposeMessage (obj, message_info);//先处理基本消息
+        message_info->setContentData (data);
         
         info->addChatRecord (message_info);//给from_uin的info对象增加聊天记录
         emit newMessage (did, (int)QQItemInfo::Discu, message_info);
@@ -594,9 +658,11 @@ QString QQCommand::textToHtml(QQCommand::FontStyle &style, QString data)
 
 QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, const QString& typeString)
 {
-    //QThread::msleep (10);//线程休眠10毫秒
-    if(uin=="")
+    if(uin==""||typeString==""){
+        qDebug()<<"QQCommand-createQQItemInfo:参数不合法,uin:"<<uin<<"type:"+typeString;
         return NULL;
+    }
+    
     QString name = typeString+uin;
     if(map_itemInfo.value (name, NULL)){
         QQItemInfo* info = qobject_cast<QQItemInfo*>(map_itemInfo[name]);
@@ -618,17 +684,20 @@ void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)
 {
     if (m_loginStatus != arg) {
         m_loginStatus = arg;
-        if(arg == Offline){//如果登录状态变为离线
-            chatImageID=0;
+        if(arg == WaitLogin){//如果登录状态变为离线
+            poll2_timer->stop ();//停止计算请求是否超时的计时器
+            reply->abort ();//停止心跳包
             closeChatWindow();//关闭和好友聊天的窗口
             clearQQItemInfos();//清空所有的好友信息
+            chatImageID = 0;//chatImageID回到缺省值
+            map_imageUrl.clear ();//情况image的id和url值对
             if(!window_mainPanel.isNull ())//销毁主面板窗口
                 window_mainPanel->deleteLater ();
             loadLoginWindow();//打开登录窗口
         }else if(arg == LoginFinished){//如果登录完成
             if(!window_login.isNull ())//关闭聊天窗口
                 window_login->deleteLater ();
-            loadMainPanelWindow ();//打开主面板窗口
+            loadMainPanelWindow ();//加载主面板窗口
         }
         emit loginStatusChanged();
     }
@@ -743,7 +812,7 @@ DiscuInfo* QQCommand::createDiscuInfo(const QString uin)
 
 void QQCommand::addChatPage(QString uin, int senderType)
 {
-    if(uin=="")
+    if(uin==""||senderType<0)
         return;
     QString typeStr = QQItemInfo::typeToString ((QQItemInfo::QQItemType)senderType);//获取此类型的字符串表达形式
     
@@ -782,10 +851,12 @@ void QQCommand::addChatPage(QString uin, int senderType)
         item->setProperty ("myuin", uin);//设置他的uin
         item->setProperty ("type", senderType);//设置他的类型
         map_chatPage[typeStr+uin] = item;//储存聊天页面
-        QQItemInfo* item_info = createQQItemInfo (uin, (QQItemInfo::QQItemType)senderType);
-        if(item_info!=NULL){
-            item_info->stopClearChatRecordsTimer ();//停止清空聊天记录的定时器
+        QQItemInfo* item_info = createQQItemInfo (uin, typeStr);
+        if(item_info==NULL){//如果对象为空就返回
+            qDebug()<<"QQCommand-addChatPage:创建QQItemInfo对象失败";
+            return;
         }
+        item_info->stopClearChatRecordsTimer ();//停止清空聊天记录的定时器
         emit addChatPageToWindow (item);//发送信号告知qml增加了聊天页
     }else{
         qDebug()<<"创建"+qmlName+"出错";
@@ -871,11 +942,6 @@ QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, QQItemInfo::QQItemTy
     return createQQItemInfo (uin, typeString);
 }
 
-int QQCommand::getChatImageIndex()
-{
-    return chatImageID++;
-}
-
 void QQCommand::clearQQItemInfos()
 {
     foreach (QQItemInfo* info, map_itemInfo) {
@@ -885,25 +951,63 @@ void QQCommand::clearQQItemInfos()
     map_itemInfo.clear ();
 }
 
+QString QQCommand::disposeImageMessage(ChatMessageInfo* message_info, QString image_url)
+{
+    int image_id = getImageIndex();//为这个图片获得一个唯一的id
+    ImageInfo image_info;//为图片创建一个储存自己信息的结构体对象
+    image_info.filePath=image_url;//储存能获取图片真实下载地址的字符串
+    image_info.imageID=image_id;//储存图片的id
+    image_info.messageInfo=message_info;//储存图片所在消息的对象的指针
+    queue_imageInfo<<image_info;//将图片的信息加入队列
+    http_image->get (this, SLOT(getImageUrlFinished(QNetworkReply*)), image_url);
+    //进行网络请求,获取图片的真实下载地址
+    return "<img src=\"qrc:/images/loading.png\" imageID="+QString::number (image_id)+">";
+    //返回此字符串，用于img标签的占位，等图片下载完成会替换此img标签
+}
+
+int QQCommand::getImageIndex()
+{
+    return chatImageID++;
+}
+
+QString QQCommand::getImageUrlById(int image_id)
+{
+    return map_imageUrl[image_id];
+}
+
+void QQCommand::setImageUrlById(int image_id, const QString &url)
+{
+    //qDebug()<<"将id为："<<image_id<<"图片的下载地址设置为："<<url;
+    map_imageUrl[image_id]=url;
+}
+
 void QQCommand::loadLoginWindow()
 {
-    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
-    QQmlComponent component(engine, "./qml/Login/main.qml");
-    QObject *temp_obj = component.create ();
-    window_login = qobject_cast<MyWindow*>(temp_obj);
     if(window_login.isNull ()){
-        qDebug()<<"QQCommand:加载登录窗口失败,"<<component.errorString ();
+        QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+        QQmlComponent component(engine, "./qml/Login/main.qml");
+        QObject *temp_obj = component.create ();
+        window_login = qobject_cast<MyWindow*>(temp_obj);
+        if(window_login.isNull ()){
+            qDebug()<<"QQCommand:加载登录窗口失败,"<<component.errorString ();
+        }
+    }else{
+        window_login->show ();
     }
 }
 
 void QQCommand::loadMainPanelWindow()
 {
-    QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
-    QQmlComponent component(engine, "./qml/MainPanel/main.qml");
-    QObject *temp_obj = component.create ();
-    window_login = qobject_cast<MyWindow*>(temp_obj);
-    if(window_login.isNull ()){
-        qDebug()<<"QQCommand:加载主面板窗口失败,"<<component.errorString ();
+    if(window_mainPanel.isNull ()){
+        QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
+        QQmlComponent component(engine, "./qml/MainPanel/main.qml");
+        QObject *temp_obj = component.create ();
+        window_login = qobject_cast<MyWindow*>(temp_obj);
+        if(window_login.isNull ()){
+            qDebug()<<"QQCommand:加载主面板窗口失败,"<<component.errorString ();
+        }
+    }else{
+        window_mainPanel->show ();
     }
 }
 
