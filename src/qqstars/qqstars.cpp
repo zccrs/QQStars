@@ -171,7 +171,7 @@ void QQCommand::poll2Finished(QNetworkReply *replys)
                     }else if(retcode==102){
                         beginPoll2();
                     }else if(retcode==116){
-                        
+                        beginPoll2();
                     }else{
                         qDebug()<<"QQCommand:qq已掉线，即将重新登录";
                         QMetaObject::invokeMethod (this, "reLogin");//调用槽reLogin（在qml中定义）
@@ -405,7 +405,9 @@ QString QQCommand::disposeMessage(QJsonObject &obj, ChatMessageInfo* message_inf
                 }
             }else if(array_name=="face"){//为表情消息
                 int faceNumber = array[1].toInt ();//转化为int
-                result.append (textToHtml (font_style, "[[为表情:"+QString::number (faceNumber)+"]]"));//添加纯文本消息
+                QString data = "<img src=\"qrc:/faces/"+QString::number (faceNumber)+".gif\">";
+                //qDebug()<<data;
+                result.append (data);//添加纯文本消息
                 //qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
                 //data.append (QString("{")+"\"type\":"+QString::number (Face)+",\"face_code\":"+QString::number (array[1].toInt ())+"},");
             }else{

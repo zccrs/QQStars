@@ -12,6 +12,7 @@ import "../Utility"
 import "../MainPanel"
 import "LoginPanel"
 import "../Chat"
+import QtWebKit 3.0
 
 MyWindow{
     id:main

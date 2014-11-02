@@ -38,10 +38,14 @@ Item{
         target: myqq//记录自己各种信息的类对象
         onNewMessage:{
             if(fromUin==myuin&&type == myinfo.mytype){
+                var message_info={
+                    "contentData": info.contentData
+                }
+
                 var data = {
                     "sender_info":myqq.createFriendInfo(info.senderUin),//发送者的info
                     "mode": "left",//要判断发送者是不是自己（这条消息是发送的还是接收的）
-                    "message_info": info,//消息内容
+                    "message_info": message_info,//消息内容
                     "parent_info": myinfo
                 }
                 var temp = scroll_list.isContentEnd()//记录是否应该讲聊天页面拉到最后

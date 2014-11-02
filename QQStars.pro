@@ -24,7 +24,8 @@ SOURCES += src/main.cpp \
 
 RESOURCES += \ # qml.qrc
     images.qrc \
-    other.qrc
+    other.qrc \
+    faces.qrc
 
 qml_data.source = qml
 qml_data.target = ./
