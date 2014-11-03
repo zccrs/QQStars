@@ -214,10 +214,6 @@ void QQCommand::onChatMainWindowClose()//如果主聊天窗口关闭，那就销
                     break;
                 }
             }
-            QQItemInfo* item_info = createQQItemInfo (uin, typeStr);
-            if(item_info!=NULL){
-                item_info->startClearChatRecordsTimer ();//启动清空聊天记录的定时器
-            }
             item->deleteLater ();//销毁此页面
         }
     }
@@ -404,8 +400,13 @@ QString QQCommand::disposeMessage(QJsonObject &obj, ChatMessageInfo* message_inf
                     }
                 }
             }else if(array_name=="face"){//为表情消息
-                int faceNumber = array[1].toInt ();//转化为int
-                QString data = "<img src=\"qrc:/faces/"+QString::number (faceNumber)+".gif\">";
+                QString faceName = QString::number (array[1].toInt ());//转化为int
+                QString pngFace_number = "21 25 32 33 34 36 39 42 45 50 59 64 85 86 91 124";
+                if(pngFace_number.indexOf (faceName)>=0)
+                    faceName.append (".png");
+                else
+                    faceName.append (".gif");
+                QString data = "<img widht=\"25\" height=\"25\" src=\"qrc:/faces/classic/"+faceName+"\">";
                 //qDebug()<<data;
                 result.append (data);//添加纯文本消息
                 //qDebug()<<"表情消息,"<<"表情代码："<<array[1].toInt ();
@@ -414,7 +415,31 @@ QString QQCommand::disposeMessage(QJsonObject &obj, ChatMessageInfo* message_inf
                 qDebug()<<"其他类型的数据："<<array_name;
             }
         }else if(temp2.isString ()&&temp2.toString ()!=""){//否则为纯文本消息
-            result.append (textToHtml (font_style, temp2.toString ()));//添加纯文本消息
+            QString textFace_str = "双喜 鞭炮 灯笼 发财 K歌 购物 邮件 帅 喝彩 祈祷 爆筋 棒棒糖 喝奶 下面 香蕉 飞机 开车 高铁左车头 车厢 高铁右车头 多云 下雨 钞票 熊猫 灯泡 风车 闹钟 打伞 彩球 钻戒 沙发 纸巾 药 手枪 青蛙";
+            QString content = temp2.toString ();
+            QRegExp reg("\\[.+\\]");
+            QStringList list = content.split (reg);
+            reg.indexIn (content);
+
+            for (int i=0;i<list.length ();++i) {
+                QString str = list[i];
+                if(str!=""){
+                    str = textToHtml (font_style, str);
+                    result.append (str);
+                }
+                if(i<=reg.captureCount ()){
+                    str = reg.cap (i);
+                    str.replace ("[","");
+                    str.replace ("]","");
+                    if(str=="") break;
+                    if(str!=" "&&textFace_str.indexOf (str)>=0){//如果是表情代码
+                        str = "<img widht=\"25\" height=\"25\" src=\"qrc:/faces/classic/"+str+".png\">";
+                    }else{
+                        str = textToHtml (font_style, "["+str+"]");
+                    }
+                    result.append (str);
+                }
+            }
         }
     }
     return result;
@@ -858,7 +883,6 @@ void QQCommand::addChatPage(QString uin, int senderType)
             qDebug()<<"QQCommand-addChatPage:创建QQItemInfo对象失败";
             return;
         }
-        item_info->stopClearChatRecordsTimer ();//停止清空聊天记录的定时器
         emit addChatPageToWindow (item);//发送信号告知qml增加了聊天页
     }else{
         qDebug()<<"创建"+qmlName+"出错";
@@ -873,11 +897,6 @@ void QQCommand::removeChatPage(QString uin, int senderType)
     QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
     if(item!=NULL){
         item->deleteLater ();//销毁此对象
-        QQItemInfo* item_info = createQQItemInfo (uin, type);
-        if(item_info!=NULL){
-            item_info->startClearChatRecordsTimer ();//启动清空聊天记录的定时器
-            qDebug()<<"启动了销毁聊天记录的定时器";
-        }
     }else{
         qDebug()<<typeStr+uin<<"page已经为NULL";
     }

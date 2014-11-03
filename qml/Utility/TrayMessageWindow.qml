@@ -43,7 +43,6 @@ Window{
             return null
     }
     function showWindow(trayX, trayY, trayWidth, trayHeight){
-        console.debug("即将显示1")
         var tempx = trayX-width/2+trayWidth/2
         if(tempx<0)
             x=trayX+trayWidth
@@ -60,7 +59,6 @@ Window{
             y=tempy
         timer_close.stop()//先停止动画
         root.opacity = 1
-        console.debug("即将显示2")
         root.show()
     }
     function closeWindow(){

@@ -63,7 +63,7 @@ class ChatMessageInfoList:public QObject
 {
     Q_OBJECT
 public:
-    ~ChatMessageInfoList();
+    ChatMessageInfoList(QObject* parent=0);
 private:
     QQueue<ChatMessageInfo*> list;
 public slots:
@@ -71,6 +71,7 @@ public slots:
     int length();
     int size();
     void append( ChatMessageInfo *obj);
+    void insert(int pos, ChatMessageInfo *obj);
     void destroy();
     void clear();//清除储存的聊天记录
     ChatMessageInfo* dequeue();//出队
@@ -84,26 +85,26 @@ public:
     static DatabaseOperation* createDatabaseOperation();
 private:
     static QSqlDatabase sqlite_db;
-    QThread *thread;
+    //QThread *thread;
     DatabaseOperation();
     ~DatabaseOperation();
     bool tableAvailable(const QString& tableName);//判断表名为tableName的表是可操作
 private slots:
-    void m_openSqlDatabase(const QString& userqq);//初始化数据库
-    void m_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
-    void m_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList *datas);
+    //void m_openSqlDatabase(const QString& userqq);//初始化数据库
+    //void m_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
+    //void m_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList *datas);
     //获取数据库中currentData这条数据之前的count条数据，将获得的数据存入datas当中
 signals:
-    void sql_open(const QString& userqq);
-    void sql_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
-    void sql_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
-    void getDatasFinished(ChatMessageInfoList* datas);//获取多条数据完成
+    //void sql_open(const QString& userqq);
+    //void sql_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
+    //void sql_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
+    //void getDatasFinished(ChatMessageInfoList* datas);//获取多条数据完成
 public slots:
-    void openSqlDatabase(const QString& userqq);//初始化数据库
+    bool openSqlDatabase(const QString& userqq);//初始化数据库
     void closeSqlDatabase();
     void insertData(const QString& tableName, ChatMessageInfo *data);//向数据库中插入数据
-    void insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
-    void getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
+    void insertDatas(const QString& tableName, ChatMessageInfoList *datas);//向数据库中插入多条数据
+    void getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList *datas);
     //获取数据库中的count条数据，将获得的数据存入datas当中
 };
 
@@ -151,15 +152,14 @@ private:
     int m_unreadMessagesCount;
     QQItemType m_mytype;
     bool m_isActiveChatPage;
-    QTimer m_timer;//此定时器用于当聊天页面被销毁后在内存中保存聊天的时常，此定时器触发后会调用虚槽函数
     int messageID;//为自己个好友发送的消息的id（为此消息的唯一标识）
 protected:
-    ChatMessageInfoList *queue_chatRecords;//储存聊天记录的队列
+    ChatMessageInfoList* queue_chatRecords;//储存聊天记录的队列
     QPointer<QSettings> mysettings;
+    int max_chatMessage_count;//在queue_chatRecords中最多保存多少条聊天记录
     
     bool isCanUseSetting() const;//是否可以调用settings
-protected slots:
-    virtual void clearChatRecords();//清空聊天记录
+    virtual void removeOldChatRecord();//将最老的那条消息清除
 public:
     static const QString typeToString(QQItemType type);
     static const QString localCachePath(QQItemType type, const QString& userqq, const QString& account);//本地缓存路径
@@ -188,15 +188,12 @@ public slots:
     void setAvatar40(QString arg);
     void setAvatar240(QString arg);
     void setUserQQ(QString arg);
-    void clearSettings();
+    void clearSettings();//清除配置信息
     const QString localCachePath() const;//本地缓存路径
-    virtual QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
-    //const ChatMessageInfoList* getChatRecordsList();//将储存聊天记录的队列返回
+    ChatMessageInfoList *getChatRecords();//将内存中的聊天记录读回
     void addChatRecord(ChatMessageInfo *data);//增加聊天记录，记录在内存当中
-    void startClearChatRecordsTimer();//启动清空聊天记录的定时器
-    void stopClearChatRecordsTimer();//停止情况聊天记录的定时器
     void setIsActiveChatPage(bool arg);
-    ChatMessageInfo* getChatMessageInfoById(int messageID);//创建一个储存聊天记录的信息的对象
+    ChatMessageInfo* getChatMessageInfoById(int messageID);//通过messageID返回一个储存聊天记录的信息的对象
     int getMessageIndex();//返回一个本次在线中的一个唯一的数字，用于收到或者发送的消息的id
     
 signals:
@@ -244,10 +241,11 @@ private:
     bool getChatRecordsing;//记录现在是否正在请求获取本地聊天记录
     States m_state;
     QString m_stateToString;
+    int saveRecord_coount;//记录一次插入多少条聊天记录到数据库
+    
+    void removeOldChatRecord();//当消息数量超过最大缓存量时被调用
 protected slots:
     virtual void onSettingsChanged();//处理settings对象改变的信号
-private slots:
-    void clearChatRecords();//清空聊天记录
 public slots:
     void setQQSignature(QString arg);
     void openSqlDatabase(const QString &userqq);//初始化数据库
@@ -255,13 +253,11 @@ public slots:
     void getLocalChatRecords(ChatMessageInfo *currentData, int count);//读取本地聊天记录（从数据库）
     void saveChatMessageToLocal(ChatMessageInfo *data);//将此消息记录保存到到本地（保存到数据库中）
     void saveChatMessageToLocal();//将当前内存中的消息记录保存到到本地（保存到数据库中）
-    QVariant getChatRecords();//将内存中的聊天记录读回，如果无记录就返回空的QVariant类型
     void setState(States arg);
     void setStateToString(const QString &str);
 signals:
     void qQSignatureChanged();
     void httpGetQQSignature();//发送信号告诉qml端去获取个性签名
-    void getLocalChatRecordsFinished(ChatMessageInfoList* datas);//如果从数据库获取多条聊天记录完成，qml端会接收此信号
     void stateChanged(States arg);
     void stateToStringChanged(QString arg);
 };

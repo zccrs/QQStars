@@ -20,7 +20,8 @@ SOURCES += src/main.cpp \
     src/mywidgets/mymessagebox.cpp \
     src/utility/myhttprequest.cpp \
     src/qqstars/qqiteminfo.cpp \
-    src/utility/downloadimage.cpp
+    src/utility/downloadimage.cpp \
+    src/utility/texteditplaygif.cpp
 
 RESOURCES += \ # qml.qrc
     images.qrc \
@@ -54,7 +55,8 @@ HEADERS += \
     src/mywidgets/mymessagebox.h \
     src/utility/myhttprequest.h \
     src/qqstars/qqiteminfo.h \
-    src/utility/downloadimage.h
+    src/utility/downloadimage.h \
+    src/utility/texteditplaygif.h
 
 OTHER_FILES += \
     qml/Utility/CodeInput.qml \
@@ -102,6 +104,7 @@ OTHER_FILES += \
     qml/Chat/GroupChatPage.qml \
     qml/Chat/DiscuChatPage.qml \
     qml/Chat/ChatPage.qml \
-    qml/Utility/TrayMessageWindow.qml
+    qml/Utility/TrayMessageWindow.qml \
+    qml/Login/textedit.html
             
 FORMS +=

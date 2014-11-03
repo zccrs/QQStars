@@ -17,8 +17,7 @@
 #include "myhttprequest.h"
 #include "mymessagebox.h"
 #include "downloadimage.h"
-#include <QDirModel>
-#include <QTreeView>
+#include "texteditplaygif.h"
 
 int main(int argc, char *argv[])
 {
@@ -36,6 +35,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine *engine = new QQmlApplicationEngine;
     engine->setNetworkAccessManagerFactory (new MyNetworkAccessManagerFactory());//给qml设置网络请求所用的类
     
+    qmlRegisterType<TextEditPlayGif>("MyTextEditPlugin", 1, 0, "TextEditPlayGif");
     qmlRegisterType<MyWindow>("mywindow", 1,0, "MyQuickWindow");
     qmlRegisterType<SystemTrayIcon>("mywindow", 1,0, "MySystemTrayIcon");
     qmlRegisterType<MyMenu>("mywindow", 1,0, "MyMenu");
@@ -53,7 +53,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<MySvgView>("mywindow", 1, 0, "SvgView");
     qmlRegisterType<MyMessageBox>("mywindow", 1, 0, "MessageBox");
    
-    //QSettings mysettings(QDir::homePath ()+"/webqq/.config.ini", QSettings::IniFormat);
     Utility *utility=Utility::createUtilityClass ();
     QNetworkRequest* request = utility->getHttpRequest ()->getNetworkRequest ();
     request->setRawHeader ("Referer", "http://d.web2.qq.com/proxy.html?v=20110331002&callback=1&id=2");//和腾讯服务器打交道需要设置这个

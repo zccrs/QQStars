@@ -1,19 +1,20 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
+import MyTextEditPlugin 1.0
 
 TextArea{
     id: root
     backgroundVisible : false
     textFormat :TextEdit.RichText
+    
+    TextEditPlayGif{
+        target: textDocument
+    }
+
     style: TextAreaStyle {
             id: scroll_style
             textColor: "black"
-            /*frame: BorderImage {
-                source: "qrc:/images/background_input.png"
-                border.left: 5; border.top: 5
-                border.right: 5; border.bottom: 5
-            }*/
             frame: Rectangle{
                 color: "#f5f5f5"
                 radius: 5
@@ -97,8 +98,5 @@ TextArea{
                     }
                 }
             }
-            //selectionColor: "steelblue"
-            //selectedTextColor: "#eee"
-            //backgroundColor: "transparent"
         }
 }

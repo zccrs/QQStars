@@ -19,8 +19,8 @@ Item{
     onMyinfoChanged: {
         if(myinfo){//从缓冲区中读取数据
             var message_list = myinfo.getChatRecords()//获取内存中的所有聊天记录
-            for(var i=0;i<message_list.length;++i){
-                var messageInfo = message_list[i]//读取第i条消息
+            for(var i=0;i<message_list.size();++i){
+                var messageInfo = message_list.at(i)//读取第i条消息
                 var data = {
                     "sender_info":myqq.createFriendInfo(messageInfo.senderUin),//发送者的info
                     "to_uin":"",//如果mode为right才需要此值(为发送给谁)
@@ -38,14 +38,11 @@ Item{
         target: myqq//记录自己各种信息的类对象
         onNewMessage:{
             if(fromUin==myuin&&type == myinfo.mytype){
-                var message_info={
-                    "contentData": info.contentData
-                }
-
                 var data = {
                     "sender_info":myqq.createFriendInfo(info.senderUin),//发送者的info
+                    "to_uin": "",
                     "mode": "left",//要判断发送者是不是自己（这条消息是发送的还是接收的）
-                    "message_info": message_info,//消息内容
+                    "message_info": info,//消息内容
                     "parent_info": myinfo
                 }
                 var temp = scroll_list.isContentEnd()//记录是否应该讲聊天页面拉到最后
@@ -125,10 +122,10 @@ Item{
             
             onClicked: {
                 inputBox.selectAll()//先选中全部
-                var messageInfo = {
-                    "contentData": inputBox.selectedText//选中的文本
-                }
+                var messageInfo = myinfo.getChatMessageInfoById(myinfo.getMessageIndex())
                 //创建一个新的聊天储存聊天内容各种信息的对象（例如发送时间等等）
+                messageInfo.contentData = input.selectedText
+                messageInfo.senderUin = myqq.userQQ//发送者为当前登录的qq
                 var data = {
                     "sender_info":myqq,//发送者是当前登录的用户qq
                     "to_uin":myuin,//发送给当前聊天页的好友或群
@@ -139,6 +136,7 @@ Item{
                 listModel.append(data)
                 inputBox.text = ""
                 scroll_list.contentAtEnd()//将内容放到最后
+                
             }
         }
         
