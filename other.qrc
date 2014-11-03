@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
         <file>qt_zh_CN.qm</file>
-        <file>html/textedit.html</file>
     </qresource>
 </RCC>
