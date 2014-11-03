@@ -7,15 +7,23 @@
 #include <QDebug>
 #include <QDir>
 
-TextEditPlayGif::TextEditPlayGif(QObject *parent) :
-    QObject(parent)
+TextEditPlayGif::TextEditPlayGif(QObject *) :
+    QObject(0)
 {
+    connect (this, SIGNAL(setDocHtml(QTextDocument*,QString)), 
+             new TextEditPlayGifPrivate, SLOT(setDocHtml(QTextDocument*,QString)), 
+             Qt::QueuedConnection);
     doc = NULL;
+    mythread = new QThread();
+    moveToThread (mythread);
+    mythread->start ();//启动多线程
 }
 
 TextEditPlayGif::~TextEditPlayGif()
 {
     clearMovie ();
+    mythread->quit ();
+    mythread->wait ();
 }
 
 QQuickTextDocument *TextEditPlayGif::target() const
@@ -85,7 +93,7 @@ void TextEditPlayGif::setUrlByMovie(QMovie *movie, const QString &url)
 void TextEditPlayGif::onTextChanged()
 {
     QString content = doc->toHtml ();
-    qDebug()<<content;
+    //qDebug()<<content;
     QRegExp reg("<img.+src=\"[^\"]+\\.gif\".+/>");
     reg.setMinimal (true);
     reg.indexIn (content);
@@ -124,7 +132,7 @@ void TextEditPlayGif::onMovie(int index)
     QMovie* movie = qobject_cast<QMovie*>(sender());
     QString url = getUrlByMovie (movie);
     if(movie&&url!=""){
-        QString name = m_cachePath.toLocalFile ()+"/"+getGifNameByMovie (movie)+"/";
+        QString name = QDir::homePath ()+"/webqq/"+getGifNameByMovie (movie)+"/";
         QDir dir;
         if(dir.mkpath (name)){//创建路径
             name.append (QString::number (index)+".png");
@@ -137,7 +145,7 @@ void TextEditPlayGif::onMovie(int index)
             name = "src=\"file:///"+name+"\"";
             setUrlByMovie (movie, name);
             QString data = doc->toHtml ().replace (url, name);
-            doc->setHtml (data);
+            emit setDocHtml (doc, data);
         }else{
             qDebug()<<"TextEditPlayGif:路径"<<name<<"创建失败";
         }
@@ -171,4 +179,15 @@ void TextEditPlayGif::setCachePath(QUrl arg)
     
     m_cachePath = arg;
     emit cachePathChanged(arg);
+}
+
+
+TextEditPlayGifPrivate::TextEditPlayGifPrivate()
+{
+    
+}
+
+void TextEditPlayGifPrivate::setDocHtml(QTextDocument *doc, const QString &data)
+{
+    doc->setHtml (data);
 }

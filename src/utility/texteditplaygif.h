@@ -4,6 +4,19 @@
 #include <QObject>
 #include <QQuickTextDocument>
 #include <QList>
+#include <QThread>
+
+class TextEditPlayGif;
+class TextEditPlayGifPrivate : public QObject
+{
+    Q_OBJECT
+private:
+    TextEditPlayGifPrivate();
+public slots:
+    void setDocHtml(QTextDocument *doc, const QString& data);
+    
+    friend class TextEditPlayGif;
+};
 
 class TextEditPlayGif : public QObject
 {
@@ -28,6 +41,7 @@ private:
     QList<MovieData> list_movie;
     QString doc_content;
     QUrl m_cachePath;
+    QThread* mythread;
     
     void clearMovie();
     void addMovie(QMovie *movie, const QString &url, const QString& gif_name);
@@ -43,7 +57,7 @@ private slots:
 signals:
     void targetChanged(QQuickTextDocument* arg);
     void cachePathChanged(QUrl arg);
-    
+    void setDocHtml(QTextDocument *doc, QString data);
 public slots:
     void setTarget(QQuickTextDocument* arg);
     void setCachePath(QUrl arg);

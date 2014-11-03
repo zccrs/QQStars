@@ -32,6 +32,7 @@ MyWindow{
     windowGlow: false//是否开启阴影
     color: "transparent"
     
+
     function openSettingPage() {//进行设置
         settings_page.enabled = true
         flipable.flipped = false

@@ -109,10 +109,10 @@ Component{
                     }
                 }
                 
-                /*TextEditPlayGif{
+                TextEditPlayGif{
                     cachePath: myqq.getMovieImageFrameCachePath()
                     target: mytext.textDocument
-                }*/
+                }
             }
         }
     }
