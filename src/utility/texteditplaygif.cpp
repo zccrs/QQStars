@@ -23,6 +23,11 @@ QQuickTextDocument *TextEditPlayGif::target() const
     return m_target;
 }
 
+QUrl TextEditPlayGif::cachePath() const
+{
+    return m_cachePath;
+}
+
 void TextEditPlayGif::clearMovie()
 {
     foreach (MovieData data, list_movie) {
@@ -80,8 +85,8 @@ void TextEditPlayGif::setUrlByMovie(QMovie *movie, const QString &url)
 void TextEditPlayGif::onTextChanged()
 {
     QString content = doc->toHtml ();
-    //qDebug()<<content;
-    QRegExp reg("<img src=\"[^\"]+\\.gif\" />");
+    qDebug()<<content;
+    QRegExp reg("<img.+src=\"[^\"]+\\.gif\".+/>");
     reg.setMinimal (true);
     reg.indexIn (content);
     //qDebug()<<reg.capturedTexts ();
@@ -119,14 +124,14 @@ void TextEditPlayGif::onMovie(int index)
     QMovie* movie = qobject_cast<QMovie*>(sender());
     QString url = getUrlByMovie (movie);
     if(movie&&url!=""){
-        QString name = QDir::currentPath ()+"/tempImage/"+getGifNameByMovie (movie)+"/";
+        QString name = m_cachePath.toLocalFile ()+"/"+getGifNameByMovie (movie)+"/";
         QDir dir;
         if(dir.mkpath (name)){//创建路径
             name.append (QString::number (index)+".png");
             if(!QFile::exists (name)){//如果不存在
                 if(!movie->currentImage ().save (name)){
                     qDebug()<<"TextEditPlayGif:图片保存失败";
-                    break;
+                    return;
                 }
             }
             name = "src=\"file:///"+name+"\"";
@@ -157,4 +162,13 @@ void TextEditPlayGif::setTarget(QQuickTextDocument *arg)
     connect (doc, SIGNAL(contentsChanged()), SLOT(onTextChanged()));
     m_target = arg;
     emit targetChanged(arg);
+}
+
+void TextEditPlayGif::setCachePath(QUrl arg)
+{
+    if (m_cachePath == arg)
+        return;
+    
+    m_cachePath = arg;
+    emit cachePathChanged(arg);
 }

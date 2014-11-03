@@ -8,9 +8,10 @@ TextArea{
     backgroundVisible : false
     textFormat :TextEdit.RichText
     
-    TextEditPlayGif{
+    /*TextEditPlayGif{
+        cachePath: myqq.getMovieImageFrameCachePath()
         target: textDocument
-    }
+    }*/
 
     style: TextAreaStyle {
             id: scroll_style

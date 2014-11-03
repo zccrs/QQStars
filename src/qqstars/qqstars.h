@@ -213,5 +213,6 @@ public slots:
     void openSqlDatabase();//打开数据库（储存聊天记录等消息）
     
     void closeChatWindow();//关闭聊天窗口
+    QString getMovieImageFrameCachePath();//返回给qml显示gif图时每一帧的缓存路径
 };
 #endif // QQCommand_H

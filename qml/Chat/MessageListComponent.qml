@@ -103,14 +103,16 @@ Component{
                     }
                 }
                 onTextChanged: {
+                    //console.debug(text)
                     if(text[text.length-1]=="\n"){
                         text = text.substr(0, text.length-1)
                     }
                 }
                 
-                TextEditPlayGif{
+                /*TextEditPlayGif{
+                    cachePath: myqq.getMovieImageFrameCachePath()
                     target: mytext.textDocument
-                }
+                }*/
             }
         }
     }
