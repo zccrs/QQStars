@@ -43,6 +43,9 @@ Window{
             return null
     }
     function showWindow(trayX, trayY, trayWidth, trayHeight){
+        timer_close.stop()//先停止动画
+        root.opacity = 1
+        root.show()
         var tempx = trayX-width/2+trayWidth/2
         if(tempx<0)
             x=trayX+trayWidth
@@ -57,9 +60,6 @@ Window{
             y=trayY-height
         else
             y=tempy
-        timer_close.stop()//先停止动画
-        root.opacity = 1
-        root.show()
     }
     function closeWindow(){
         if(!mouse_area.hovered)//如果当前鼠标没有在自己区域
