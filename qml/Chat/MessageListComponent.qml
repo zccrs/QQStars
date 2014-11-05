@@ -111,7 +111,7 @@ Component{
                 
                 TextEditPlayGif{
                     cachePath: myqq.getMovieImageFrameCachePath()
-                    target: mytext.textDocument
+                    target: mytext
                 }
             }
         }

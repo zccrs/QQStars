@@ -5,62 +5,59 @@
 #include <QQuickTextDocument>
 #include <QList>
 #include <QThread>
+#include <QPointer>
+#include <QUrl>
 
-class TextEditPlayGif;
-class TextEditPlayGifPrivate : public QObject
-{
-    Q_OBJECT
-private:
-    TextEditPlayGifPrivate();
-public slots:
-    void setDocHtml(QTextDocument *doc, const QString& data);
-    
-    friend class TextEditPlayGif;
-};
-
+class QQuickTextEdit;
 class TextEditPlayGif : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QQuickTextDocument* target READ target WRITE setTarget NOTIFY targetChanged)
+    
+    Q_PROPERTY(QQuickTextEdit* target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(QUrl cachePath READ cachePath WRITE setCachePath NOTIFY cachePathChanged)
-    
 public:
-    explicit TextEditPlayGif(QObject *parent = 0);
-    ~TextEditPlayGif();
-    QQuickTextDocument* target() const;
-    QUrl cachePath() const;
+    TextEditPlayGif(QObject *parent=0);
     
+    QQuickTextEdit* target() const;
+    QUrl cachePath() const;
 private:
     struct MovieData{
         QMovie* movie;
         QString url;
         QString gifName;
+        QSize size;
     };
-    QQuickTextDocument* m_target;
-    QTextDocument *doc;
+    
+    QPointer<QQuickTextEdit> m_target;
     QList<MovieData> list_movie;
-    QString doc_content;
+    QStringList list_errorUrl;//记录那些解析出错的gif的路径
     QUrl m_cachePath;
-    QThread* mythread;
+    QString old_content;
     
     void clearMovie();
-    void addMovie(QMovie *movie, const QString &url, const QString& gif_name);
+    void addMovie(QMovie *movie, const QString &url, const QString& gif_name, QSize size);
     QString getUrlByMovie(QMovie* movie);
     QString getGifNameByMovie(QMovie* movie);
     QMovie* getMovieByUrl(const QString& url);
+    MovieData* getMovieDataByMovie(const QMovie* movie);
     void setUrlByMovie(QMovie* movie, const QString &url);
-
-private slots:
+    
+    bool isErrorUrl(const QString url);
+    void addErrorUrl(const QString url);
+public slots:
     void onTextChanged();
+private slots:
     void onMovie(int frame);
     void onMovieFinished();
 signals:
-    void targetChanged(QQuickTextDocument* arg);
+    void targetChanged(QQuickTextEdit* arg);
     void cachePathChanged(QUrl arg);
-    void setDocHtml(QTextDocument *doc, QString data);
+    void error(const QString& errorString);
 public slots:
-    void setTarget(QQuickTextDocument* arg);
+    void setTarget(QQuickTextEdit* arg);
     void setCachePath(QUrl arg);
+    
+    void removeErrorUrl(const QString& url);
 };
 
 #endif // TEXTEDITPLAYGIF_H
