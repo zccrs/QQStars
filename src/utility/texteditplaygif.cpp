@@ -135,7 +135,7 @@ void TextEditPlayGif::onTextChanged()
     if((content==old_content))
         return;
     old_content = content;
-    qDebug()<<content;
+    //qDebug()<<content;
     
     QRegExp reg("<img src=\"[^\"]+.gif\".+/>");
     reg.setMinimal (true);
