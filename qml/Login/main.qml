@@ -1,9 +1,4 @@
 import QtQuick 2.2
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.2
-import QtQuick.Window 2.1
-import QtQuick.Dialogs 1.2
-import QtWebKit 3.0
 import mywindow 1.0
 import utility 1.0
 //import Qt.labs.settings 1.0

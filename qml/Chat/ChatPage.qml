@@ -121,7 +121,7 @@ Item{
             text: "发送"
             property int image_index: 0
             onClicked: {
-                /*inputBox.selectAll()//先选中全部
+                inputBox.selectAll()//先选中全部
                 var messageInfo = myinfo.getChatMessageInfoById(myinfo.getMessageIndex())
                 //创建一个新的聊天储存聊天内容各种信息的对象（例如发送时间等等）
                 messageInfo.contentData = input.selectedText
@@ -135,9 +135,7 @@ Item{
                 }
                 listModel.append(data)
                 inputBox.text = ""
-                scroll_list.contentAtEnd()//将内容放到最后*/
-                var html = '<img width="25" src="qrc:/faces/classic/'+String(image_index++)+'.gif"'
-                input.append(html)
+                scroll_list.contentAtEnd()//将内容放到最后
             }
         }
         

@@ -77,7 +77,7 @@ QQ{
 
         if( myqq.loginStatus == QQ.Logining ){
             var temp = data.split("'")
-            uin = temp[5]
+            re_uin = temp[5]//储存用来加密密码或获取验证码的uin
             if( temp[1]=="0" ){
                 login(temp[3])//不需要验证码，直接登录
             }else{
