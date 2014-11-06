@@ -13,7 +13,7 @@ QQCommand *QQCommand::getFirstQQCommand()
     return firstQQCommand;
 }
 
-QQCommand::QQCommand(QQuickItem *parent) :
+QQCommand::QQCommand( QObject *parent) :
     FriendInfo(parent)
 {
     if(firstQQCommand==NULL)

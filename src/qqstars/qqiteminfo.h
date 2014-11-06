@@ -1,7 +1,6 @@
 #ifndef QQITEMINFO_H
 #define QQITEMINFO_H
 
-#include <QQuickItem>
 #include <QtSql>
 #include <QSettings>
 #include <QObject>
@@ -134,7 +133,7 @@ public:
     enum QQItemType{
         Friend,//好友
         Group,//群
-        Discu,//讨论组
+        Discu//讨论组
     };
     
 private:

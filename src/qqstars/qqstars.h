@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QTimer>
+#include <QQuickItem>
+#include <QJSEngine>
 #include "qqiteminfo.h"
 
 class MyWindow;
@@ -31,7 +33,7 @@ private:
     static QQCommand *firstQQCommand;
 public:
     static QQCommand *getFirstQQCommand();//返回第一个被创建的QQCommand对象
-    explicit QQCommand(QQuickItem *parent = 0);
+    explicit QQCommand( QObject *parent = 0);
     enum LoginStatus{//登录状态
         WaitLogin,//离线
         Logining,//登录中
