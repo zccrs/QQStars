@@ -5,7 +5,7 @@ import QQItemInfo 1.0
 
 QQ{
     id: root
-    property string uin: ""//用来存放测试qq是否需要验证码后返回的uin值（密码加密中需要用到）
+    property string re_uin: ""//用来存放测试qq是否需要验证码后返回的uin值（密码加密中需要用到）
     property var loginReData//二次登陆后返回的数据(JSON格式)
     property var userData//储存用户资料（JSON格式）
     property var panelSize//存放主面板大小(网络数据)
@@ -59,7 +59,7 @@ QQ{
     function login(code) {
         if( myqq.loginStatus == QQ.Logining ){
             if( code ) {//开始第一次登陆GET
-                var p = encryptionPassword(uin, code)
+                var p = encryptionPassword(re_uin, code)
                 var url1 = "https://ssl.ptlogin2.qq.com/login?u="+myqq.userQQ+"&p="+p+"&verifycode="+code+"&webqq_type=10&remember_uin=1&login2qq=1&aid=1003903&u1=http%3A%2F%2Fweb2.qq.com%2Floginproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&h=1&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=5-42-29419&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10087&login_sig=0RH3iE1ODTjmJJtKJ5MtDyoG*Q*pwgh2ABgmvw0E0zjdJpjPBbS*H9aZ4WRwLSFk&pt_uistyle=5"
                 utility.httpGet(login1Finished, url1)
             }else{//先检测qq号是否需要输入验证码
