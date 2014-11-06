@@ -12,6 +12,7 @@
 TextEditPlayGif::TextEditPlayGif(QObject *parent) :
     QObject(parent)
 {
+    m_enabled=true;
 }
 
 QQuickTextEdit *TextEditPlayGif::target() const
@@ -22,6 +23,11 @@ QQuickTextEdit *TextEditPlayGif::target() const
 QUrl TextEditPlayGif::cachePath() const
 {
     return m_cachePath;
+}
+
+bool TextEditPlayGif::enabled() const
+{
+    return m_enabled;
 }
 
 void TextEditPlayGif::setTarget(QQuickTextEdit *arg)
@@ -47,6 +53,22 @@ void TextEditPlayGif::setCachePath(QUrl arg)
 void TextEditPlayGif::removeErrorUrl(const QString &url)
 {
     list_errorUrl.removeOne (url);
+}
+
+void TextEditPlayGif::setEnabled(bool arg)
+{
+    if (m_enabled == arg)
+        return;
+    
+    m_enabled = arg;
+    if(arg){
+        startAllMovie ();//启动所有动画
+        connect (m_target, SIGNAL(textChanged()), this, SLOT(onTextChanged()));//启动分析
+    }else{
+        disconnect (m_target, SIGNAL(textChanged()), this, SLOT(onTextChanged()));//停止分析
+        stopAllMovie ();//停止所有动画
+    }
+    emit enabledChanged(arg);
 }
 
 void TextEditPlayGif::clearMovie()
@@ -85,16 +107,17 @@ QString TextEditPlayGif::getGifNameByMovie(QMovie *movie)
     return "";
 }
 
-QMovie *TextEditPlayGif::getMovieByUrl(const QString &url)
+TextEditPlayGif::MovieData *TextEditPlayGif::getDataByGifNameAndSize(const QString &name, QSize size)
 {
-    foreach (MovieData data, list_movie) {
-        if(data.url==url)
-            return data.movie;
+    for(int i=0;i<list_movie.size ();++i){
+        MovieData* data = &list_movie[i];
+        if(data->gifName==name&&data->size==size)
+            return data;
     }
     return NULL;
 }
 
-TextEditPlayGif::MovieData *TextEditPlayGif::getMovieDataByMovie(const QMovie *movie)
+TextEditPlayGif::MovieData *TextEditPlayGif::getDataByMovie(const QMovie *movie)
 {
     for(int i=0;i<list_movie.size ();++i){
         MovieData* data = &list_movie[i];
@@ -127,6 +150,34 @@ void TextEditPlayGif::addErrorUrl(const QString url)
 {
     if(!isErrorUrl (url))
         list_errorUrl<<url;
+}
+
+void TextEditPlayGif::startAllMovie()
+{
+    for(int i=0;i<list_movie.size ();++i){
+        MovieData* data = &list_movie[i];
+        if(data->movie->state () != QMovie::Running)
+            data->movie->start ();
+    }
+}
+
+void TextEditPlayGif::stopAllMovie()
+{
+    for(int i=0;i<list_movie.size ();++i){
+        MovieData* data = &list_movie[i];
+        if(data->movie->state () == QMovie::Running)
+            data->movie->stop ();
+    }
+}
+
+void TextEditPlayGif::setTextEditContent(const QString &data)
+{
+    int pos = m_target->cursorPosition ();
+    int select_start = m_target->selectionStart ();
+    int select_end = m_target->selectionEnd ();
+    m_target->setText (data);
+    m_target->setCursorPosition (pos);
+    m_target->select (select_start, select_end);
 }
 
 void TextEditPlayGif::onTextChanged()
@@ -193,14 +244,18 @@ void TextEditPlayGif::onTextChanged()
                 addErrorUrl (src);
                 break;
             }
-            //qDebug()<<width<<height;
-            
-            QMovie *movie=new QMovie(src, "", this);
-            movie->setCacheMode(QMovie::CacheAll);
-            addMovie (movie, img, gifName, QSize(width, height));
-            connect (movie, SIGNAL(frameChanged(int)), SLOT(onMovie(int)));
-            connect (movie, SIGNAL(finished()), SLOT(onMovieFinished()));
-            movie->start ();
+            MovieData* data = getDataByGifNameAndSize (gifName, QSize(width, height));
+            if(data!=NULL){
+                QString html = m_target->text ().replace (img, data->url);
+                setTextEditContent (html);
+            }else{
+                QMovie *movie=new QMovie(src, "", this);
+                movie->setCacheMode(QMovie::CacheAll);
+                addMovie (movie, img, gifName, QSize(width, height));
+                connect (movie, SIGNAL(frameChanged(int)), SLOT(onMovie(int)));
+                connect (movie, SIGNAL(finished()), SLOT(onMovieFinished()));
+                movie->start ();
+            }
         }
     }
 }
@@ -213,7 +268,7 @@ void saveImage(const QString& name, QImage image)
 void TextEditPlayGif::onMovie(int frame)
 {
     QMovie* movie = qobject_cast<QMovie*>(sender());
-    MovieData* movie_data = getMovieDataByMovie (movie);
+    MovieData* movie_data = getDataByMovie (movie);
     
     if(movie&&movie_data&&movie_data->url!=""){
         QString name = QDir::homePath ()+"/webqq/cacheImage/"+movie_data->gifName+"/";
@@ -231,12 +286,7 @@ void TextEditPlayGif::onMovie(int frame)
                 QString data = m_target->text ().replace (movie_data->url, name);
                 //qDebug()<<m_target->text ()<<data;
                 setUrlByMovie (movie, name);
-                int pos = m_target->cursorPosition ();
-                int select_start = m_target->selectionStart ();
-                int select_end = m_target->selectionEnd ();
-                m_target->setText (data);
-                m_target->setCursorPosition (pos);
-                m_target->select (select_start, select_end);
+                setTextEditContent (data);
             }else{
                 image = image.scaled (movie_data->size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 QtConcurrent::run(saveImage, name, image);
@@ -249,6 +299,9 @@ void TextEditPlayGif::onMovie(int frame)
 
 void TextEditPlayGif::onMovieFinished()
 {
+    if(!m_enabled)
+        return;
+    
     QMovie* movie = qobject_cast<QMovie*>(sender());
     if(movie!=NULL&&movie->currentFrameNumber ()!=-1)
         movie->start ();
