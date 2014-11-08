@@ -5,7 +5,8 @@ import "../QQItemInfo"
 ChatPage{
     id: root
     myinfo: myuin!=""?myqq.createFriendInfo(myuin):null
-   
+    rightBar.width: 0//设置右边栏宽度为0
+    
     Connections{
         target: myqq
         onShakeWindow:{
@@ -42,10 +43,5 @@ ChatPage{
                 timer_show_text.start()
             }
         }
-    }
-    
-    Image{
-        parent: rightBar
-        source: "qqshow.png"
     }
 }

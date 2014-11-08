@@ -2,7 +2,6 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick.Controls.Private 1.0
-import MyTextEditPlugin 1.0
 
 ScrollView {
     id: area
@@ -236,9 +235,6 @@ ScrollView {
 
                     layoutRecursionDepth--
                 }
-            }
-            TextEditPlayGif{//帮助TextEdit里边的gif图动起来
-                target: edit
             }
             
             Connections {

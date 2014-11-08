@@ -207,14 +207,14 @@ Item{
                     property FriendInfo myinfo: obj_info
                     
                     Component.onCompleted: {
-                        if(myinfo.state != FriendInfo.Offlineing){//如果不是离线状态
+                        if(myinfo.state != FriendInfo.Offline){//如果不是离线状态
                             mymodel2.stateToOnline(index)//将自己移动到前面
                         }
                     }
                     Connections{
                         target: myinfo
                         onStateChanged:{//如果状态改变
-                            if(myinfo.state == FriendInfo.Offlineing){//如果是离线状态
+                            if(myinfo.state == FriendInfo.Offline){//如果是离线状态
                                 mymodel2.stateToOffline(index)//将自己移动到最后
                             }else{
                                 mymodel2.stateToOnline(index)//否则就往上移动
@@ -226,7 +226,7 @@ Item{
                         id: avatar
                         x:10
                         width:40
-                        grayscale: myinfo.state==FriendInfo.Offlineing
+                        grayscale: myinfo.state==FriendInfo.Offline
                         maskSource: "qrc:/images/bit.bmp"
                         cache: false
                         source: item_root.myinfo.avatar40

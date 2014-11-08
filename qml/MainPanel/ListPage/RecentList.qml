@@ -101,7 +101,7 @@ Item{
                 width:40
                 anchors.verticalCenter: parent.verticalCenter
                 cache: false
-                grayscale: myinfo.mytype == QQItemInfo.Friend&&myinfo.state==FriendInfo.Offlineing//是否为黑白图
+                grayscale: myinfo.mytype == QQItemInfo.Friend&&myinfo.state==FriendInfo.Offline//是否为黑白图
                 maskSource: "qrc:/images/bit.bmp"
                 source: myinfo.avatar40
                 onLoadError: {

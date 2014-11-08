@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import mywindow 1.0
 import QtQuick.Window 2.1
-import QtQuick.Particles 2.0
 
 MyQuickWindow{
     id: root
@@ -280,78 +279,7 @@ MyQuickWindow{
         cached: glow.cached
         visible: windowGlow&&(!root.windowActive)
     }
-    ParticleSystem {//粒子系统
-        id: particles
-        anchors.centerIn: parent
-        width: root.actualWidth
-        height: root.actualHeight
-        Age{
-            system: particles
-            anchors.left: parent.left
-            height: parent.height
-            width: 80
-            once: true
-            lifeLeft: 3000
-            advancePosition: false
-            
-        }
-        Age{
-            system: particles
-            anchors.right: parent.right
-            height: parent.height
-            width: 80
-            once: true
-            lifeLeft: 3000
-            advancePosition: false
-            
-        }
-        
-        Age{
-            system: particles
-            anchors.bottom: parent.bottom
-            height: 80
-            width: parent.width
-            once: true
-            lifeLeft: 3000
-            advancePosition: false
-            
-        }
-        
-        ImageParticle {
-            source: "qrc:/images/star.png"
-            groups: ['star']
-            alpha: 0.2
-            alphaVariation: 0.1
-            colorVariation: 2
-            autoRotation: true
-            rotationVariation: 360
-            rotationVelocity: 40
-        }
-        Emitter {
-            id: pulseEmitter
-            anchors.top: parent.top
-            width: parent.width
-            group: 'star'
-            emitRate: 8
-            lifeSpan: parent.height*1000/40
-            velocityFromMovement: 20
-            velocity: AngleDirection{
-                angle: 90
-                angleVariation: 50
-                magnitude: 90
-                magnitudeVariation: 10
-            }
-            acceleration: AngleDirection{
-                angle: -90
-                magnitude: 5
-                magnitudeVariation: 2
-            }
-            size: 20
-            sizeVariation: 5
-            endSize: 0
-        }
-        
-    }
+    
     MouseArea{
         id: mouse_main
         enabled: removable

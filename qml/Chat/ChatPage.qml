@@ -100,7 +100,7 @@ Item{
             anchors.top: menu_bar.bottom
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            width: 150
+            width: 180
         }
         
         MyTextArea{

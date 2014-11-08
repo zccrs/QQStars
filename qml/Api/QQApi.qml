@@ -130,7 +130,7 @@ QQ{
         if( data.retcode==0 ) {
             console.debug("重新登录完成")
             loginReData = data.result//将数据记录下来
-            var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+            var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+psessionid
             myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
         }else{
             console.debug("重新登录失败")
@@ -151,7 +151,7 @@ QQ{
                 getUserData(myqq.userQQ, getDataFinished)//获取自己的资料
                 myqq.openSqlDatabase();//登录完成后，打开数据库(用来储存聊天记录)
                 myqq.loginStatus = QQ.LoginFinished//设置为登录成功
-                var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+                var poll2data = 'r={"clientid":"'+clientid+'","psessionid":"'+psessionid+'","key":0,"ids":[]}&clientid='+clientid+'&psessionid='+psessionid
                 myqq.startPoll2(encodeURI(poll2data))//启动心跳包的post
                 var url = "http://q.qlogo.cn/headimg_dl?spec=240&dst_uin="+myqq.userQQ
                 downloadImage(QQItemInfo.Friend, url, myqq.userQQ, "240", getAvatarFinished)//获取头像
@@ -233,13 +233,13 @@ QQ{
     
     function getRecentList(backFun) {//获取最近联系人
         var url = "http://d.web2.qq.com/channel/get_recent_list2"
-        var data = 'r={"vfwebqq":"'+vfwebqq+'","clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+        var data = 'r={"vfwebqq":"'+vfwebqq+'","clientid":"'+clientid+'","psessionid":"'+psessionid+'"}&clientid='+clientid+'&psessionid='+psessionid
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
     
     function getDiscusList(backFun) {//讨论组列表
-        var url = "http://s.web2.qq.com/api/get_discus_list?clientid="+clientid+"&psessionid="+loginReData.psessionid+"&vfwebqq="+vfwebqq
+        var url = "http://s.web2.qq.com/api/get_discus_list?clientid="+clientid+"&psessionid="+psessionid+"&vfwebqq="+vfwebqq
         utility.httpGet(backFun, url, true)
     }
     
@@ -264,7 +264,7 @@ QQ{
     
     function editUserState(){
         if( loginStatus == QQ.LoginFinished ) {
-            var url = "http://d.web2.qq.com/channel/change_status2?newstatus="+myqq.stateToString+"&clientid="+clientid+"&psessionid="+loginReData.psessionid
+            var url = "http://d.web2.qq.com/channel/change_status2?newstatus="+myqq.stateToString+"&clientid="+clientid+"&psessionid="+psessionid
             utility.httpGet(editUserStateFinished, url)
         }
     }
@@ -289,7 +289,7 @@ QQ{
         }
 
         var url = "http://d.web2.qq.com/channel/send_buddy_msg2"
-        var data = 'r={"to":'+uin+',"face":549,"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":45070001,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+        var data = 'r={"to":'+uin+',"face":549,"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":45070001,"clientid":"'+clientid+'","psessionid":"'+psessionid+'"}&clientid='+clientid+'&psessionid='+psessionid
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
@@ -300,7 +300,7 @@ QQ{
         }
 
         var url = "http://d.web2.qq.com/channel/send_qun_msg2"
-        var data = 'r={"group_uin":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+        var data = 'r={"group_uin":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+psessionid+'"}&clientid='+clientid+'&psessionid='+psessionid
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
@@ -311,7 +311,7 @@ QQ{
         }
         
         var url = "http://d.web2.qq.com/channel/send_discu_msg2"
-        var data = 'r={"did":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+loginReData.psessionid+'"}&clientid='+clientid+'&psessionid='+loginReData.psessionid
+        var data = 'r={"did":'+uin+',"content":"[\\"'+message+'\\",\\"\\",[\\"font\\",{\\"name\\":\\"宋体\\",\\"size\\":\\"10\\",\\"style\\":[0,0,0],\\"color\\":\\"000000\\"}]]","msg_id":29780002,"clientid":"'+clientid+'","psessionid":"'+psessionid+'"}&clientid='+clientid+'&psessionid='+psessionid
         data = encodeURI(data)
         utility.httpPost(backFun, url, data, true)
     }
@@ -320,7 +320,11 @@ QQ{
         utility.httpGet(callbackFun, url, true)
     }
     function getOnlineFriends(callbackFun){//获取在线好友列表
-        var url = "http://d.web2.qq.com/channel/get_online_buddies2?clientid="+clientid+"&psessionid="+loginReData.psessionid
+        var url = "http://d.web2.qq.com/channel/get_online_buddies2?clientid="+clientid+"&psessionid="+psessionid
+        utility.httpGet(callbackFun, url, true)
+    }
+    function getDiscusMemberList(callbackFun, did) {//获取讨论组成员列表
+        var url = "http://d.web2.qq.com/channel/get_discu_info?did="+did+"&clientid="+clientid+"&psessionid="+psessionid
         utility.httpGet(callbackFun, url, true)
     }
 }

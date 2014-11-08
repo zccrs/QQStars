@@ -257,9 +257,9 @@ MyWindow{
                     id: avatar
                     x:10
                     width:35
-                    grayscale: {
+                    grayscale: {//头像是否显示为黑白
                         if(my)
-                            return my.myinfo.state == FriendInfo.Offlineing
+                            return my.myinfo.state == FriendInfo.Offline
                         return false
                     }
 

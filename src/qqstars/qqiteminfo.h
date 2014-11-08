@@ -264,23 +264,50 @@ signals:
 class GroupInfo:public  QQItemInfo
 {
     Q_OBJECT
-    Q_PROPERTY(QString code READ code WRITE setCode NOTIFY codeChanged)
+    Q_PROPERTY(QString code READ code WRITE setCode NOTIFY codeChanged)//相当于好友的uin的功能
+    Q_PROPERTY(int membersCount READ membersCount NOTIFY memberCountChanged FINAL)//群成员个数
+    
     QString m_code;
+    QQueue<FriendInfo*> queue_members;//储存群成员列表
+    QMap<QString, QString> map_card;
     
 public:
     explicit GroupInfo(QObject *parent=0);
     QString code() const;
+    int membersCount() const;
 public slots:
     void setCode(QString arg);
+    void addMember(FriendInfo* info);//增加群成员
+    void removeMemberByUin(const QString& uin);//删除群成员（根据uin）
+    void removeMemberByInfo(const FriendInfo *info);//删除群成员（根据uin）
+    void setMemberCard(const QString& uin, const QString& card);//给群成员设置群名片
+    QString getMemberCardByUin(const QString& uin, const QString& defaultCard);
+    FriendInfo* getMemberInfoByIndex(int index);//获取群成员信息
 signals:
     void codeChanged(QString arg);
+    void memberCountChanged(int arg);
+    void memberIncrease(FriendInfo* info);//群成员增加了
+    void memberReduce(int index);//群成员减少了,index为被移除的群成员序号
 };
 
 class DiscuInfo:public  QQItemInfo
 {
     Q_OBJECT
+    Q_PROPERTY(int membersCount READ membersCount NOTIFY memberCountChanged FINAL)//讨论组成员个数
+    
+    QQueue<FriendInfo*> queue_members;//储存讨论组成员列表
 public:
     explicit DiscuInfo(QObject *parent=0);
+    int membersCount() const;
+public slots:
+    void addMember(FriendInfo* info);//增加群成员
+    void removeMemberByUin(const QString& uin);//删除群成员（根据uin）
+    void removeMemberByInfo(const FriendInfo *info);//删除群成员（根据uin）
+    FriendInfo* getMemberInfoByIndex(int index);//获取讨论组成员信息
+signals:
+    void memberCountChanged(int arg);
+    void memberIncrease(FriendInfo* info);//群成员增加了
+    void memberReduce(int index);//群成员减少了,index为被移除的群成员序号
 };
 
 class RecentInfo:public  QObject

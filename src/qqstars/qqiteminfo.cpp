@@ -788,6 +788,11 @@ QString GroupInfo::code() const
     return m_code;
 }
 
+int GroupInfo::membersCount() const
+{
+    return queue_members.count ();
+}
+
 void GroupInfo::setCode(QString arg)
 {
     if (m_code == arg)
@@ -797,13 +802,106 @@ void GroupInfo::setCode(QString arg)
     emit codeChanged(arg);
 }
 
+void GroupInfo::addMember(FriendInfo *info)
+{
+    if(!queue_members.contains (info)){//如果不存在
+        queue_members<<info;
+        emit memberCountChanged (queue_members.count ());
+        emit memberIncrease (info);
+    }else{
+        qDebug()<<"GroupInfo:要增加的群成员已经存在"<<info;
+    }
+}
+
+void GroupInfo::removeMemberByUin(const QString &uin)
+{
+    for (int i=0;i<queue_members.count ();++i) {
+        FriendInfo* info = queue_members[i];
+        if(info&&info->uin ()==uin){
+            queue_members.removeAt (i);
+            emit memberCountChanged (queue_members.count ());
+            emit memberReduce (i);
+            break;
+        }
+    }
+}
+
+void GroupInfo::removeMemberByInfo(const FriendInfo *info)
+{
+    for (int i=0;i<queue_members.count ();++i) {
+        FriendInfo* temp_info = queue_members[i];
+        if(temp_info==info){
+            queue_members.removeAt (i);
+            emit memberCountChanged (queue_members.count ());
+            emit memberReduce (i);
+            break;
+        }
+    }
+}
+
+void GroupInfo::setMemberCard(const QString &uin, const QString &card)
+{
+    map_card[uin]=card;
+}
+
+QString GroupInfo::getMemberCardByUin(const QString &uin, const QString &defaultCard)
+{
+    return map_card.value (uin, defaultCard);
+}
+
+FriendInfo *GroupInfo::getMemberInfoByIndex(int index)
+{
+    return queue_members[index];
+}
 
 DiscuInfo::DiscuInfo(QObject *parent):
     QQItemInfo(Discu, parent)
 {
-    
 }
 
+void DiscuInfo::addMember(FriendInfo *info)
+{
+    if(!queue_members.contains (info)){//如果不存在
+        queue_members<<info;
+        emit memberCountChanged (queue_members.count ());
+        emit memberIncrease (info);
+    }
+}
+
+void DiscuInfo::removeMemberByUin(const QString &uin)
+{
+    for (int i=0;i<queue_members.count ();++i) {
+        FriendInfo* info = queue_members[i];
+        if(info&&info->uin ()==uin){
+            queue_members.removeOne (info);
+            emit memberCountChanged (queue_members.count ());
+            emit memberReduce (i);
+            break;
+        }
+    }
+}
+
+void DiscuInfo::removeMemberByInfo(const FriendInfo *info)
+{
+    for (int i=0;i<queue_members.count ();++i) {
+        FriendInfo* temp_info = queue_members[i];
+        if(temp_info==info){
+            queue_members.removeAt (i);
+            emit memberCountChanged (queue_members.count ());
+            break;
+        }
+    }
+}
+
+int DiscuInfo::membersCount() const
+{
+    return queue_members.count ();
+}
+
+FriendInfo *DiscuInfo::getMemberInfoByIndex(int index)
+{
+    return queue_members[index];
+}
 
 RecentInfo::RecentInfo(FriendInfo *info, QObject *parent):
     QObject(parent)
