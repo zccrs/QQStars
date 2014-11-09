@@ -257,7 +257,7 @@ void QQCommand::onNetworkOnlineStateChanged(bool isOnline)
     }
 }
 
-void QQCommand::downImageFinished(bool error, const QString &path, const QString &name)
+void QQCommand::downImageFinished(DownloadImage::ErrorType error, const QString &path, const QString &name)
 {
     QStringList list = name.split ("_");//分割字符串
     QString rootUin=list[0];//图片发送者本身或者图片发送者所在群的uin
@@ -276,7 +276,7 @@ void QQCommand::downImageFinished(bool error, const QString &path, const QString
     }
     QQItemInfo* info = createQQItemInfo (rootUin, senderType);
     //获取图片所有者的信息
-    if(error){//如果出错
+    if(error==DownloadImage::DownloadError){//如果是下载出错
         qDebug()<<"QQCommand:图片"<<name<<"下载出错";
         QString image_url = getImageUrlById (imageID);//通过图片id获得储存的图片真实下载地址
         QString save_name = name.mid (0, name.size ()-4);//去除末尾的图片后缀才是要保存的图片名字
@@ -285,11 +285,17 @@ void QQCommand::downImageFinished(bool error, const QString &path, const QString
                                QUrl(image_url), path, save_name);//重新下载图片
         return;
     }
+    
     ChatMessageInfo* message_info = info->getChatMessageInfoById (messageID);
     //通过图片所在消息的id获取储存消息信息的对象
     QString content = message_info->contentData ();//获得消息储存的内容
-    QString old_img = "<img src=\"qrc:/images/loading.png\" imageID="+QString::number (imageID)+">";//旧的img标签中的内容
-    QString new_img = "<img src=\"file:///"+path+name+"\">";//新img标签内容
+    QString old_img = "<img src=\"qrc:/images/duz.png\" imageID="+QString::number (imageID)+">";//旧的img标签中的内容
+    QString new_img;
+    if(error==DownloadImage::SaveError||error==DownloadImage::NotSupportFormat){
+        new_img = "<img src=\"qrc:/images/dud.png\">";//新img标签内容
+    }else if(error==DownloadImage::NoError){//如果没有错误
+        new_img = "<img src=\"file:///"+path+"/"+name+"\">";//新img标签内容
+    }
     content.replace (old_img, new_img);//将old_img标签替换为新的内容
     message_info->setContentData (content);//替换消息内容，qml端会自动刷新消息
 }
@@ -306,7 +312,7 @@ void QQCommand::getImageUrlFinished(QNetworkReply *replys)
         }
         const QQItemInfo* root_info = image_info.messageInfo->getParent ();
         //获取图片所有者信息的对象（如果图片为好友发送，那就是那个好友的info，如果是群，那就是群的ifno）
-        QString save_path = root_info->localCachePath ()+"/cacheImage/";//获取图片的缓存路径
+        QString save_path = root_info->localCachePath ()+"/cacheImage";//获取图片的缓存路径
         QString save_name = root_info->uin ()+"_"+
                 QString::number (image_info.messageInfo->messageId ())+"_"+
                 QString::number (image_info.imageID)+"_"+
@@ -987,7 +993,7 @@ QString QQCommand::disposeImageMessage(ChatMessageInfo* message_info, QString im
     queue_imageInfo<<image_info;//将图片的信息加入队列
     http_image->get (this, SLOT(getImageUrlFinished(QNetworkReply*)), image_url);
     //进行网络请求,获取图片的真实下载地址
-    return "<img src=\"qrc:/images/loading.png\" imageID="+QString::number (image_id)+">";
+    return "<img src=\"qrc:/images/duz.png\" imageID="+QString::number (image_id)+">";
     //返回此字符串，用于img标签的占位，等图片下载完成会替换此img标签
 }
 

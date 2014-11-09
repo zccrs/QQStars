@@ -6,6 +6,7 @@
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <QScreen>
+#include <QFileDialog>
 #include "mynetworkaccessmanagerfactory.h"
 #include "systemtrayicon.h"
 #include "utility.h"
@@ -42,7 +43,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<MenuSeparator>("mywindow", 1,0, "MenuSeparator");
     qmlRegisterType<MyMenuItem>("mywindow", 1,0, "MyMenuItem");
     qmlRegisterType<MyShortcut>("utility", 1,0, "MyShortcut");
-    qmlRegisterType<QQCommand>("utility", 1,0, "QQ");
+    qmlRegisterType<DownloadImage>("utility", 1, 0, "DownloadImage");
+    qmlRegisterType<QQCommand>("qqstars", 1,0, "QQ");
     qmlRegisterType<FriendInfo>("QQItemInfo", 1,0, "FriendInfo");
     qmlRegisterType<GroupInfo>("QQItemInfo", 1,0, "GroupInfo");
     qmlRegisterType<DiscuInfo>("QQItemInfo", 1,0, "DiscuInfo");

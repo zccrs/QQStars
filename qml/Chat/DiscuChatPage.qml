@@ -105,7 +105,7 @@ ChatPage{
                         MouseArea{
                             anchors.fill: parent
                             onDoubleClicked: {
-                                myqq.addChatPage(item_root.myinfo.uin, QQ.Friend)//双击开始聊天
+                                myqq.addChatPage(item_root.myinfo.uin, QQItemInfo.Friend)//双击开始聊天
                             }
                         }
                     }

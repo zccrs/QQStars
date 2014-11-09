@@ -2,6 +2,7 @@ import QtQuick 2.2
 import utility 1.0
 import QtQuick.Window 2.1
 import QQItemInfo 1.0
+import qqstars 1.0
 
 QQ{
     id: root
@@ -249,12 +250,12 @@ QQ{
     }
     
     function getAvatarFinished( error, path, name ){//获得自己头像完成
-        if(error){//如果出错
+        if(error==DownloadImage.DownloadError){//如果是下载出错
             downloadImage(QQItemInfo.Friend, url, myqq.userQQ, "240", getAvatarFinished)//重新获取头像
             return
         }
-
-        myqq.avatar240 = path+"/"+name
+        if(error==DownloadImage.NoError)
+            myqq.avatar240 = path+"/"+name
     }
     
     function getFriendInfo( tuin,backFun ) {//获取好友资料

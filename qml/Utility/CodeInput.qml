@@ -3,6 +3,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import utility 1.0
+import qqstars 1.0
 
 MyWindow{
     id: root_window

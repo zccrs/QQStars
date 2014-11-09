@@ -21,13 +21,29 @@ MyHttpRequest *DownloadImage::getHttpRequest()
     return httpRequest;
 }
 
+QString DownloadImage::imageFormatToString(const QByteArray &array)
+{
+    QByteArray str = array.toHex ();
+    
+    if(str.mid (2,6)=="504e47")
+        return "png";
+    if(str.mid (12,8)=="4a464946")
+        return "jpg";
+    if(str.left (6)=="474946")
+        return "gif";
+    if(str.left (4)=="424d")
+        return "bmp";
+    return "";
+}
+
 void DownloadImage::downloadFinished(QNetworkReply *replys)
 {
     Data data = queue_data.dequeue ();
     ReplyType type=data.replyType;
-    bool error=false;
+    ErrorType error=NoError;
     QString saveName = data.saveName;
     QString savePath = data.savePath;
+    QString format = ".";
     
     if(replys->error() == QNetworkReply::NoError)
     {
@@ -35,27 +51,55 @@ void DownloadImage::downloadFinished(QNetworkReply *replys)
         QDir dir(imageName);
         if( !dir.exists () )
             dir.mkpath (imageName);
-        imageName+="/"+saveName+".png";
         QByteArray temp=replys->readAll();
-        QImage image;
-        image.loadFromData(temp);
-        if( !image.save (imageName) ){
-            qDebug()<<"DownloadImage:图片保存失败,收到的网络数据是："<<temp;
-            error = true;
+        imageName+="/"+saveName;
+        format += imageFormatToString (temp);
+        if(format!="."){
+            imageName.append (format);
+            qDebug()<<"DownloadImage：要保存的图片名为："<<imageName;
+        }else{
+            qDebug()<<"DownloadImage:未知的图片格式"<<temp.toHex ();
+            error = NotSupportFormat;
+            return;
         }
+        QFile file(imageName);
+        if(file.open (QIODevice::WriteOnly)){
+            file.write (temp);//储存图片
+            file.close ();
+        }else{
+            qDebug()<<"DownloadImage:图片保存失败"<<file.errorString ();
+            error = SaveError;
+        }
+        /*if(format==".gif"){//如果是gif图
+            QFile file(imageName);
+            if(file.open (QIODevice::WriteOnly)){
+                file.write (temp);//储存图片
+                file.close ();
+            }else{
+                qDebug()<<"DownloadImage:图片保存失败"<<file.errorString ();
+            }
+        }else{
+            QImage image;
+            image.loadFromData(temp);
+    
+            if( !image.save (imageName) ){
+                qDebug()<<"DownloadImage:图片保存失败,收到的网络数据是："<<temp<<endl;
+                error = true;
+            }
+        }*/
     }else{
-        error = true;
+        error = DownloadError;
     }
     
     if(type == CallbackFun){
         QJSValueList list;
-        list<<QJSValue(error)<<QJSValue(savePath)<<QJSValue(saveName+".png");
+        list<<QJSValue((int)error)<<QJSValue(savePath)<<QJSValue(saveName+format);
         data.callbackFun.call (list);
     }else if(type == ConnectSlot){
         bool ok=QMetaObject::invokeMethod (data.caller, data.slotName,
-                                           Q_ARG(bool, error),
+                                           Q_ARG(DownloadImage::ErrorType, error),
                                            Q_ARG(QString, savePath), 
-                                           Q_ARG(QString, saveName+".png"));
+                                           Q_ARG(QString, saveName+format));
         if(!ok)
             qDebug()<<"DownloadImage:调用槽"<<data.slotName<<"出错";
     }

@@ -2,6 +2,7 @@ import QtQuick 2.2
 import mywindow 1.0
 import utility 1.0
 import QQItemInfo 1.0
+import qqstars 1.0
 
 MySystemTrayIcon{
     id: root

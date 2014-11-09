@@ -76,5 +76,7 @@
         <file>images/blueStar.png</file>
         <file>images/login-panel2.svg</file>
         <file>images/loading.png</file>
+        <file>images/dud.png</file>
+        <file>images/duz.png</file>
     </qresource>
 </RCC>

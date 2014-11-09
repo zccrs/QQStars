@@ -8,6 +8,7 @@
 #include <QQuickItem>
 #include <QJSEngine>
 #include "qqiteminfo.h"
+#include "downloadimage.h"
 
 class MyWindow;
 class MyHttpRequest;
@@ -83,7 +84,7 @@ private slots:
     void onStateChanged();//当状态改变后调用，将状态存到本地
     void onPoll2Timeout();//如果心跳包超时
     void onNetworkOnlineStateChanged(bool isOnline);//如果网络在线状态改变
-    void downImageFinished(bool error, const QString& path, const QString& name);
+    void downImageFinished(DownloadImage::ErrorType error, const QString& path, const QString& name);
     //下载图片完成时调用，下载的图片是好友发送过来的
     void getImageUrlFinished(QNetworkReply *replys);//获取图片真实的下载地址完成
 private:
