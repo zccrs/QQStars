@@ -70,23 +70,6 @@ void DownloadImage::downloadFinished(QNetworkReply *replys)
             qDebug()<<"DownloadImage:图片保存失败"<<file.errorString ();
             error = SaveError;
         }
-        /*if(format==".gif"){//如果是gif图
-            QFile file(imageName);
-            if(file.open (QIODevice::WriteOnly)){
-                file.write (temp);//储存图片
-                file.close ();
-            }else{
-                qDebug()<<"DownloadImage:图片保存失败"<<file.errorString ();
-            }
-        }else{
-            QImage image;
-            image.loadFromData(temp);
-    
-            if( !image.save (imageName) ){
-                qDebug()<<"DownloadImage:图片保存失败,收到的网络数据是："<<temp<<endl;
-                error = true;
-            }
-        }*/
     }else{
         error = DownloadError;
     }
