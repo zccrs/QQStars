@@ -29,7 +29,7 @@ ChatPage{
         
         data = JSON.parse(data)
         if( data.retcode == 0 ){
-            text_announcement.text = data.result.ginfo.memo//设置群公告
+            myinfo.announcement = data.result.ginfo.memo//设置群公告
             
             var members = data.result.cards
             for ( var i in members ){
@@ -90,6 +90,7 @@ ChatPage{
             
             Text{
                 id: text_announcement
+                text: myinfo.announcement//群公告
                 anchors.fill: parent
                 anchors.margins: 10
                 wrapMode: Text.WordWrap

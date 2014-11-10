@@ -793,6 +793,11 @@ int GroupInfo::membersCount() const
     return queue_members.count ();
 }
 
+QString GroupInfo::announcement() const
+{
+    return m_announcement;
+}
+
 void GroupInfo::setCode(QString arg)
 {
     if (m_code == arg)
@@ -852,6 +857,15 @@ QString GroupInfo::getMemberCardByUin(const QString &uin, const QString &default
 FriendInfo *GroupInfo::getMemberInfoByIndex(int index)
 {
     return queue_members[index];
+}
+
+void GroupInfo::setAnnouncement(QString arg)
+{
+    if (m_announcement == arg)
+        return;
+    
+    m_announcement = arg;
+    emit announcementChanged(arg);
 }
 
 DiscuInfo::DiscuInfo(QObject *parent):

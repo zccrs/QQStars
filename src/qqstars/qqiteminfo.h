@@ -266,15 +266,19 @@ class GroupInfo:public  QQItemInfo
     Q_OBJECT
     Q_PROPERTY(QString code READ code WRITE setCode NOTIFY codeChanged)//相当于好友的uin的功能
     Q_PROPERTY(int membersCount READ membersCount NOTIFY memberCountChanged FINAL)//群成员个数
+    Q_PROPERTY(QString announcement READ announcement WRITE setAnnouncement NOTIFY announcementChanged)
     
     QString m_code;
     QQueue<FriendInfo*> queue_members;//储存群成员列表
     QMap<QString, QString> map_card;
-    
+    QString m_announcement;
+
 public:
     explicit GroupInfo(QObject *parent=0);
     QString code() const;
     int membersCount() const;
+    QString announcement() const;
+    
 public slots:
     void setCode(QString arg);
     void addMember(FriendInfo* info);//增加群成员
@@ -283,11 +287,13 @@ public slots:
     void setMemberCard(const QString& uin, const QString& card);//给群成员设置群名片
     QString getMemberCardByUin(const QString& uin, const QString& defaultCard);
     FriendInfo* getMemberInfoByIndex(int index);//获取群成员信息
+    void setAnnouncement(QString arg);
 signals:
     void codeChanged(QString arg);
     void memberCountChanged(int arg);
     void memberIncrease(FriendInfo* info);//群成员增加了
     void memberReduce(int index);//群成员减少了,index为被移除的群成员序号
+    void announcementChanged(QString arg);
 };
 
 class DiscuInfo:public  QQItemInfo
