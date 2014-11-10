@@ -2,6 +2,7 @@ import QtQuick 2.2
 import mywindow 1.0
 import QQItemInfo 1.0
 import MyTextEditPlugin 1.0
+import "../Utility"
 
 Component{
     Item{
@@ -85,6 +86,7 @@ Component{
             width: mytext.width+30
             border.left: 20; border.top: 20
             border.right: 20; border.bottom: 20
+           
             
             TextEdit{
                 id: mytext
@@ -103,14 +105,13 @@ Component{
                     }
                 }
                 onTextChanged: {
-                    //console.debug(text)
+                    console.debug(text)
                     if(text[text.length-1]=="\n"){
                         text = text.substr(0, text.length-1)
                     }
                 }
                 
                 TextEditPlayGif{
-                    cachePath: myqq.getMovieImageFrameCachePath()
                     target: mytext
                 }
             }

@@ -4,6 +4,7 @@ import mywindow 1.0
 import utility 1.0
 //import Qt.labs.settings 1.0
 import QQItemInfo 1.0
+import MyTextEditPlugin 1.0
 import "../Utility"
 import "../MainPanel"
 import "LoginPanel"
@@ -187,4 +188,23 @@ MyWindow{
              }
          }
     }
+    /*TextEdit{
+        id: mytext
+        anchors.fill: parent
+        readOnly: true
+        textFormat :TextEdit.RichText//支持富文本
+        selectByMouse :true
+        selectByKeyboard :true
+        wrapMode: TextEdit.Wrap
+        text: "<img src='qrc:/faces/classic/1.gif'>"
+        
+        
+        onTextChanged: {
+            console.debug(text)
+        }
+        
+        TextEditPlayGif{
+            target: mytext
+        }
+    }*/
 }
