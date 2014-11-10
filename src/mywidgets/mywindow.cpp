@@ -424,8 +424,8 @@ void MyWindow::setMousePenetrate(bool arg)
             XRectangle* myrect = new XRectangle;
             myrect->x = 0;
             myrect->y = 0;
-            myrect->width = width();
-            myrect->height = height();
+            myrect->width = actualWidth ();
+            myrect->height = actualHeight ();
             XShapeCombineRectangles(QX11Info::display(), winId(), ShapeInput, 0,
                     0, myrect, 1, ShapeSet, YXBanded);
         }
