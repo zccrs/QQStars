@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = QQStars
 QT += widgets network webkit svg qml quick concurrent sql quick-private#widgets-private core-private gui-private
-
+QT += webkitwidgets
 INCLUDEPATH += \
     src \
     src/qxtglobalshortcut \
@@ -105,6 +105,7 @@ OTHER_FILES += \
     qml/Chat/DiscuChatPage.qml \
     qml/Chat/ChatPage.qml \
     qml/Utility/TrayMessageWindow.qml \
-    qml/Login/textedit.html
+    qml/Login/textedit.html \
+    qml/Utility/MyTextView.qml
             
 FORMS +=

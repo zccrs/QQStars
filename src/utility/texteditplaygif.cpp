@@ -150,6 +150,7 @@ void TextEditPlayGif::addErrorUrl(const QString url)
 {
     if(!isErrorUrl (url))
         list_errorUrl<<url;
+    emit error (url+"文件读取失败");
 }
 
 void TextEditPlayGif::startAllMovie()
@@ -230,7 +231,10 @@ void TextEditPlayGif::onTextChanged()
                     gifName.append (ch);
             }
             
-            if(src.left (3)=="qrc")
+            QUrl url(src);
+            if(url.isLocalFile ())
+                src = url.toLocalFile ();
+            else if(src.left (3)=="qrc")
                 src=src.mid (3);
             if(isErrorUrl (src))
                 break;

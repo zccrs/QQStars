@@ -341,7 +341,7 @@ void QQCommand::loadApi()
 
 QString QQCommand::disposeMessage(QJsonObject &obj, ChatMessageInfo* message_info)
 {
-    QString result;
+    QString result="<html><body>";
     FontStyle font_style;
     QJsonArray content = obj["content"].toArray ();
     QJsonValue temp2 = content[0];
@@ -448,7 +448,7 @@ QString QQCommand::disposeMessage(QJsonObject &obj, ChatMessageInfo* message_inf
             }
         }
     }
-    return result;
+    return result+"</body></html>";
 }
 
 void QQCommand::disposeFriendStatusChanged(QJsonObject &obj)

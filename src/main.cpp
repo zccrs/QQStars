@@ -19,6 +19,7 @@
 #include "mymessagebox.h"
 #include "downloadimage.h"
 #include "texteditplaygif.h"
+#include <QWebView>
 
 int main(int argc, char *argv[])
 {
@@ -77,6 +78,7 @@ int main(int argc, char *argv[])
 #endif
     engine->rootContext ()->setContextProperty ("systemTray", systemTray);//将程序托盘注册过去
     qqapi->loadLoginWindow ();//加载登录窗口
+    
     
     return app.exec();
 }
