@@ -33,10 +33,6 @@ QQ{
             return 2
     }
 
-    Component.onCompleted: {
-        clientid = getClientid()//设置clientid
-    }
-    
     onStateChanged: {
         editUserState()//改变在线状态
     }
@@ -110,6 +106,7 @@ QQ{
             var url = "http://d.web2.qq.com/channel/login2"
             ptwebqq = utility.getCookie("ptwebqq")//储存cookie
             list_hash = getHash()//储存hash
+            clientid = getClientid()//设置clientid
             var data = 'r={"status":"'+myqq.stateToString+'","ptwebqq":"'+ptwebqq+'","passwd_sig":"","clientid":"'+clientid+'","psessionid":null}&clientid='+clientid+'&psessionid=null'
             data = encodeURI(data)
             utility.httpPost(login2Finished, url, data)

@@ -716,11 +716,10 @@ QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, const QString& typeS
 void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)
 {
     if (m_loginStatus != arg) {
-        m_loginStatus = arg;
-        if(arg == WaitLogin){//如果登录状态变为离线
+        if(arg == WaitLogin&&m_loginStatus==LoginFinished){//如果登录状态变为离线
             poll2_timer->stop ();//停止计算请求是否超时的计时器
             reply->abort ();//停止心跳包
-            closeChatWindow();//关闭和好友聊天的窗口
+            closeChatWindow();//关闭好友聊天的窗口
             clearQQItemInfos();//清空所有的好友信息
             chatImageID = 0;//chatImageID回到缺省值
             map_imageUrl.clear ();//情况image的id和url值对
@@ -732,6 +731,7 @@ void QQCommand::setLoginStatus(QQCommand::LoginStatus arg)
                 window_login->deleteLater ();
             loadMainPanelWindow ();//加载主面板窗口
         }
+        m_loginStatus = arg;
         emit loginStatusChanged();
     }
 }
