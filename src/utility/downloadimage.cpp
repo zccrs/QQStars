@@ -75,9 +75,16 @@ void DownloadImage::downloadFinished(QNetworkReply *replys)
     }
     
     if(type == CallbackFun){
+#if(QT_VERSION>=0x050000)
         QJSValueList list;
         list<<QJSValue((int)error)<<QJSValue(savePath)<<QJSValue(saveName+format);
         data.callbackFun.call (list);
+#else
+        QScriptValueList list;
+        list<<QScriptValue((int)error)<<QScriptValue(savePath)<<QScriptValue(saveName+format);
+        data.callbackFun.call (QScriptValue(), list);
+#endif
+
     }else if(type == ConnectSlot){
         bool ok=QMetaObject::invokeMethod (data.caller, data.slotName,
                                            Q_ARG(DownloadImage::ErrorType, error),
@@ -88,9 +95,19 @@ void DownloadImage::downloadFinished(QNetworkReply *replys)
     }
 }
 
+#if(QT_VERSION>=0x050000)
 void DownloadImage::getImage(QJSValue callbackFun, QUrl url, QString savePath, QString saveName)
+#else
+void DownloadImage::getImage(QScriptValue callbackFun, QUrl url, QString savePath, QString saveName)
+#endif
 {
-    if((!callbackFun.isCallable ())||url.toString ()=="")
+    bool isFun=false;
+#if(QT_VERSION>=0x050000)
+    isFun=callbackFun.isCallable ();
+#else
+    isFun = callbackFun.isFunction ();
+#endif
+    if((!isFun)||url.toString ()=="")
         return;
     
     Data data;

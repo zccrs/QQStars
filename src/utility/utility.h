@@ -74,12 +74,18 @@ public slots:
     void removeValue( const QString & key );
     
     void loadQml( QUrl url );
+#if(QT_VERSION>=0x050000)
     void downloadImage( QJSValue callbackFun, QUrl url, QString savePath, QString saveName );
+    void httpGet(QJSValue callbackFun, QUrl url, bool highRequest=false );
+    void httpPost(QJSValue callbackFun, QUrl url, QByteArray data="", bool highRequest=false );
+#else
+    void downloadImage( QScriptValue callbackFun, QUrl url, QString savePath, QString saveName );
+    void httpGet(QScriptValue callbackFun, QUrl url, bool highRequest=false );
+    void httpPost(QScriptValue callbackFun, QUrl url, QByteArray data="", bool highRequest=false );
+#endif
     void downloadImage( QObject *caller, QByteArray slotName, QUrl url, QString savePath, QString saveName );
     void httpGet(QObject *caller, QByteArray slotName, QUrl url, bool highRequest=false);
     void httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, bool highRequest=false);
-    void httpGet(QJSValue callbackFun, QUrl url, bool highRequest=false );
-    void httpPost(QJSValue callbackFun, QUrl url, QByteArray data="", bool highRequest=false );
     void socketAbort();
     void setApplicationProxy( int type, QString location, QString port, QString username, QString password );
     

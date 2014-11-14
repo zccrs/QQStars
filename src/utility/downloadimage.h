@@ -6,8 +6,14 @@
 #include <QByteArray>
 #include <QString>
 #include <QImage>
-#include <QJSValue>
 #include <QUrl>
+#if(QT_VERSION>=0x050000)
+#include <QJSValue>
+#include <QJSEngine>
+#else
+#include <QScriptValue>
+#include <QScriptEngine>
+#endif
 
 class MyHttpRequest;
 class QNetworkReply;
@@ -36,7 +42,11 @@ private:
     };
     struct Data{
         ReplyType replyType;
+#if(QT_VERSION>=0x050000)
         QJSValue callbackFun;
+#else
+        QScriptValue callbackFun;
+#endif
         QObject* caller;
         QByteArray slotName;
         QString savePath;
@@ -48,7 +58,11 @@ private:
 private slots:
     void downloadFinished(QNetworkReply *replys);//当图片下载完成的时候调用
 public slots:
+#if(QT_VERSION>=0x050000)
     void getImage(QJSValue callbackFun, QUrl url, QString savePath, QString saveName);
+#else
+    void getImage(QScriptValue callbackFun, QUrl url, QString savePath, QString saveName);
+#endif
     void getImage(QObject *caller, QByteArray slotName, QUrl url, QString savePath, QString saveName);
     /*
      * savePath中最后一个目录后面不要加"/"，saveName不要带后缀

@@ -40,47 +40,57 @@ void MyHttpRequest::finished(QNetworkReply *reply)
     bool isError = !(reply->error () == QNetworkReply::NoError);
     
     if(type==CallbackFun){
+#if(QT_VERSION>=0x050000)
         QJSValueList list;
         list.append (QJSValue(isError));
-        list.append (QJSValue(isError?reply->errorString ():reply->readAll ()));//
+        list.append (QJSValue(isError?reply->errorString ():reply->readAll ()));
         temp.callbackFun.call (list);
+#else
+        QScriptValueList list;
+        list.append (QScriptValue(isError));
+        list.append (QScriptValue(isError?reply->errorString ():reply->readAll ()));
+        temp.callbackFun.call (QScriptValue(), list);
+#endif
     }else if(type==ConnectSlot){
         QObject* obj = temp.caller;
         QByteArray slotName = temp.slotName;
         
         if(obj!=NULL){
-            QMetaMethod method;
-            bool slotNameExist = false;
-            for(int i=0;i<obj->metaObject ()->methodCount ();++i){
-                method = obj->metaObject ()->method (i);
-                if(method.name ()==slotName){
-                    slotNameExist=true;
-                    break;
-                }
-            }
-            if(slotNameExist){
-                int  parameterCount = method.parameterCount ();//形参的个数
-                bool ok;
-                
-                if(parameterCount==1){//如果形参个数为个
-                    ok=method.invoke (obj, Q_ARG(QNetworkReply*, reply));
-                }else{
-                    ok=method.invoke (obj, Q_ARG(QVariant, isError), Q_ARG(QVariant, (isError?reply->errorString ():reply->readAll ())));
-                }
-                if(!ok){
-                    qDebug()<<"MyHttpRequest:调用槽"+slotName+"失败";
-                }
+            bool ok;//记录调用槽是否成功
+            int parameterCount = obj->metaObject()->method(obj->metaObject()->indexOfMethod(slotName)).parameterTypes().length();
+            QRegExp reg("^[^(]+");
+            reg.indexIn (slotName);
+            slotName = reg.cap (0).toLatin1 ();
+            if(parameterCount==0){//如果形参个数为0个
+                ok = QMetaObject::invokeMethod(obj, slotName);
+            }else if(parameterCount==1){
+                ok = QMetaObject::invokeMethod(obj, slotName, Q_ARG(QNetworkReply*, reply));
+            }else if(parameterCount==2){
+                ok = QMetaObject::invokeMethod(obj, slotName, Q_ARG(QVariant, isError), Q_ARG(QVariant, (isError?reply->errorString ():reply->readAll ())));
             }else{
-                qDebug()<<"MyHttpRequest:槽"<<slotName<<"不存在";
+                ok = false;
+            }
+            if(!ok){
+                qDebug()<<"MyHttpRequest:调用槽"+slotName+"失败";
             }
         }
     }
     send();//继续请求
 }
 
+#if(QT_VERSION>=0x050000)
 void MyHttpRequest::send(QJSValue callbackFun, QUrl url, QByteArray data, bool highRequest/*=false*/)
+#else
+void MyHttpRequest::send(QScriptValue callbackFun, QUrl url, QByteArray data, bool highRequest/*=false*/)
+#endif
 {
-    if((!callbackFun.isCallable ())||url.toString ()=="")
+    bool isFun=false;
+#if(QT_VERSION>=0x050000)
+    isFun=callbackFun.isCallable ();
+#else
+    isFun = callbackFun.isFunction ();
+#endif
+    if((!isFun)||url.toString ()=="")
         return;
     if(highRequest){
         new MyHttpRequestPrivate(request, callbackFun, url, data);//进行高优先级的网络请求
@@ -110,6 +120,7 @@ void MyHttpRequest::post(QObject *caller, QByteArray slotName, QUrl url, QByteAr
     send(caller, slotName, url, data, highRequest);
 }
 
+#if(QT_VERSION>=0x050000)
 void MyHttpRequest::get(QJSValue callbackFun, QUrl url, bool highRequest/*=false*/)
 {
     send (callbackFun, url, "", highRequest);
@@ -119,6 +130,17 @@ void MyHttpRequest::post(QJSValue callbackFun, QUrl url, QByteArray data, bool h
 {
     send (callbackFun, url, data, highRequest);
 }
+#else
+void MyHttpRequest::get(QScriptValue callbackFun, QUrl url, bool highRequest/*=false*/)
+{
+    send (callbackFun, url, "", highRequest);
+}
+
+void MyHttpRequest::post(QScriptValue callbackFun, QUrl url, QByteArray data, bool highRequest/*=false*/)
+{
+    send (callbackFun, url, data, highRequest);
+}
+#endif
 
 void MyHttpRequest::send(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, bool highRequest/*=false*/)
 {
@@ -127,13 +149,13 @@ void MyHttpRequest::send(QObject *caller, QByteArray slotName, QUrl url, QByteAr
     if(highRequest){
         new MyHttpRequestPrivate(request, caller, slotName, url, data);//进行高优先级的网络请求
     }else{
-        QRegExp reg("[_A-Za-z][_A-Za-z0-9]*");//提取函数名
+        QRegExp reg("[_A-Za-z][_A-Za-z0-9]*(.+)$");//提取函数名
         if(reg.indexIn (slotName)>=0){
             requestData request_data;
             request_data.url = url;
             request_data.data = data;
             queue_requestData<<request_data;
-            
+
             Data temp;
             temp.caller = caller;
             slotName = reg.cap (0).toLatin1 ();
@@ -144,7 +166,8 @@ void MyHttpRequest::send(QObject *caller, QByteArray slotName, QUrl url, QByteAr
                 send();
             }
         }else{
-            qDebug()<<"MyHttpRequest:"<<slotName<<"不是一个规范的函数，所以不可能是一个槽";
+            qDebug()<<reg.errorString ();
+            qDebug()<<"MyHttpRequest:"<<slotName<<"不是槽函数";
         }
     }
 }
@@ -177,7 +200,11 @@ QString MyHttpRequest::errorString()
     return m_reply->errorString ();
 }
 
+#if(QT_VERSION>=0x050000)
 MyHttpRequestPrivate::MyHttpRequestPrivate(QNetworkRequest request, QJSValue callbackFun, QUrl url, QByteArray data):
+#else
+MyHttpRequestPrivate::MyHttpRequestPrivate(QNetworkRequest request, QScriptValue callbackFun, QUrl url, QByteArray data):
+#endif
     MyHttpRequest(0)
 {
     this->request = request;

@@ -188,23 +188,4 @@ MyWindow{
              }
          }
     }
-    /*TextEdit{
-        id: mytext
-        anchors.fill: parent
-        readOnly: true
-        textFormat :TextEdit.RichText//支持富文本
-        selectByMouse :true
-        selectByKeyboard :true
-        wrapMode: TextEdit.Wrap
-        text: "<img src='qrc:/faces/classic/1.gif'>"
-        
-        
-        onTextChanged: {
-            console.debug(text)
-        }
-        
-        TextEditPlayGif{
-            target: mytext
-        }
-    }*/
 }

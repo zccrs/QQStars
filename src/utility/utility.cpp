@@ -197,12 +197,37 @@ void Utility::loadQml(QUrl url)
     if(engine)
         engine->load (url);
 }
-
+#if(QT_VERSION>=0x050000)
 void Utility::downloadImage(QJSValue callbackFun, QUrl url, QString savePath, QString saveName)
 {
     download_image->getImage (callbackFun, url, savePath, saveName);
 }
 
+void Utility::httpGet(QJSValue callbackFun, QUrl url, bool highRequest)
+{
+    http_request->get (callbackFun, url, highRequest);
+}
+
+void Utility::httpPost(QJSValue callbackFun, QUrl url, QByteArray data, bool highRequest)
+{
+    http_request->post (callbackFun, url, data, highRequest);
+}
+#else
+void Utility::downloadImage(QScriptValue callbackFun, QUrl url, QString savePath, QString saveName)
+{
+    download_image->getImage (callbackFun, url, savePath, saveName);
+}
+
+void Utility::httpGet(QScriptValue callbackFun, QUrl url, bool highRequest)
+{
+    http_request->get (callbackFun, url, highRequest);
+}
+
+void Utility::httpPost(QScriptValue callbackFun, QUrl url, QByteArray data, bool highRequest)
+{
+    http_request->post (callbackFun, url, data, highRequest);
+}
+#endif
 void Utility::downloadImage(QObject *caller, QByteArray slotName, QUrl url, QString savePath, QString saveName)
 {
     download_image->getImage (caller, slotName, url, savePath, saveName);
@@ -216,16 +241,6 @@ void Utility::httpGet(QObject *caller, QByteArray slotName, QUrl url, bool highR
 void Utility::httpPost(QObject *caller, QByteArray slotName, QUrl url, QByteArray data, bool highRequest)
 {
     http_request->post (caller, slotName, url, data, highRequest);
-}
-
-void Utility::httpGet(QJSValue callbackFun, QUrl url, bool highRequest)
-{
-    http_request->get (callbackFun, url, highRequest);
-}
-
-void Utility::httpPost(QJSValue callbackFun, QUrl url, QByteArray data, bool highRequest)
-{
-    http_request->post (callbackFun, url, data, highRequest);
 }
 
 void Utility::socketAbort()
