@@ -3,8 +3,13 @@
 #include <QBitmap>
 #include <QDebug>
 
+#if(QT_VERSION>=0x050000)
 MyImage::MyImage(QQuickItem *parent) :
     QQuickPaintedItem(parent)
+#else
+MyImage::MyImage(QDeclarativeItem *parent) :
+    QDeclarativeItem(parent)
+#endif
 {
     m_cache = true;
     m_grayscale = false;

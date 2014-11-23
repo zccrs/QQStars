@@ -3,8 +3,13 @@
 #include <QQuickWindow>
 #include <QDebug>
 
+#if(QT_VERSION>=0x050000)
 MySvgView::MySvgView(QQuickItem *parent) :
     QQuickPaintedItem(parent)
+#else
+MySvgView::MySvgView(QDeclarativeItem *parent) :
+    QDeclarativeItem(parent)
+#endif
 {
     m_defaultSize = QSize(0,0);
     svg = new QSvgRenderer(this);

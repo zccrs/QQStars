@@ -137,6 +137,6 @@ void DownloadImage::getImage(QObject *caller, QByteArray slotName, QUrl url, QSt
         queue_data<<data;
         httpRequest->get (this, SLOT(downloadFinished(QNetworkReply*)), url);//去获取
     }else{
-        qDebug()<<"DownloadImage:"<<slotName<<"不是一个规范的函数，所以不可能是一个槽";
+        qDebug()<<"DownloadImage:"<<slotName<<"不是槽函数";
     }
 }

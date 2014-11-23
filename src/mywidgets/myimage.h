@@ -1,12 +1,21 @@
 #ifndef MYIMAGE_H
 #define MYIMAGE_H
 
-#include <QQuickPaintedItem>
 #include <QImage>
 #include <QPixmap>
 #include <QBitmap>
 
+#if(QT_VERSION>=0x050000)
+#include <QQuickPaintedItem>
+#else
+#include <QDeclarativeItem>
+#endif
+
+#if(QT_VERSION>=0x050000)
 class MyImage : public QQuickPaintedItem
+#else
+class MyImage : public QDeclarativeItem
+#endif
 {
     Q_OBJECT
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
@@ -14,7 +23,11 @@ class MyImage : public QQuickPaintedItem
     Q_PROPERTY(bool cache READ cache WRITE setCache NOTIFY cacheChanged)
     Q_PROPERTY(bool grayscale READ grayscale WRITE setGrayscale NOTIFY grayscaleChanged)
 public:
+#if(QT_VERSION>=0x050000)
     explicit MyImage(QQuickItem *parent = 0);
+#else
+    explicit MyImage(QDeclarativeItem *parent = 0);
+#endif
 
     QUrl source() const;
     QUrl maskSource() const;
