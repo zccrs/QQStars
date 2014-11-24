@@ -75,10 +75,7 @@ void MyImage::setSource(QUrl arg)
     if (!m_cache||m_source != arg) {
         m_source = arg;
         QString str;
-        if(arg.isLocalFile ())
-            str = arg.toLocalFile ();
-        else
-            str = arg.toString ();
+        str = arg.toString ();
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
         QImage image;
@@ -88,7 +85,9 @@ void MyImage::setSource(QUrl arg)
             }
             *pixmap = QPixmap::fromImage (image);
             pixmap->setMask (bitmap->scaled (pixmap->size ()));
-            setImplicitSize (pixmap->size ().width (), pixmap->size ().height ());//设置默认大小
+            setImplicitWidth(pixmap->size().width());//设置默认大小
+            setImplicitHeight(pixmap->size().height());
+
             if( width()>0 )
                 onWidthChanged();
             if(height ()>0)
