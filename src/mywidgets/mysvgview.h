@@ -36,8 +36,11 @@ private slots:
     void onWidthChanged();
     void onHeightChanged();
 protected:
+#if(QT_VERSION>=0x050000)
     void paint(QPainter * painter);
-    //QSGNode *updatePaintNode(QSGNode * oldNode, UpdatePaintNodeData * updatePaintNodeData);
+#else
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *new_style, QWidget *new_widget=0);
+#endif
 signals:
     void sourceChanged(QUrl arg);
     void rotationModeChanged(Qt::Axis arg);

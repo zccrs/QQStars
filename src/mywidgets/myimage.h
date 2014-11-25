@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QBitmap>
+#include <QtNetwork>
 
 #if(QT_VERSION>=0x050000)
 #include <QQuickPaintedItem>
@@ -22,7 +23,17 @@ class MyImage : public QDeclarativeItem
     Q_PROPERTY(QUrl maskSource READ maskSource WRITE setMaskSource NOTIFY maskSourceChanged)
     Q_PROPERTY(bool cache READ cache WRITE setCache NOTIFY cacheChanged)
     Q_PROPERTY(bool grayscale READ grayscale WRITE setGrayscale NOTIFY grayscaleChanged)
+    Q_PROPERTY(State status READ status NOTIFY statusChanged FINAL)
+
+    Q_ENUMS(State)
 public:
+    enum State{
+        Null,
+        Ready,
+        Loading,
+        Error
+    };
+
 #if(QT_VERSION>=0x050000)
     explicit MyImage(QQuickItem *parent = 0);
 #else
@@ -35,30 +46,50 @@ public:
     bool grayscale() const;
     
     QImage chromaticToGrayscale(const QImage &image);
+
+    static QString imageFormatToString(const QByteArray& array);
+
+#if(QT_VERSION>=0x050000)
+    void paint(QPainter * painter);
+#else
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *new_style, QWidget *new_widget=0);
+#endif
+    State status() const;
+
 private:
     QUrl m_source;
-    QPixmap *pixmap;
+    QPixmap pixmap;
     QBitmap *bitmap;
     QUrl m_maskSource;
     bool m_cache;
     bool m_grayscale;
+    QNetworkAccessManager manager;
+    QNetworkReply *reply;
 
-protected:
-    void paint(QPainter * painter);
+    void downloadImage(const QUrl& url);
+    void setPixmap(QImage image);
+    State m_status;
+
 signals:
     void sourceChanged(QUrl arg);
     void maskSourceChanged(QUrl arg);
     void loadError();//加载图片出错
     void cacheChanged(bool arg);
     void grayscaleChanged(bool arg);
+    void statusChanged(State arg);
+
 private slots:
     void onWidthChanged();
     void onHeightChanged();
+    void onDownImageFinished(QNetworkReply* reply);
 public slots:
     void setSource(QUrl arg);
     void setMaskSource(QUrl arg);
     void setCache(bool arg);
     void setGrayscale(bool arg);
+    void setStatus(State arg);
+
+    void reLoad();
 };
 
 #endif // MYIMAGE_H

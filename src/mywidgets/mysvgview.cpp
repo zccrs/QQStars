@@ -11,6 +11,9 @@ MySvgView::MySvgView(QDeclarativeItem *parent) :
     QDeclarativeItem(parent)
 #endif
 {
+#if(QT_VERSION<0x050000)
+    setFlag(QGraphicsItem::ItemHasNoContents, false);
+#endif
     m_defaultSize = QSize(0,0);
     svg = new QSvgRenderer(this);
     connect (this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
@@ -45,7 +48,11 @@ void MySvgView::onHeightChanged()
     setImplicitWidth (svg->defaultSize ().width ()*(height ()/svg->defaultSize ().height ()));
 }
 
+#if(QT_VERSION>=0x050000)
 void MySvgView::paint(QPainter *painter)
+#else
+void MySvgView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+#endif
 {
     svg->render (painter);
 }
