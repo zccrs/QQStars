@@ -72,6 +72,8 @@ Item{
                 source: myqq.avatar240
                 x:-30/80*width
                 anchors.verticalCenter: inputarea.verticalCenter
+
+
                 Connections{
                     target: myqq
                     onUserQQChanged:{
