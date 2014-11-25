@@ -24,6 +24,8 @@ MyImage::MyImage(QDeclarativeItem *parent) :
     bitmap = new QBitmap;
     connect (this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
     connect (this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
+
+    connect(this, SIGNAL(smoothChanged(bool)), SLOT(updatePaintPixmap()));
 }
 
 QUrl MyImage::source() const
@@ -123,7 +125,18 @@ void MyImage::setPixmap(QImage image)
     if(height ()>0)
         onHeightChanged();
 
+    updatePaintPixmap();
     update();
+}
+
+void MyImage::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+#if(QT_VERSION>=0x050000)
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+#else
+    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
+#endif
+    updatePaintPixmap();
 }
 
 void MyImage::onWidthChanged()
@@ -157,13 +170,24 @@ void MyImage::onDownImageFinished(QNetworkReply *reply)
     }
 }
 
+void MyImage::updatePaintPixmap()
+{
+    if(pixmap.isNull())
+        return;
+
+    if(smooth())
+        paint_pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    else
+        paint_pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio);
+}
+
 #if(QT_VERSION>=0x050000)
 void MyImage::paint(QPainter *painter)
 #else
 void MyImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 #endif
 {
-    painter->drawPixmap (0,0,pixmap.scaled(width(), height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    painter->drawPixmap (0, 0, paint_pixmap);
 }
 
 MyImage::State MyImage::status() const

@@ -59,6 +59,7 @@ public:
 private:
     QUrl m_source;
     QPixmap pixmap;
+    QPixmap paint_pixmap;
     QBitmap *bitmap;
     QUrl m_maskSource;
     bool m_cache;
@@ -70,6 +71,7 @@ private:
     void setPixmap(QImage image);
     State m_status;
 
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
 signals:
     void sourceChanged(QUrl arg);
     void maskSourceChanged(QUrl arg);
@@ -82,6 +84,7 @@ private slots:
     void onWidthChanged();
     void onHeightChanged();
     void onDownImageFinished(QNetworkReply* reply);
+    void updatePaintPixmap();
 public slots:
     void setSource(QUrl arg);
     void setMaskSource(QUrl arg);
