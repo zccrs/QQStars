@@ -19,13 +19,18 @@ MyImage::MyImage(QDeclarativeItem *parent) :
     m_status = Null;
     m_cache = true;
     m_grayscale = false;
+    scalingFactor = 0;
+    isSetWidth = false;
+    isSetHeight = false;
+    m_source = "";
+
     connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(onDownImageFinished(QNetworkReply*)));
 
     bitmap = new QBitmap;
-    connect (this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
-    connect (this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
+    connect(this, SIGNAL(smoothChanged(bool)), SLOT(reLoad()));
 
-    connect(this, SIGNAL(smoothChanged(bool)), SLOT(updatePaintPixmap()));
+    connect(this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
+    connect(this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
 }
 
 QUrl MyImage::source() const
@@ -98,10 +103,6 @@ void MyImage::setPixmap(QImage image)
     if(image.isNull())
         return;
 
-    if(m_cache){//如果缓存图片
-        QPixmapCache::insert(m_source.toString(), QPixmap::fromImage(image));
-    }
-
     if(m_grayscale){//如果为黑白
         image = chromaticToGrayscale(image);//转换为黑白图
     }
@@ -116,16 +117,11 @@ void MyImage::setPixmap(QImage image)
         pixmap = pixmap.scaled(max_width, max_height);
         pixmap.setMask (bitmap->scaled(max_width, max_height));
     }
+    if(smooth())
+        pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    else
+        pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio);
 
-    setImplicitWidth(pixmap.size().width());//设置默认大小
-    setImplicitHeight(pixmap.size().height());
-
-    if( width()>0 )
-        onWidthChanged();
-    if(height ()>0)
-        onHeightChanged();
-
-    updatePaintPixmap();
     update();
 }
 
@@ -136,17 +132,7 @@ void MyImage::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeomet
 #else
     QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
 #endif
-    updatePaintPixmap();
-}
-
-void MyImage::onWidthChanged()
-{
-    setImplicitHeight (pixmap.size ().height ()*(width ()/pixmap.size ().width ()));
-}
- 
-void MyImage::onHeightChanged()
-{
-    setImplicitWidth (pixmap.size ().width ()*(height ()/pixmap.size ().height ()));
+    reLoad();
 }
 
 void MyImage::onDownImageFinished(QNetworkReply *reply)
@@ -161,6 +147,19 @@ void MyImage::onDownImageFinished(QNetworkReply *reply)
             qDebug()<<QString::fromUtf8("MyImage:图片加载出错");
             return;
         }
+        QPixmapCache::insert(m_source.toString(), QPixmap::fromImage(image));
+
+        scalingFactor = image.width()/image.height();
+        if(!isSetWidth){
+            if(!isSetHeight){
+                setImplicitWidth(image.width());//设置默认大小
+                setImplicitHeight(image.height());
+            }else{
+                onHeightChanged();
+            }
+        }else{
+            onWidthChanged();
+        }
 
         setPixmap(image);
         setStatus(Ready);
@@ -170,15 +169,16 @@ void MyImage::onDownImageFinished(QNetworkReply *reply)
     }
 }
 
-void MyImage::updatePaintPixmap()
+void MyImage::onWidthChanged()
 {
-    if(pixmap.isNull())
-        return;
+    isSetWidth = true;
+    setImplicitHeight(boundingRect().width()/scalingFactor);
+}
 
-    if(smooth())
-        paint_pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    else
-        paint_pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio);
+void MyImage::onHeightChanged()
+{
+    isSetHeight = true;
+    setImplicitWidth(boundingRect().height()*scalingFactor);
 }
 
 #if(QT_VERSION>=0x050000)
@@ -187,7 +187,7 @@ void MyImage::paint(QPainter *painter)
 void MyImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 #endif
 {
-    painter->drawPixmap (0, 0, paint_pixmap);
+    painter->drawPixmap (0, 0, pixmap);
 }
 
 MyImage::State MyImage::status() const
@@ -199,7 +199,6 @@ void MyImage::setSource(QUrl arg)
 {
     if (!m_cache||m_source != arg) {
         setStatus(Loading);
-
         m_source = arg;
         reLoad();
         //加载图片
@@ -249,12 +248,16 @@ void MyImage::setStatus(MyImage::State arg)
 void MyImage::reLoad()
 {
     QString str = m_source.toString();
-
-    QPixmap *temp_pximap = QPixmapCache::find(str);
-    if(temp_pximap!=NULL){//如果缓存区已经有图片
-        setPixmap(temp_pximap->toImage());
-        setStatus(Ready);
+    if(str=="")
         return;
+
+    if(m_cache){
+        QPixmap *temp_pximap = QPixmapCache::find(str);
+        if(temp_pximap!=NULL){//如果缓存区已经有图片
+            setPixmap(temp_pximap->toImage());
+            setStatus(Ready);
+            return;
+        }
     }
 
     if(str.indexOf("http")==0){//如果是网络图片
@@ -270,6 +273,19 @@ void MyImage::reLoad()
         emit loadError ();
         setStatus(Error);
         return;
+    }
+    QPixmapCache::insert(m_source.toString(), QPixmap::fromImage(image));
+
+    scalingFactor = image.width()/image.height();
+    if(!isSetWidth){
+        if(!isSetHeight){
+            setImplicitWidth(image.width());//设置默认大小
+            setImplicitHeight(image.height());
+        }else{
+            onHeightChanged();
+        }
+    }else{
+        onWidthChanged();
     }
 
     setPixmap(image);

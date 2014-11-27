@@ -59,13 +59,14 @@ public:
 private:
     QUrl m_source;
     QPixmap pixmap;
-    QPixmap paint_pixmap;
     QBitmap *bitmap;
     QUrl m_maskSource;
     bool m_cache;
     bool m_grayscale;
     QNetworkAccessManager manager;
     QNetworkReply *reply;
+    qreal scalingFactor;//原始图片宽和高的比例
+    bool isSetWidth, isSetHeight;
 
     void downloadImage(const QUrl& url);
     void setPixmap(QImage image);
@@ -81,17 +82,15 @@ signals:
     void statusChanged(State arg);
 
 private slots:
+    void onDownImageFinished(QNetworkReply* reply);
     void onWidthChanged();
     void onHeightChanged();
-    void onDownImageFinished(QNetworkReply* reply);
-    void updatePaintPixmap();
 public slots:
     void setSource(QUrl arg);
     void setMaskSource(QUrl arg);
     void setCache(bool arg);
     void setGrayscale(bool arg);
     void setStatus(State arg);
-
     void reLoad();
 };
 
