@@ -24,6 +24,8 @@ class MyImage : public QDeclarativeItem
     Q_PROPERTY(bool cache READ cache WRITE setCache NOTIFY cacheChanged)
     Q_PROPERTY(bool grayscale READ grayscale WRITE setGrayscale NOTIFY grayscaleChanged)
     Q_PROPERTY(State status READ status NOTIFY statusChanged FINAL)
+    Q_PROPERTY(QSize sourceSize READ sourceSize WRITE setSourceSize NOTIFY sourceSizeChanged)
+    Q_PROPERTY(QSize defaultSize READ defaultSize NOTIFY defaultSizeChanged FINAL)
 
     Q_ENUMS(State)
 public:
@@ -55,7 +57,8 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *new_style, QWidget *new_widget=0);
 #endif
     State status() const;
-
+    QSize sourceSize() const;
+    QSize defaultSize() const;
 private:
     QUrl m_source;
     QPixmap pixmap;
@@ -69,10 +72,13 @@ private:
     bool isSetWidth, isSetHeight;
 
     void downloadImage(const QUrl& url);
-    void setPixmap(QImage image);
+    void handlePixmap();
     State m_status;
+    QSize m_sourceSize;
+    QSize m_defaultSize;
 
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+    void setImage(QImage& image);
 signals:
     void sourceChanged(QUrl arg);
     void maskSourceChanged(QUrl arg);
@@ -80,6 +86,8 @@ signals:
     void cacheChanged(bool arg);
     void grayscaleChanged(bool arg);
     void statusChanged(State arg);
+    void sourceSizeChanged(QSize arg);
+    void defaultSizeChanged(QSize arg);
 
 private slots:
     void onDownImageFinished(QNetworkReply* reply);
@@ -92,6 +100,8 @@ public slots:
     void setGrayscale(bool arg);
     void setStatus(State arg);
     void reLoad();
+    void setSourceSize(QSize arg);
+    void setDefaultSize(QSize arg);
 };
 
 #endif // MYIMAGE_H
