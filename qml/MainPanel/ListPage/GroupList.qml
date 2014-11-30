@@ -71,6 +71,7 @@ Item{
                 id: avatar
                 x:10
                 width:40
+                height: 40
                 maskSource: "qrc:/images/bit.bmp"
                 cache: false
                 source: myinfo.avatar40

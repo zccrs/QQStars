@@ -148,10 +148,10 @@ void MyImage::setImage(QImage &image)
             setImplicitWidth(image.width());//设置默认大小
             setImplicitHeight(image.height());
         }else{
-            onHeightChanged();
+            setImplicitWidth(boundingRect().height()*scalingFactor);
         }
     }else{
-        onWidthChanged();
+        setImplicitHeight(boundingRect().width()/scalingFactor);
     }
 
     if(m_grayscale){//如果为黑白

@@ -30,10 +30,11 @@ Item{
     MyScrollView{
         anchors.fill: parent
         Item{
-            height: list.contentHeight+10
+            height: mymodel.count*40+10
             width: root.width
             implicitHeight: height
             implicitWidth: width
+
             ListView{
                id: list
                interactive: false

@@ -63,6 +63,7 @@ Component{
             id: avatar
             x:mode=="left"?0:root.width-width
             width:40
+            height: 40
             maskSource: "qrc:/images/bit.bmp"
             source: root.myinfo.avatar40
             onLoadError: {

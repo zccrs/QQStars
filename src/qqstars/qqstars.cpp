@@ -849,6 +849,8 @@ void QQCommand::addChatPage(QString uin, int senderType)
         return;
     QString typeStr = QQItemInfo::typeToString ((QQItemInfo::QQItemType)senderType);//获取此类型的字符串表达形式
     
+    qDebug()<<"QQCommand:将要增加聊天页面的类型是"<<senderType<<typeStr;
+
     if(map_chatPage.contains(typeStr+uin)){//如果已经存在
         emit activeChatPageChanged (map_chatPage[typeStr+uin]);//活跃的聊天Page改变为temp
         mainChatWindowCommand->show ();//显示出聊天窗口
@@ -900,6 +902,8 @@ void QQCommand::removeChatPage(QString uin, int senderType)
 {
     QQItemInfo::QQItemType type = (QQItemInfo::QQItemType)senderType;
     QString typeStr = QQItemInfo::typeToString (type);//获取此类型的字符串表达形式
+    qDebug()<<"QQCommand:要关闭的聊天页的类型是："<<senderType<<typeStr;
+
     QQuickItem *item = map_chatPage.value (typeStr+uin, NULL);
     if(item!=NULL){
         item->deleteLater ();//销毁此对象

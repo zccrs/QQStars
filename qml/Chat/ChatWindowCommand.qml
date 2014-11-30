@@ -194,7 +194,7 @@ MyWindow{
             anchors.fill: parent
             anchors.topMargin: image_quit_icon.height+15
             Item{
-                height: list.contentHeight+10
+                height: mymodel.count*45+10
                 width: left_bar.width
                 implicitHeight: height
                 implicitWidth: width
@@ -203,6 +203,7 @@ MyWindow{
                    interactive: false
                    anchors.fill: parent
                    anchors.margins: 5
+
                    model: ListModel{
                        id:mymodel
                        onCountChanged: {
@@ -257,6 +258,7 @@ MyWindow{
                     id: avatar
                     x:10
                     width:35
+                    height: 35
                     grayscale: {//头像是否显示为黑白
                         if(my)
                             return my.myinfo.state == FriendInfo.Offline
@@ -281,17 +283,17 @@ MyWindow{
                     text: my?my.myinfo.aliasOrNick:""
                 }
                 Rectangle{
-                    width: image_clost_page.width+16
-                    height: image_clost_page.height+10
-                    anchors.centerIn: image_clost_page
+                    width: image_close_page.width+16
+                    height: image_close_page.height+10
+                    anchors.centerIn: image_close_page
                     color: "#eee"
                     radius: 5
                     opacity: 0.75
-                    visible: image_clost_page.visible&&root.currentShowPage!=my
+                    visible: image_close_page.visible&&root.currentShowPage!=my
                 }
                 Rectangle{
                     width: text_message_count.implicitWidth+10
-                    height: image_clost_page.width
+                    height: image_close_page.width
                     anchors.right: rect_hover.right
                     anchors.rightMargin: 5
                     anchors.verticalCenter: parent.verticalCenter
@@ -311,7 +313,7 @@ MyWindow{
                     }
                 }
                 SvgView{
-                    id:image_clost_page
+                    id:image_close_page
                     width: defaultSize.width*myqq.windowScale
                     source: "qrc:/images/button-quit.svg"
                     anchors.right: rect_hover.right

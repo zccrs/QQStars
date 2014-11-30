@@ -26,7 +26,7 @@ ChatPage{
             console.debug("获取群成员列表出错："+data)
             return
         }
-        
+
         data = JSON.parse(data)
         if( data.retcode == 0 ){
             myinfo.announcement = data.result.ginfo.memo//设置群公告
@@ -115,7 +115,7 @@ ChatPage{
                 anchors.fill: parent
     
                 Item{
-                    height: list_member.contentHeight+10
+                    height: mymodel.count*30+10
                     width: scroll_list.width-25
                     x:5
                     implicitHeight: height
@@ -137,6 +137,7 @@ ChatPage{
                             MyImage{
                                 id: image_avatar
                                 width: 24
+                                height: 24
                                 anchors.verticalCenter: parent.verticalCenter
                                 maskSource: "qrc:/images/bit.bmp"
                                 grayscale: item_root.myinfo.state==FriendInfo.Offline

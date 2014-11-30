@@ -43,12 +43,10 @@ ChatPage{
             }
             
             members = data.result.mem_status
-            console.debug("讨论组成员获取完成2："+members.length)
             for( j in members ){//设置讨论组成员的在线状态
                 info = myqq.createFriendInfo(members[j].uin)
                 info.stateToString = members[j].status
             }
-            console.debug("讨论组成员获取完成3")
         }
     }
     
@@ -89,6 +87,7 @@ ChatPage{
                         MyImage{
                             id: image_avatar
                             width: 24
+                            height: 24
                             anchors.verticalCenter: parent.verticalCenter
                             grayscale: item_root.myinfo.state==FriendInfo.Offline
                             maskSource: "qrc:/images/bit.bmp"

@@ -9,6 +9,7 @@ Item{
     id: root
     anchors.fill: parent
     property string myuin
+    property int type//记录自己的类型（好友，群，讨论组）
     signal sendClicked//点击发送按钮好调用此函数
     property alias menuBar: menu_bar
     property alias rightBar: right_bar
