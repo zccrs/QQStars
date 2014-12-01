@@ -5,9 +5,7 @@ QQStars
 
 开发环境windows 7，qt 5.3.2
 
-windows版下载：http://pan.baidu.com/s/1sjqcLgp
-
-linux版下载：http://pan.baidu.com/s/1bnlLElL   
+下载链接：http://pan.baidu.com/s/1ntwW5DZ 密码: eeir
 
 直接解压，windows下直接运行QQStars.exe。
 linux下运行QQStars.sh，如果程序无法启动就给同目录的QQStars加可执行权限。如果还是无法启动就是用终端运行QQStars.sh看有什么错误提示
