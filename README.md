@@ -3,7 +3,7 @@ QQStars
 
 基于webqq协议的qq客户端，qt开发，可跨平台（主要给linux用户用，windows用户肯定不稀罕了）
 
-开发环境windows 7，qt 5.3.2
+开发环境windows 7，qt 5.3.2，测试程序下载：http://pan.baidu.com/s/1sjqcLgp（直接解压运行就行）
 在LInux下如果无法输入中文的话请看此博客：http://www.cnblogs.com/AfterTheRainOfStars/p/3768484.html#3022718
 
 ![登录界面](https://github.com/AfterTheRainOfStars/QQStars/blob/master/introduce/login.jpg)
