@@ -123,7 +123,7 @@ MySystemTrayIcon{
 
     MyMenu{
         id:menu1
-        styleSource: "../../style/menuStyle.css"
+        styleSource: "qrc:/style/menuStyle.css"
         MyMenuItem{
             text: "打开主面板"
             onTriggered: {
@@ -138,7 +138,8 @@ MySystemTrayIcon{
     
     MyMenu{
         id: menu2
-        styleSource: "../../style/menuStyle.css"
+
+        styleSource: "qrc:/style/menuStyle.css"
         MyMenuItem{
             text: "我在线上"
             icon: "qrc:/images/imonline.png"

@@ -69,6 +69,7 @@ Item{
                 id:avatar_image
                 maskSource: "qrc:/images/bit.bmp"
                 width: 80*myqq.windowScale
+                height: width
                 source: myqq.avatar240
                 x:-30/80*width
                 anchors.verticalCenter: inputarea.verticalCenter

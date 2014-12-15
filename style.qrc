@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>style/menuStyle.css</file>
+        <file>style/messageBoxStyle.css</file>
+    </qresource>
+</RCC>

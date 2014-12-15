@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QPixmapCache>
 
+QCache<QString, QPixmap> MyImage::pixmapCache;
+
 #if(QT_VERSION>=0x050000)
 MyImage::MyImage(QQuickItem *parent) :
     QQuickPaintedItem(parent)
@@ -19,19 +21,19 @@ MyImage::MyImage(QDeclarativeItem *parent) :
     m_status = Null;
     m_cache = true;
     m_grayscale = false;
-    scalingFactor = 0;
-    isSetWidth = false;
-    isSetHeight = false;
     m_source = "";
-    m_sourceSize = QSize(-1,-1);
+    m_sourceSize = QSize(0,0);
+    m_defaultSize = QSize(0,0);
+    pixmap = NULL;
+    reply = NULL;
 
     connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(onDownImageFinished(QNetworkReply*)));
+}
 
-    bitmap = new QBitmap;
-    connect(this, SIGNAL(smoothChanged(bool)), SLOT(reLoad()));
-
-    connect(this, SIGNAL(widthChanged()), SLOT(onWidthChanged()));
-    connect(this, SIGNAL(heightChanged()), SLOT(onHeightChanged()));
+MyImage::~MyImage()
+{
+    if(pixmap!=NULL)
+        delete pixmap;
 }
 
 QUrl MyImage::source() const
@@ -54,35 +56,33 @@ bool MyImage::grayscale() const
     return m_grayscale;
 }
 
-QImage MyImage::chromaticToGrayscale(const QImage &image)
+void MyImage::chromaticToGrayscale(QImage &image)
 {
-    if(image.isGrayscale ())
-        return image;
-    QImage iGray(image.size (), QImage::Format_ARGB32_Premultiplied);
+    if(image.isNull()||image.isGrayscale ())
+        return;
     for(int i=0;i<image.width ();++i){
         for(int j=0;j<image.height ();++j){
             QRgb pixel = image.pixel(i,j);
+            int a = qAlpha(pixel);
             pixel = qGray (pixel);
-            pixel = qRgb(pixel,pixel,pixel);            
-            iGray.setPixel (i,j,pixel);
+            pixel = qRgba(pixel,pixel,pixel,a);
+            image.setPixel (i,j,pixel);
         }
     }
-    return iGray;
 }
 
 QString MyImage::imageFormatToString(const QByteArray &array)
 {
     QByteArray str = array.toHex ();
-
-        if(str.mid (2,6)=="504e47")
-            return "png";
-        if(str.mid (12,8)=="4a464946")
-            return "jpg";
-        if(str.left (6)=="474946")
-            return "gif";
-        if(str.left (4)=="424d")
-            return "bmp";
-        return "";
+    if(str.mid (2,6)=="504e47")
+        return "png";
+    if(str.mid (12,8)=="4a464946")
+        return "jpg";
+    if(str.left (6)=="474946")
+        return "gif";
+    if(str.left (4)=="424d")
+        return "bmp";
+    return "";
 }
 
 void MyImage::downloadImage(const QUrl &url)
@@ -99,79 +99,70 @@ void MyImage::downloadImage(const QUrl &url)
     reply = manager.get(request);
 }
 
-void MyImage::handlePixmap()
-{
-    if(m_maskSource.toString()!=""&&(!bitmap->isNull())){
-        int max_width = bitmap->width();
-        int max_height = bitmap->height();
-        max_width = pixmap.width()>max_width?pixmap.width():max_width;
-        max_height = pixmap.height()>max_height?pixmap.height():max_height;
-
-        pixmap = pixmap.scaled(max_width, max_height);
-        pixmap.setMask (bitmap->scaled(max_width, max_height));
-    }
-    if(smooth())
-        pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    else
-        pixmap = pixmap.scaled(boundingRect().size().toSize(), Qt::IgnoreAspectRatio);
-
-    update();
-}
-
-void MyImage::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-#if(QT_VERSION>=0x050000)
-    QQuickItem::geometryChanged(newGeometry, oldGeometry);
-#else
-    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
-#endif
-    reLoad();
-}
-
 void MyImage::setImage(QImage &image)
 {
-    if(image.isNull())
-        return;
-
     setDefaultSize(image.size());
-    if(m_sourceSize==QSize(-1,-1)){
-        m_sourceSize = image.size();
-    }else{
-        image = image.scaled(m_sourceSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    }
-    QPixmapCache::insert(m_source.toString(), QPixmap::fromImage(image));
 
-    scalingFactor = image.width()/image.height();
-
-    if(!isSetWidth){
-        if(!isSetHeight){
-            setImplicitWidth(image.width());//设置默认大小
-            setImplicitHeight(image.height());
-        }else{
-            setImplicitWidth(boundingRect().height()*scalingFactor);
-        }
-    }else{
-        setImplicitHeight(boundingRect().width()/scalingFactor);
+    if(m_cache){
+        QPixmap *temp_pixmap = new QPixmap(QPixmap::fromImage(image));
+        pixmapCache.insert(m_source.toString(), temp_pixmap);
     }
+
+    QSize temp_size = m_sourceSize;
+    if(temp_size==QSize(0,0)){
+        temp_size = m_defaultSize;
+    }else if(temp_size.width()==0){
+        temp_size.setWidth((double)temp_size.height()/m_defaultSize.height()*m_defaultSize.width());
+    }else if(temp_size.height()==0){
+        temp_size.setHeight((double)temp_size.width()/m_defaultSize.width()*m_defaultSize.height());
+    }
+    if(m_defaultSize!=temp_size)
+        image = image.scaled(temp_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     if(m_grayscale){//如果为黑白
-        image = chromaticToGrayscale(image);//转换为黑白图
+        chromaticToGrayscale(image);//转换为黑白图
     }
-    pixmap = QPixmap::fromImage(image);
-    handlePixmap();
+
+    if(pixmap!=NULL)
+        delete pixmap;
+    pixmap = new QPixmap(QPixmap::fromImage(image));
+
+    QString str = m_maskSource.toLocalFile();
+    if(str==""){
+        str = m_maskSource.toString();
+    }
+    if(str!=""){
+        if( str.mid (0, 3) == "qrc")
+            str = str.mid (3, str.count ()-3);
+        QBitmap bitmap(str);
+        if(!bitmap.isNull()){
+            int max_width = bitmap.width();
+            int max_height = bitmap.height();
+            max_width = pixmap->width()>max_width?pixmap->width():max_width;
+            max_height = pixmap->height()>max_height?pixmap->height():max_height;
+
+            QPixmap temp_pixmap = pixmap->scaled(max_width, max_height);
+            temp_pixmap.setMask (bitmap.scaled(temp_pixmap.size()));
+            *pixmap = temp_pixmap.scaled(image.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        }
+    }
+
+    setImplicitWidth(image.width());
+    setImplicitHeight(image.height());
+
+    update();
+
     setStatus(Ready);
+    emit loadReady();
 }
 
 void MyImage::onDownImageFinished(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
-        //qDebug()<<QString::fromUtf8("MyImage:图片下载成功");
-
         QImage image;
         if( !image.loadFromData(reply->readAll())){
             emit loadError ();
             setStatus(Error);
-            //qDebug()<<QString::fromUtf8("MyImage:图片加载出错");
             return;
         }
         setImage(image);
@@ -181,25 +172,18 @@ void MyImage::onDownImageFinished(QNetworkReply *reply)
     }
 }
 
-void MyImage::onWidthChanged()
-{
-    isSetWidth = true;
-    setImplicitHeight(boundingRect().width()/scalingFactor);
-}
-
-void MyImage::onHeightChanged()
-{
-    isSetHeight = true;
-    setImplicitWidth(boundingRect().height()*scalingFactor);
-}
-
 #if(QT_VERSION>=0x050000)
 void MyImage::paint(QPainter *painter)
 #else
 void MyImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 #endif
 {
-    painter->drawPixmap (0, 0, pixmap);
+    if(pixmap==NULL||pixmap->isNull())
+        return;
+
+    if(smooth())
+        painter->setRenderHint(QPainter::SmoothPixmapTransform);
+    painter->drawPixmap (boundingRect().toRect(), *pixmap);
 }
 
 MyImage::State MyImage::status() const
@@ -217,14 +201,20 @@ QSize MyImage::defaultSize() const
     return m_defaultSize;
 }
 
+const QPixmap *MyImage::getPixmap() const
+{
+    return pixmap;
+}
+
 void MyImage::setSource(QUrl arg)
 {
     if (!m_cache||m_source != arg) {
         setStatus(Loading);
+        bool can_emit = m_source==arg;
         m_source = arg;
         reLoad();
         //加载图片
-        if(m_source != arg)
+        if(can_emit)
             emit sourceChanged(arg);
     }
 }
@@ -233,11 +223,8 @@ void MyImage::setMaskSource(QUrl arg)
 {
     if (m_maskSource != arg) {
         m_maskSource = arg;
-        QString str = arg.toString ();
-        if( str.mid (0, 3) == "qrc")
-            str = str.mid (3, str.count ()-3);
-        bitmap->load (str);
-        reLoad();
+        if(pixmap!=NULL)
+            reLoad();
         emit maskSourceChanged(arg);
     }
 }
@@ -246,6 +233,12 @@ void MyImage::setCache(bool arg)
 {
     if (m_cache != arg) {
         m_cache = arg;
+        if(!m_cache){
+            QPixmap* temp_pixmap = pixmapCache.object(m_source.toString());
+            pixmapCache.remove(m_source.toString());
+            if(temp_pixmap!=NULL)
+                delete temp_pixmap;
+        }
         emit cacheChanged(arg);
     }
 }
@@ -254,7 +247,16 @@ void MyImage::setGrayscale(bool arg)
 {
     if(m_grayscale!=arg){
         m_grayscale = arg;
-        reLoad();
+        if(pixmap!=NULL){
+            if(m_grayscale){
+                QImage image = pixmap->toImage();
+                chromaticToGrayscale(image);
+                *pixmap = QPixmap::fromImage(image);
+                update();
+            }else{
+                reLoad();
+            }
+        }
         emit grayscaleChanged(arg);
     }
 }
@@ -269,18 +271,26 @@ void MyImage::setStatus(MyImage::State arg)
 
 void MyImage::reLoad()
 {
-    QString str = m_source.toString();
-    if(str=="")
-        return;
-
-    if(m_cache){
-        QPixmap *temp_pximap = QPixmapCache::find(str);
-        if(temp_pximap!=NULL){//如果缓存区已经有图片
-            pixmap = *temp_pximap;
-            handlePixmap();
-            setStatus(Ready);
+    QString str = m_source.toLocalFile();
+    if(str == ""){
+        str = m_source.toString();
+        if(str==""){
+            if(pixmap!=NULL){
+                delete pixmap;
+                pixmap = NULL;
+            }
             return;
         }
+    }
+
+    QPixmap *temp_pixmap = pixmapCache.object(m_source.toString());
+    if(temp_pixmap!=NULL){
+        bool temp_cache = m_cache;
+        m_cache = false;//先设置false，防止setImage中再次更新缓存
+        QImage image = temp_pixmap->toImage();
+        setImage(image);
+        m_cache = temp_cache;
+        return;
     }
 
     if(str.indexOf("http")==0){//如果是网络图片
@@ -304,8 +314,8 @@ void MyImage::setSourceSize(QSize arg)
 {
     if (m_sourceSize != arg) {
         m_sourceSize = arg;
-        QPixmapCache::remove(m_source.toString());
-        reLoad();
+        if(pixmap!=NULL)
+            reLoad();
         emit sourceSizeChanged(arg);
     }
 }
@@ -316,4 +326,12 @@ void MyImage::setDefaultSize(QSize arg)
         m_defaultSize = arg;
         emit defaultSizeChanged(arg);
     }
+}
+
+bool MyImage::save(const QString& fileName) const
+{
+    if(pixmap!=NULL){
+        return pixmap->save(fileName);
+    }
+    return false;
 }

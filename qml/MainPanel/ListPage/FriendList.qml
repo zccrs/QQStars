@@ -226,6 +226,7 @@ Item{
                         id: avatar
                         x:10
                         width:40
+                        height: 40
                         grayscale: myinfo.state==FriendInfo.Offline
                         maskSource: "qrc:/images/bit.bmp"
                         cache: false
@@ -233,12 +234,6 @@ Item{
                         onLoadError: {
                             myinfo.avatar40 = "qrc:/images/avatar.png"
                         }
-                        
-                        /*Image{
-                            anchors.bottom: parent.bottom
-                            anchors.right: parent.right
-                            source: "qrc:/images/im"+myinfo.stateToString+".png"
-                        }*/
                     }
                     Text{
                         id:text_nick

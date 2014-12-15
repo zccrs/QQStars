@@ -2,7 +2,6 @@
 #define MYSVGVIEW_H
 
 #include <QSvgRenderer>
-
 #if(QT_VERSION>=0x050000)
 #include <QQuickPaintedItem>
 #else
@@ -18,11 +17,7 @@ class MySvgView : public QDeclarativeItem
     Q_OBJECT
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QSize defaultSize READ defaultSize WRITE setDefaultSize NOTIFY defaultSizeChanged FINAL)
-    QSvgRenderer *svg;
-    QUrl m_source;
-    QSize m_defaultSize;
-    
-    void setDefaultSize( QSize arg );
+
 public:
 #if(QT_VERSION>=0x050000)
     explicit MySvgView(QQuickItem *parent = 0);
@@ -31,23 +26,26 @@ public:
 #endif
     QUrl source() const;
     QSize defaultSize() const;
+public slots:
+    void setSource(QUrl arg);
+    void setDefaultSize( QSize arg );
 
-private slots:
-    void onWidthChanged();
-    void onHeightChanged();
-protected:
-#if(QT_VERSION>=0x050000)
-    void paint(QPainter * painter);
-#else
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *new_style, QWidget *new_widget=0);
-#endif
 signals:
     void sourceChanged(QUrl arg);
     void rotationModeChanged(Qt::Axis arg);
     void rotationOriginChanged(QPoint arg);
     void defaultSizeChanged( QSize arg );
-public slots:
-    void setSource(QUrl arg);
+
+private:
+    QSvgRenderer *svg;
+    QUrl m_source;
+    QSize m_defaultSize;
+
+#if(QT_VERSION>=0x050000)
+    void paint(QPainter * painter);
+#else
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *new_style, QWidget *new_widget=0);
+#endif
 };
 
 #endif // MYSVGVIEW_H

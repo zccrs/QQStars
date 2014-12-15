@@ -210,6 +210,7 @@ Window{
                 id: avatar
                 x:10
                 width:parent.height-10
+                height: width
                 anchors.verticalCenter: parent.verticalCenter
                 maskSource: "qrc:/images/bit.bmp"
                 cache: false

@@ -1,7 +1,9 @@
 TEMPLATE = app
 TARGET = QQStars
+
 QT += widgets network webkit svg qml quick concurrent sql quick-private#widgets-private core-private gui-private
 QT += webkitwidgets
+
 INCLUDEPATH += \
     src \
     src/qxtglobalshortcut \
@@ -23,18 +25,12 @@ SOURCES += src/main.cpp \
     src/utility/downloadimage.cpp \
     src/utility/texteditplaygif.cpp
 
-RESOURCES += \ # qml.qrc
+RESOURCES += \
     images.qrc \
     other.qrc \
-    faces.qrc
-
-qml_data.source = qml
-qml_data.target = ./
-
-style_data.source = style
-style_data.target = ./
-
-DEPLOYMENTFOLDERS += qml_data style_data
+    faces.qrc \
+    qml.qrc \
+    style.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

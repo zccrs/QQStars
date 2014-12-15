@@ -67,11 +67,12 @@ int main(int argc, char *argv[])
     
     utility->initUtility (new QSettings, engine);
     
-    QQmlComponent component0(engine, "./qml/Api/QQApi.qml");
+    QQmlComponent component0(engine, QUrl("qrc:/qml/Api/QQApi.qml"));
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
+    qDebug()<<component0.errorString();
     engine->rootContext ()->setContextProperty ("myqq", qqapi);
     
-    QQmlComponent component(engine, "./qml/Utility/SystemTray.qml");
+    QQmlComponent component(engine, QUrl("qrc:/qml/Utility/SystemTray.qml"));
     SystemTrayIcon *systemTray = qobject_cast<SystemTrayIcon *>(component.create ());
 #ifdef Q_OS_WIN
     systemTray->setParent (Utility::createUtilityClass ());//不设置父对象会导致程序退出后托盘还存在的问题

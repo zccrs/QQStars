@@ -99,6 +99,7 @@ Item{
                 id: avatar
                 x:10
                 width:40
+                height: 40
                 anchors.verticalCenter: parent.verticalCenter
                 cache: false
                 grayscale: myinfo.mytype == QQItemInfo.Friend&&myinfo.state==FriendInfo.Offline//是否为黑白图
@@ -107,12 +108,6 @@ Item{
                 onLoadError: {
                     myinfo.avatar40 = "qrc:/images/avatar.png"
                 }
-                
-                /*Image{
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    source: myinfo.mytype == QQItemInfo.Friend?"qrc:/images/im"+myinfo.stateToString+".png":""
-                }*/
             }
             Text{
                 id:text_nick

@@ -330,7 +330,7 @@ void QQCommand::getImageUrlFinished(QNetworkReply *replys)
 
 void QQCommand::loadApi()
 {
-    QString fileName = "qml/Api/api.js";
+    QString fileName = ":/qml/Api/api.js";
     QFile scriptFile(fileName);
     if (!scriptFile.open(QIODevice::ReadOnly))
         qDebug()<<"QQCommand:打开"+fileName+"失败";
@@ -702,7 +702,7 @@ QQItemInfo *QQCommand::createQQItemInfo(const QString& uin, const QString& typeS
         return info;
     }
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
-    QQmlComponent component(engine, "./qml/QQItemInfo/"+typeString+"Info.qml");
+    QQmlComponent component(engine, QUrl("qrc:/qml/QQItemInfo/"+typeString+"Info.qml"));
     QQItemInfo* info = qobject_cast<QQItemInfo*>(component.create ());
     if(info!=NULL){
         map_itemInfo[name] = info;
@@ -769,7 +769,7 @@ void QQCommand::showWarningInfo(QString message)
     if(warning_info_window){
         warning_info_window->show ();
     }else{
-        QQmlComponent component(engine, "./qml/Utility/MyMessageBox.qml");
+        QQmlComponent component(engine, QUrl("qrc:/qml/Utility/MyMessageBox.qml"));
         QObject *obj = component.create ();
         warning_info_window = qobject_cast<MyWindow*>(obj);
         if(obj)
@@ -790,7 +790,7 @@ void QQCommand::showCodeWindow(const QJSValue callbackFun, const QString code_ui
 {
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     if(!code_window){
-        QQmlComponent component(engine, "./qml/Utility/CodeInput.qml");
+        QQmlComponent component(engine, QUrl("qrc:/qml/Utility/CodeInput.qml"));
         QObject *obj = component.create ();
         if(obj){
             code_window = qobject_cast<MyWindow*>(obj);
@@ -859,7 +859,7 @@ void QQCommand::addChatPage(QString uin, int senderType)
     
     QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
     if(mainChatWindowCommand.isNull ()){
-        QQmlComponent component(engine, "./qml/Chat/ChatWindowCommand.qml");
+        QQmlComponent component(engine, QUrl("qrc:/qml/Chat/ChatWindowCommand.qml"));
         QObject *temp_obj = component.create ();
         //qDebug()<<"创建窗口是否出错："<<component.errorString ();
         mainChatWindowCommand = qobject_cast<MyWindow*>(temp_obj);
@@ -878,8 +878,8 @@ void QQCommand::addChatPage(QString uin, int senderType)
         }
     }
 
-    QString qmlName = "./qml/Chat/"+typeStr+"ChatPage.qml";
-    QQmlComponent component(engine, qmlName);
+    QString qmlName = "qrc:/qml/Chat/"+typeStr+"ChatPage.qml";
+    QQmlComponent component(engine, QUrl(qmlName));
     QQuickItem *item = qobject_cast<QQuickItem*>(component.create ());//新建聊天页面
     if(item&&mainChatWindowCommand_item){
         item->setParentItem (mainChatWindowCommand_item);//设置聊天页面的父对象
@@ -1021,7 +1021,7 @@ void QQCommand::loadLoginWindow()
 {
     if(window_login.isNull ()){
         QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
-        QQmlComponent component(engine, "./qml/Login/main.qml");
+        QQmlComponent component(engine, QUrl("qrc:/qml/Login/main.qml"));
         QObject *temp_obj = component.create ();
         window_login = qobject_cast<MyWindow*>(temp_obj);
         if(window_login.isNull ()){
@@ -1036,7 +1036,7 @@ void QQCommand::loadMainPanelWindow()
 {
     if(window_mainPanel.isNull ()){
         QQmlEngine *engine = Utility::createUtilityClass ()->qmlEngine ();
-        QQmlComponent component(engine, "./qml/MainPanel/main.qml");
+        QQmlComponent component(engine, QUrl("qrc:/qml/MainPanel/main.qml"));
         QObject *temp_obj = component.create ();
         window_login = qobject_cast<MyWindow*>(temp_obj);
         if(window_login.isNull ()){

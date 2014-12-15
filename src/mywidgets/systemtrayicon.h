@@ -16,6 +16,7 @@ public:
     explicit MenuPrivate(QWidget *parent = 0);
     explicit MenuPrivate(const QString &title, QWidget *parent = 0);
 };
+
 class MyMenuItem : public QAction
 {
     Q_OBJECT
@@ -49,6 +50,7 @@ class MyMenu : public QQuickItem
     Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet NOTIFY styleSheetChanged)
     Q_PROPERTY(int width READ width WRITE setWidth NOTIFY widthChanged)
     Q_PROPERTY(int height READ height WRITE setHeight NOTIFY heightChanged)
+
     MenuPrivate *menu;
     QUrl m_styleSource;
     
