@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     
     QQmlComponent component0(engine, QUrl("qrc:/qml/Api/QQApi.qml"));
     QQCommand *qqapi = qobject_cast<QQCommand *>(component0.create ());
-    qDebug()<<component0.errorString();
+
     engine->rootContext ()->setContextProperty ("myqq", qqapi);
     
     QQmlComponent component(engine, QUrl("qrc:/qml/Utility/SystemTray.qml"));

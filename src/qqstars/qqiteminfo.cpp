@@ -401,15 +401,25 @@ QString QQItemInfo::alias() const
 
 QString QQItemInfo::avatar40() const
 {
-    if(isCanUseSetting())
-        return mysettings->value ("avatar-40", "qrc:/images/avatar.png").toString ();
+    if(isCanUseSetting()){
+        QString temp_str =  mysettings->value ("avatar-40", "qrc:/images/avatar.png").toString ();
+        if(temp_str.left(3)!="qrc")
+            temp_str = "file://"+temp_str;
+
+        return temp_str;
+    }
     return "qrc:/images/avatar.png";
 }
 
 QString QQItemInfo::avatar240() const
 {
-    if(isCanUseSetting())
-        return mysettings->value ("avatar-240", "qrc:/images/avatar.png").toString ();
+    if(isCanUseSetting()){
+        QString temp_str =  mysettings->value ("avatar-240", "qrc:/images/avatar.png").toString ();
+        if(temp_str.left(3)!="qrc")
+            temp_str = "file://"+temp_str;
+
+        return temp_str;
+    }
     return "qrc:/images/avatar.png";
 }
 

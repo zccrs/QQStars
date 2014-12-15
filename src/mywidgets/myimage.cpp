@@ -307,6 +307,7 @@ void MyImage::reLoad()
         setStatus(Error);
         return;
     }
+
     setImage(image);
 }
 
