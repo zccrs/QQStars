@@ -227,6 +227,7 @@ Item{
                         x:10
                         width:40
                         height: 40
+                        sourceSize.width: width
                         grayscale: myinfo.state==FriendInfo.Offline
                         maskSource: "qrc:/images/bit.bmp"
                         cache: false

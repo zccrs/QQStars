@@ -88,6 +88,7 @@ ChatPage{
                             id: image_avatar
                             width: 24
                             height: 24
+                            sourceSize.width: width
                             anchors.verticalCenter: parent.verticalCenter
                             grayscale: item_root.myinfo.state==FriendInfo.Offline
                             maskSource: "qrc:/images/bit.bmp"

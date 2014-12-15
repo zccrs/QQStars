@@ -84,20 +84,10 @@ public:
     static DatabaseOperation* createDatabaseOperation();
 private:
     static QSqlDatabase sqlite_db;
-    //QThread *thread;
     DatabaseOperation();
     ~DatabaseOperation();
     bool tableAvailable(const QString& tableName);//判断表名为tableName的表是可操作
-private slots:
-    //void m_openSqlDatabase(const QString& userqq);//初始化数据库
-    //void m_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
-    //void m_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList *datas);
-    //获取数据库中currentData这条数据之前的count条数据，将获得的数据存入datas当中
-signals:
-    //void sql_open(const QString& userqq);
-    //void sql_insertDatas(const QString& tableName, ChatMessageInfoList* datas);//向数据库中插入多条数据
-    //void sql_getDatas(const QString& tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas);
-    //void getDatasFinished(ChatMessageInfoList* datas);//获取多条数据完成
+
 public slots:
     bool openSqlDatabase(const QString& userqq);//初始化数据库
     void closeSqlDatabase();

@@ -15,9 +15,6 @@ Item{
         KeyNavigation.tab: KeyNavigation.down
         text: utility.value("mainqq", "")
         
-        validator: RegExpValidator{
-            regExp: /[1-9][0-9]{4,11}/
-        }
 
         style: TextFieldStyle {
             textColor: "black"

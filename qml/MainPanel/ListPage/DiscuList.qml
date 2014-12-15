@@ -61,6 +61,7 @@ Item{
                 x:10
                 width:40
                 height: 40
+                sourceSize.width: width
                 source: "qrc:/images/avatar.png"
                 maskSource: "qrc:/images/bit.bmp"
             }

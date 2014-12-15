@@ -211,6 +211,7 @@ Window{
                 x:10
                 width:parent.height-10
                 height: width
+                sourceSize.width: width
                 anchors.verticalCenter: parent.verticalCenter
                 maskSource: "qrc:/images/bit.bmp"
                 cache: false

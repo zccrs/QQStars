@@ -958,7 +958,7 @@ void QQCommand::closeChatWindow()
 
 QString QQCommand::getMovieImageFrameCachePath()
 {
-    return QDir::homePath ()+"/webqq";
+    return QDir::homePath ()+"/.webqq";
 }
 
 /*void QQCommand::saveAlias(int type, QString uin, QString alias)

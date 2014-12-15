@@ -100,6 +100,7 @@ Item{
                 x:10
                 width:40
                 height: 40
+                sourceSize.width: width
                 anchors.verticalCenter: parent.verticalCenter
                 cache: false
                 grayscale: myinfo.mytype == QQItemInfo.Friend&&myinfo.state==FriendInfo.Offline//是否为黑白图

@@ -61,7 +61,11 @@ int SystemTrayIcon::height() const
 void SystemTrayIcon::setWindowIcon(QUrl icon)
 {
     if( icon!=m_windowIcon ){
-        QString str = icon.toString ();
+        QString str = icon.toLocalFile();
+        if(str == ""){
+            str = icon.toString();
+        }
+
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
         systempTray->setIcon (QIcon(str));
@@ -113,7 +117,11 @@ QString MyMenuItem::shortcut() const
 void MyMenuItem::setIcon(QUrl icon)
 {
     if( icon!=m_myIcon ){
-        QString str = icon.toString ();
+        QString str = icon.toLocalFile();
+        if(str == ""){
+            str = icon.toString();
+        }
+
         if( str.mid (0, 3) == "qrc")
             str = str.mid (3, str.count ()-3);
         QAction::setIcon (QIcon(str));

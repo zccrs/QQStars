@@ -259,6 +259,7 @@ MyWindow{
                     x:10
                     width:35
                     height: 35
+                    sourceSize.width: width
                     grayscale: {//头像是否显示为黑白
                         if(my)
                             return my.myinfo.state == FriendInfo.Offline

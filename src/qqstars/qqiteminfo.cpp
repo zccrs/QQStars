@@ -105,20 +105,11 @@ DatabaseOperation::DatabaseOperation():
     if (!sqlite_db.isValid()){//如果数据库无效，则进行初始化
         sqlite_db = QSqlDatabase::addDatabase ("QSQLITE");
     }
-    
-    //connect (this, &DatabaseOperation::sql_open, this, &DatabaseOperation::m_openSqlDatabase);
-    //connect (this, &DatabaseOperation::sql_insertDatas, this, &DatabaseOperation::m_insertDatas);
-    //connect (this, &DatabaseOperation::sql_getDatas, this, &DatabaseOperation::m_getDatas);
-    //thread = new QThread;
-    //moveToThread (thread);
-    //thread->start ();//启动线程
 }
 
 DatabaseOperation::~DatabaseOperation()
 {
     closeSqlDatabase();//关闭数据库
-    //thread->quit ();
-    //thread->wait ();
 }
 
 bool DatabaseOperation::tableAvailable(const QString &tableName)
@@ -139,89 +130,13 @@ bool DatabaseOperation::tableAvailable(const QString &tableName)
     return false;
 }
 
-/*void DatabaseOperation::m_openSqlDatabase(const QString &userqq)
-{
-    if(!sqlite_db.isOpen ()){//如果数据库未打开
-        //sqlite_db = QSqlDatabase::addDatabase("QSQLITE");
-        sqlite_db.setHostName ("localhost");
-        QString name = QDir::homePath ()+"/webqq/"+userqq+"/.QQData.db";
-        sqlite_db.setDatabaseName (name);
-        sqlite_db.setUserName ("雨后星辰");
-        sqlite_db.setPassword ("XingChenQQ");
-        
-        if(!sqlite_db.open ()){
-            qDebug()<<"数据库 "<<name<<" 打开失败";
-        }
-    }
-}
-
-void DatabaseOperation::m_insertDatas(const QString &tableName, ChatMessageInfoList *datas)
-{
-    if(tableAvailable (tableName)){//判断表是否可以操作
-        sqlite_db.transaction ();//开启事务操作
-        for (int i=0;i<datas->size ();++i) {
-            ChatMessageInfo* data = datas->at (i);
-            if(data!=NULL){
-                insertData (tableName, data);
-            }
-        }
-        if(sqlite_db.commit ()){//提交事务操作,如果上面的语句执行没有出错
-            qDebug()<<"插入"+QString::number (datas->size ())+"条数据成功";
-            datas->clear ();//插入成功后清除信息
-        }else{
-            qDebug()<<"执行多条插入出错："<<sqlite_db.lastError ().text ();
-        }
-    }
-}
-
-void DatabaseOperation::m_getDatas(const QString &tableName, int count, ChatMessageInfo* currentData, ChatMessageInfoList* datas)
-{
-    if(datas!=NULL&&tableAvailable (tableName)){//判断表是否可以操作
-        QString sql_code = "select myindex from "+tableName
-                +"where senderUin="+currentData->senderUin ()
-                +" and message="+currentData->contentData ()
-                +" and mydate="+currentData->date().toString ()
-                +" and mytime="+currentData->time().toString ();
-        QSqlQuery sql_query = sqlite_db.exec (sql_code);
-        if(sql_query.lastError ().type ()==QSqlError::NoError){//如果查询没有出错
-            if(sql_query.size ()>0){
-                int currentIndex = sql_query.value (0).toInt ();//当前数据的索引为
-                sql_code = "select * from "+tableName
-                        +"where myindex<"+QString::number (currentIndex)
-                        +" and myindex<="+QString::number (currentIndex+count);
-                sql_query.exec (sql_code);
-                if(sql_query.lastError ().type ()==QSqlError::NoError){//如果查询没有出错
-                    qDebug()<<"查询多条数据完成，数据的个数："<<sql_query.size ();
-                    while(sql_query.next ()){
-                        ChatMessageInfo *data = new ChatMessageInfo;
-                        Utility *utility = Utility::createUtilityClass ();
-                        data->setSenderUin (sql_query.value (1).toString ());//从第一个开始，因为0为index
-                        data->setContentData (utility->stringUncrypt (sql_query.value (2).toString (), "XingchenQQ123"));
-                        //取回聊天内容时要解密
-                        data->setDate (QDate::fromString (sql_query.value (3).toString ()));
-                        data->setTime (QTime::fromString (sql_query.value (4).toString ()));
-                        datas->append (data);//将查询到的结果添加到列表中
-                    }
-                    emit getDatasFinished (datas);//发送信号，告知数据获取完成
-                }else{
-                    qDebug()<<"执行"<<sql_code<<"出错："<<sql_query.lastError ().text ();
-                }
-            }else{
-                qDebug()<<"执行"<<sql_code<<"未查询到结果";
-            }
-        }else{
-            qDebug()<<"执行"<<sql_code<<"出错："<<sql_query.lastError ().text ();
-        }
-    }
-}*/
-
 bool DatabaseOperation::openSqlDatabase(const QString& userqq)
 {
     //emit sql_open (userqq);//发送信号打开数据库
     if(!sqlite_db.isOpen ()){//如果数据库未打开
         //sqlite_db = QSqlDatabase::addDatabase("QSQLITE");
         sqlite_db.setHostName ("localhost");
-        QString name = QDir::homePath ()+"/webqq/"+userqq+"/.QQData.db";
+        QString name = QDir::homePath ()+"/.webqq/"+userqq+"/.QQData.db";
         sqlite_db.setDatabaseName (name);
         sqlite_db.setUserName ("雨后星辰");
         sqlite_db.setPassword ("XingChenQQ");
@@ -361,7 +276,7 @@ void QQItemInfo::initSettings()
     
     if(account==""||userqq=="")
         return;
-    QString name = QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+account+"/.config.ini";
+    QString name = QDir::homePath ()+"/.webqq/"+userqq+"/"+typeString+"_"+account+"/.config.ini";
     //qDebug()<<"设置了QSettings为"<<name;
     if(mysettings){
         //qDebug()<<mysettings->fileName ();
@@ -404,7 +319,7 @@ QString QQItemInfo::avatar40() const
     if(isCanUseSetting()){
         QString temp_str =  mysettings->value ("avatar-40", "qrc:/images/avatar.png").toString ();
         if(temp_str.left(3)!="qrc")
-            temp_str = "file://"+temp_str;
+            temp_str = "file:///"+temp_str;
 
         return temp_str;
     }
@@ -416,7 +331,7 @@ QString QQItemInfo::avatar240() const
     if(isCanUseSetting()){
         QString temp_str =  mysettings->value ("avatar-240", "qrc:/images/avatar.png").toString ();
         if(temp_str.left(3)!="qrc")
-            temp_str = "file://"+temp_str;
+            temp_str = "file:///"+temp_str;
 
         return temp_str;
     }
@@ -459,7 +374,7 @@ const QString QQItemInfo::typeToString(QQItemInfo::QQItemType type)
 const QString QQItemInfo::localCachePath(QQItemInfo::QQItemType type, const QString &userqq, const QString &account)
 {
     QString typeString = typeToString (type);
-    return QDir::homePath ()+"/webqq/"+userqq+"/"+typeString+"_"+account;
+    return QDir::homePath ()+"/.webqq/"+userqq+"/"+typeString+"_"+account;
 }
 
 QQItemInfo::QQItemType QQItemInfo::mytype() const
@@ -562,7 +477,7 @@ void QQItemInfo::clearSettings()
 
 const QString QQItemInfo::localCachePath() const
 {
-    return QDir::homePath ()+"/webqq/"+userQQ()+"/"+typeString+"_"+account();
+    return QDir::homePath ()+"/.webqq/"+userQQ()+"/"+typeString+"_"+account();
 }
 
 ChatMessageInfoList *QQItemInfo::getChatRecords()
@@ -693,7 +608,9 @@ void FriendInfo::setQQSignature(QString arg)
 
 void FriendInfo::openSqlDatabase(const QString &userqq)
 {
-    itemInfoPrivate->openSqlDatabase (userqq);
+    if(!itemInfoPrivate->openSqlDatabase (userqq)){
+        qDebug()<<"FriendInfo:数据库打开失败！";
+    }
 }
 
 void FriendInfo::closeSqlDatabase()
