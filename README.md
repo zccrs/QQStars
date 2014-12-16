@@ -1,5 +1,7 @@
 QQStars
 =======
+此开源代码使用GPL授权方式
+
 
 基于webqq协议的qq客户端，qt开发，可跨平台（主要给linux用户用，windows用户肯定不稀罕了）
 
