@@ -7,7 +7,7 @@ QQStars
 
 开发环境windows 7，qt 5.3.2
 
-下载链接：http://pan.baidu.com/s/1ntwW5DZ 密码: eeir
+下载链接：http://pan.baidu.com/s/1ntwW5DZ 密码: eeir。
 其中<b>QQStars-20141215gitd665984-1.fc21.x86_64.rpm</b>和<b>QQStars-20141215gitd665984-1.fc21.src.rpm</b>
 为朋友<b>LunarShaddow</b>编译和打包，在此表示衷心的感谢。
 
