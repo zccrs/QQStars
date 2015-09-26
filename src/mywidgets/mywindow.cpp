@@ -44,11 +44,6 @@ MyWindow::MyWindow(QQuickWindow *parent) :
     connect (this, &QQuickWindow::yChanged, this, &MyWindow::onActualYChanged);
     connect (contentItem (), &QQuickItem::xChanged, this, &MyWindow::xChanged);
     connect (contentItem (), &QQuickItem::yChanged, this, &MyWindow::yChanged);
-    
-    mouse_timer = new QTimer(this);
-    connect (mouse_timer, SIGNAL(timeout()), SLOT(onDesktopPosChanged()));//连接定时器
-    mouse_timer->start (20);//启动定时器，用来定时判断鼠标位置是否改变
-    
 }
 
 bool MyWindow::noNotifyIcon() const
@@ -131,6 +126,11 @@ bool MyWindow::mousePenetrate() const
     return m_mousePenetrate;
 }
 
+QPoint MyWindow::cursorPos() const
+{
+    return QCursor::pos();
+}
+
 QUrl MyWindow::windowIcon()
 {
     return m_windowIcon;
@@ -156,6 +156,18 @@ void MyWindow::setWindowActive(bool arg)
     }
 }
 
+void MyWindow::setMousePenetrateArea(QRect rect)
+{
+    XRectangle* myrect = new XRectangle;
+    myrect->x = rect.x();
+    myrect->y = rect.y();
+    myrect->width = rect.width ();
+    myrect->height = rect.height ();
+    qDebug() << myrect->x << myrect->y << myrect->width << myrect->height;
+    XShapeCombineRectangles(QX11Info::display(), winId(), ShapeInput, 0,
+            0, myrect, 1, ShapeSet, YXBanded);
+}
+
 void MyWindow::focusInEvent(QFocusEvent *ev)
 {
     QQuickWindow::focusInEvent(ev);
@@ -176,11 +188,6 @@ void MyWindow::onActualXChanged()
 void MyWindow::onActualYChanged()
 {
     emit yChanged();
-}
-
-void MyWindow::onDesktopPosChanged()
-{
-    emit mouseDesktopPosChanged (QCursor::pos ());
 }
 
 bool MyWindow::noBorder()
@@ -443,6 +450,11 @@ void MyWindow::setMousePenetrate(bool arg)
 #endif
         emit mousePenetrateChanged(arg);
     }
+}
+
+void MyWindow::setCursorPos(QPoint cursorPos)
+{
+    QCursor::setPos(cursorPos);
 }
 
 void MyWindow::close()

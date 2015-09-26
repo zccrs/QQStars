@@ -4,6 +4,8 @@ TARGET = QQStars
 QT += widgets network webkit svg qml quick concurrent sql quick-private#widgets-private core-private gui-private
 QT += webkitwidgets
 
+LIBS += -lXext
+
 INCLUDEPATH += \
     src \
     src/qxtglobalshortcut \
@@ -38,8 +40,8 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 include (src/qxtglobalshortcut/qxtglobalshortcut.pri)
-include (qmlapplicationviewer.pri)
-qtcAddDeployment()
+#include (qmlapplicationviewer.pri)
+#qtcAddDeployment()
 HEADERS += \
     src/utility/mynetworkaccessmanagerfactory.h \
     src/utility/utility.h \

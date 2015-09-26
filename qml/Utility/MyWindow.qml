@@ -4,6 +4,7 @@ import QtQuick.Window 2.1
 
 MyQuickWindow{
     id: root
+
     property bool removable: true//窗口可移动？
     property bool fixedSize: false//窗口是否固定大小？
     property bool fixedTopBorder: false//固定上边框，上边不可拉动
@@ -28,14 +29,21 @@ MyQuickWindow{
     signal manulPullTopBorder//同上
     signal manulPullBottomBorder//同上
     
-    width: 500
-    height: 500
     actualWidth: windowGlow?glow.actualWidth:width+2*mouse_left.width
     actualHeight: windowGlow?glow.actualHeight:height+2*mouse_top.height
+
+    onContentItemAreaTopChanged: updateMousePenetrateArea()
+    onContentItemAreaBottomChanged: updateMousePenetrateArea()
+    onContentItemAreaLeftChanged: updateMousePenetrateArea()
+    onContentItemAreaRightChanged: updateMousePenetrateArea()
+
     Component.onCompleted: {
         if(centered){
-            actualX = Screen.desktopAvailableWidth/2-actualWidth/2
-            actualY = Screen.desktopAvailableHeight/2-actualHeight/2
+            var old_visible = visible
+            visible = false
+            actualX = Screen.desktopAvailableWidth/2 - actualWidth/2
+            actualY = Screen.desktopAvailableHeight/2 - actualHeight/2
+            visible = old_visible
         }
     }
 
@@ -53,18 +61,6 @@ MyQuickWindow{
             contentItem.height=height
         }
     }
-    onMouseDesktopPosChanged:{//是为了接收鼠标改变的信号（鼠标在任何地方移动了都能接收）
-        var tempx = arg.x-root.x
-        var tempy = arg.y-root.y
-        if(tempx<=contentItemAreaRight&&tempx>=contentItemAreaLeft
-                &&tempy<=contentItemAreaBottom&&tempy>=contentItemAreaTop){//判断是否在内容的区域
-            //console.log("进入了自己的区域")
-            root.mousePenetrate = false//令鼠标穿透为false
-        }else{
-            root.mousePenetrate = true//如果不是此区域就让鼠标穿透为true
-            //console.log("离开了自己的区域")
-        }
-    }
 
     QtObject{
         id: obj
@@ -73,6 +69,13 @@ MyQuickWindow{
         Component.onCompleted: {
             back_glowOpacity = glow.glowOpacity
         }
+    }
+
+    function updateMousePenetrateArea(){
+        var rect = Qt.rect(contentItemAreaLeft, contentItemAreaTop, 0, 0)
+        rect.width = contentItemAreaRight - rect.x + 1
+        rect.height = contentItemAreaBottom - rect.y + 1
+        setMousePenetrateArea(rect)
     }
 
     function windowShake() {//抖动窗口
@@ -282,33 +285,23 @@ MyQuickWindow{
     
     MouseArea{
         id: mouse_main
-        enabled: removable
-        anchors.fill: parent
 
         property real pressedX: 0
         property real pressedY: 0
+        property point pressedCursorPos
+
+        enabled: removable
+        anchors.fill: parent
         hoverEnabled: dockableWindow
         
         onPressed: {
-            pressedX = mouseX
-            pressedY = mouseY
+            pressedX = root.x
+            pressedY = root.y
+            pressedCursorPos = cursorPos
         }
         onEntered: {
-            mouse_main_connections.target = null//关闭接收全局鼠标改变的信号
-            showWindow()//将窗口从停靠地方显示出来
-        }
-        Connections{
-            id: mouse_main_connections
-            target: null
-            onMouseDesktopPosChanged:{
-                var x = arg.x-root.x
-                var y = arg.y-root.y
-                if(!(x<=contentItemAreaRight&&x>=contentItemAreaLeft
-                    &&y<=contentItemAreaBottom&&y>=contentItemAreaTop)){
-                    //console.log("从内容区域出来了")
-                    berthWindow()//调用函数让窗口进行停靠
-                    mouse_main_connections.target = null//关闭接收全局鼠标改变的信号
-                }
+            if(dockableWindow){
+                showWindow()//将窗口从停靠地方显示出来
             }
         }
 
@@ -336,8 +329,16 @@ MyQuickWindow{
 
         onPositionChanged: {
             if( mouse_main.pressed ){//如果鼠标被按下
-                root.x += (mouseX-pressedX)//改变窗口的位置
-                root.y += (mouseY-pressedY)//改变窗口的位置
+                root.x = (cursorPos.x - pressedCursorPos.x + pressedX)//改变窗口的位置
+                root.y = (cursorPos.y - pressedCursorPos.y + pressedY)//改变窗口的位置
+            }else{
+                var x = arg.x-root.x
+                var y = arg.y-root.y
+                if(!(x<=contentItemAreaRight&&x>=contentItemAreaLeft
+                     &&y<=contentItemAreaBottom&&y>=contentItemAreaTop)){
+                    berthWindow()//调用函数让窗口进行停靠
+                    mouse_main_connections.target = null//关闭接收全局鼠标改变的信号
+                }
             }
         }
     }
