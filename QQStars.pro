@@ -4,7 +4,7 @@ TARGET = QQStars
 QT += widgets network webkit svg qml quick concurrent sql quick-private#widgets-private core-private gui-private
 QT += webkitwidgets
 
-LIBS += -lXext
+linux:LIBS += -lXext
 
 INCLUDEPATH += \
     src \
