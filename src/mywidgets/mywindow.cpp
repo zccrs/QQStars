@@ -158,6 +158,7 @@ void MyWindow::setWindowActive(bool arg)
 
 void MyWindow::setMousePenetrateArea(QRect rect)
 {
+#ifdef Q_OS_LINUX
     XRectangle* myrect = new XRectangle;
     myrect->x = rect.x();
     myrect->y = rect.y();
@@ -166,6 +167,7 @@ void MyWindow::setMousePenetrateArea(QRect rect)
     qDebug() << myrect->x << myrect->y << myrect->width << myrect->height;
     XShapeCombineRectangles(QX11Info::display(), winId(), ShapeInput, 0,
             0, myrect, 1, ShapeSet, YXBanded);
+#endif
 }
 
 void MyWindow::focusInEvent(QFocusEvent *ev)
