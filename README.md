@@ -7,6 +7,7 @@ QQStars
 
 <b>此开源代码使用GPL授权方式</b>
 
+[OrcaRouter推广: https://www.orcarouter.ai/ref/ref_72188583273d94017b2a ](https://www.orcarouter.ai/ref/ref_72188583273d94017b2a)
 
 基于webqq协议的qq客户端，qt开发，可跨平台（主要给linux用户用，windows用户肯定不稀罕了）
 
